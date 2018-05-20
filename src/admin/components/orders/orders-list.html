@@ -1,0 +1,25 @@
+<div #wrapper>
+    <table width="100%">
+        <tr>
+            <td>FECHA</td>
+            <td>PAGADO</td>
+            <td>CORREO</td>
+            <td>TOTAL</td>
+            <td></td>
+        </tr>
+        {{#each orders}}
+        <tr class="list-item">
+            <td>{{this.date}}</td>
+
+            <td>{{this.payed}}</td>
+
+            <td>{{this.email}}</td>
+
+            <td>{{this.amount}}</td>
+
+            <td>
+                {{this.buttons}}
+            </td>
+        {{/each}}
+    </table>
+</div>

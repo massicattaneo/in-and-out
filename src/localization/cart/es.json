@@ -1,0 +1,17 @@
+{
+  "treatmentsTypes": {
+    "treatments": "TRATAMIENTOS",
+    "bonusCards": "TARJETAS"
+  },
+  "creditCardLabel": "Carta de debito o credito",
+  "payButton": "PAGAR",
+  "buy": {
+    "title": "Gracias por tu compra:",
+    "qrCode": "Aqui tienes el QR te tu orden que puedes mostrar en nuestro centro:",
+    "pdf": "Aqui puedes descargar el resumen te tu compra:",
+    "downloadPdf": "DESCARGA EL PDF",
+    "sentEmail": "Te hemos enviado un correo a este correo:",
+    "homePage": "Para volver a la pagina de inicio",
+    "buttonHome": "pulsa aquí"
+  }
+}

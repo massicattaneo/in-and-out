@@ -1,0 +1,47 @@
+<div #wrapper class="mdl-grid cgt-content">
+    <div class="cgt-charts mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            CAJA DE HOY:
+        </div>
+        <table width="100%" style="padding: 10px">
+        <tr>
+                <th></th>
+                {{#each users}}
+                    <th style="text-align: right;">{{this.name}}</th>
+                {{/each}}
+            </tr>
+            <tr style="background-color: #eeeeee">
+                <td>CAJA EN TARJETAS</td>
+                {{#each users}}
+                <td style="text-align: right;">{{this.creditCards}}</td>
+                {{/each}}
+            </tr>
+            <tr>
+                <td>CAJA EN EFECTIVO</td>
+                {{#each users}}
+                <td  style="text-align: right;">{{this.cash}}</td>
+                {{/each}}
+            </tr>
+            <tr style="background-color: #757575; color: #ffffff;">
+                <td>CAJA TOTAL</td>
+                {{#each users}}
+                <td  style="text-align: right;">{{this.total}}</td>
+                {{/each}}
+            </tr>
+        </table>
+    </div>
+    <div class="cgt-charts mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            BONOS DE HOY:
+        </div>
+        <table width="100%" style="padding: 10px">
+        {{#each bonus}}
+            <tr>
+                <td><a href="{{this.href}}" onclick="window.navigate(this)">{{this.client}}</a></td>
+                <td>{{this.title}}</td>
+                <td style="text-align: right">{{this.price}}</td>
+            </tr>
+        {{/each}}
+        <table>
+    </div>
+</div>

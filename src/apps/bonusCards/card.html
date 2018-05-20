@@ -1,0 +1,12 @@
+<div class="box">
+    <h2 class="green-color">{{card.titulo}}</h2>
+    {{newItem}}
+    <p>{{card.descripcion}}</p>
+    <ul #treatments></ul>
+    <hr/>
+    <div>{{card.precio_texto}}</div>
+    <input onclick="this.form.add('{{card.identificador}}');"
+           style="position: absolute;right: 9px;bottom: 5px; display:{{bookDisplay}};"
+           class="clickable button green-bg-color white-color"
+           type="button" value="{{addToCartButton}}" />
+</div>

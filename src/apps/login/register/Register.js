@@ -1,0 +1,61 @@
+import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import template from './register.html';
+import * as styles from './register.scss';
+import {RetryRequest} from "gml-http-request";
+import registerDone from './register-done.html';
+
+const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const telRegEx = /^(\+34|0034|34)?[\s|\-|\.]?[6|7|9][\s|\-|\.]?([0-9][\s|\-|\.]?){8}$/;
+export default async function ({ system, parent, thread }) {
+    let obj = {};
+    const locale = await system.locale(`/localization/static.json`);
+    await locale.load(`/localization/login/es.json`);
+    await locale.load(`/localization/common/es.json`);
+
+    const view = HtmlView(template, styles, locale.get());
+
+    view.get('mailform').register = async function () {
+        if (view.get('name').value === '') error({ text: 'missingName', focus: 'name' });
+        if (view.get('email').value === '') error({ text: 'missingEmail', focus: 'email' });
+        if (!emailRegEx.test(view.get('email').value)) error({ text: 'malformedEmail', focus: 'email' });
+        if (view.get('password').value === '') error({ text: 'missingPassword', focus: 'password' });
+        if (view.get('tel').value === '') error({ text: 'missingTel', focus: 'tel' });
+        if (!telRegEx.test(view.get('tel').value)) error({ text: 'malformedTel', focus: 'tel' });
+        await register();
+    };
+
+    const disconnect = ({ orientation: () => system.deviceInfo().orientation })
+        .reactive()
+        .connect(function ({ orientation }) {
+            view.style(orientation);
+        });
+
+    obj.get = view.get;
+
+    parent.appendChild(view.get());
+
+    async function register() {
+        system.store.loading = true;
+        await thread.execute('user/register', {
+            email: view.get('email').value,
+            password: view.get('password').value,
+            name: view.get('name').value,
+            surname: '',
+            tel: view.get('tel').value,
+            lang: system.info().lang
+        });
+        system.store.loading = false;
+        view.clear().appendTo('', registerDone, [], locale.get());
+    }
+
+    function error({ text, focus }) {
+        view.get(focus).focus();
+        system.throw(text);
+    }
+
+    obj.destroy = function () {
+        disconnect();
+    };
+
+    return obj;
+}

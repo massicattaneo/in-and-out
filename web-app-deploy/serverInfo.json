@@ -1,0 +1,15 @@
+{
+  "host": "http://inandoutbelleza.eu-4.evennode.com",
+  "confirmRegistrationUrl": "/api/login/confirm",
+  "registerUrl": "/api/login/register",
+  "loginUrl": "/api/login/login",
+  "adminLoginUrl": "/api/login/adminLogin",
+  "logoutUrl": "/api/login/logout",
+  "recoverUrl": "/api/login/recover",
+  "resetUrl": "/api/login/reset",
+  "deleteAccountUrl": "/api/login/delete",
+  "logStatusUrl": "/api/login/status",
+  "logAdminStatus": "/api/login/adminStatus",
+  "greenColor": "#56ab2a",
+  "grayColor": "#444444"
+}

@@ -1,0 +1,42 @@
+<ul #wrapper>
+    {{#each clients}}
+    <li class="list-item">
+        <div style="max-width: calc(100% - 200px); display: inline-block;">
+            {{this.online}} {{this.surname}} {{this.name}},
+            <a href="mailto:{{this.email}}">{{this.email}}</a>
+            -
+            <a href="tel:{{this.tel}}">{{this.tel}}</a>
+        </div>
+            <button type="button"
+                    {{this.deleteDisabled}}
+                    onclick="this.form.delete('{{this._id}}')"
+                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                    data-upgraded=",MaterialButton,MaterialRipple">
+                <i class="material-icons">delete</i>
+                <span class="mdl-button__ripple-container">
+            <span class="mdl-ripple"></span>
+            </span>
+            </button>
+            <button type="button"
+                    onclick="this.form.update('{{this._id}}')"
+                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                    data-upgraded=",MaterialButton,MaterialRipple">
+                <i class="material-icons">create</i>
+                <span class="mdl-button__ripple-container">
+            <span class="mdl-ripple"></span>
+            </span>
+            </button>
+            <a type="button"
+               onclick="window.navigate(this)"
+               href="{{urls.history.href}}?id={{this._id}}"
+               class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+               data-upgraded=",MaterialButton,MaterialRipple">
+                <i class="material-icons">query_builder</i>
+                <span class="mdl-button__ripple-container">
+            <span class="mdl-ripple"></span>
+            </span>
+            </a>
+        <div style="clear: both"></div>
+    </li>
+    {{/each}}
+</ul>

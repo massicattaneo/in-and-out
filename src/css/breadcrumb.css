@@ -1,0 +1,83 @@
+.breadcrumb {
+    list-style: none;
+    overflow: hidden;
+    font-size: 18px;
+    margin: 0;
+    width: 100%;
+}
+.breadcrumb li {
+    position: relative;
+    float: left;
+    width: 25%;
+    border-color: inherit;
+}
+.breadcrumb li .text {
+    position: absolute;
+    left: 20%;
+    z-index: 5;
+    top: 11px;
+}
+.breadcrumb li em {
+    width: 80%;
+    text-decoration: none;
+    padding: 10px 0 10px 20%;
+    position: relative;
+    display: block;
+    float: left;
+    border-color: inherit;
+}
+
+.breadcrumb li em::after {
+    content: " ";
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: 50px solid transparent; /* Go big on the size, and let overflow hide */
+    border-bottom: 50px solid transparent;
+    border-left-style:solid;
+    border-left-width: 30px;
+    border-left-color: inherit;
+    position: absolute;
+    top: 50%;
+    margin-top: -50px;
+    right: -11px;
+    z-index: 2;
+}
+
+.breadcrumb li em::before {
+    content: " ";
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: 50px solid transparent;
+    border-bottom: 50px solid transparent;
+    border-left: 30px solid white;
+    position: absolute;
+    top: 50%;
+    margin-top: -50px;
+    margin-left: 1px;
+    right: -13px;
+    z-index: 1;
+}
+/*.breadcrumb li:last-child em {*/
+    /*background: transparent !important;*/
+    /*color: black;*/
+    /*pointer-events: none;*/
+    /*cursor: default;*/
+/*}*/
+.breadcrumb li:last-child em::before {
+    display: none;
+}
+.breadcrumb li:last-child em::after {
+    border: 0;
+}
+.breadcrumb li:last-child em {
+    padding-right: 10px;
+}
+
+.breadcrumb li em:hover {
+    background: hsla(34, 85%, 25%, 1);
+}
+.breadcrumb li em:hover:after {
+    border-left-color: hsla(34, 85%, 25%, 1) !important;
+}

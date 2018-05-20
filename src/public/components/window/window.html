@@ -1,0 +1,18 @@
+<div #wrapper class="white-bg-color dark-grey-color">
+    <div #bar class="dark-grey-bg-color white-color">
+        <a #close
+           href="{{urls.home}}" onclick="window.navigate(this)"
+           class="fa fa-window-close white-color"></a>
+        <div #title></div>
+        <a #cart
+           href="{{urls.cart}}" onclick="window.navigate(this)"
+           class="clickable flaticon-shopping-basket dark-grey-border-color white-color">
+            <span #notify class="icon-notify"></span>
+        </a>
+    </div>
+    <div #container>
+        <div #scrollable>
+            <div #content></div>
+        </div>
+    </div>
+</div>

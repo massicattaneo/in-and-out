@@ -1,0 +1,9 @@
+<li style="margin: 10px;">
+    {{item.summary}}<br/>
+    {{date}}
+    <em>{{startTime}} - {{endTime}}</em>
+    <br/>
+    {{item.location}}<br/>
+    <input type="button" class="button green-bg-color white-color clickable" value="{{logged.deleteBooking}}"
+           onclick="this.form.deleteBooking('{{item.eventId}}', '{{item.calendarId}}')" />
+</li>

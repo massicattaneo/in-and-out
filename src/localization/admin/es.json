@@ -1,0 +1,100 @@
+{
+  "documentTitle": "IN&OUT BELLEZA",
+  "documentWindowTitle": "{0} - IN&OUT BELLEZA",
+  "urls": {
+    "homePage": {
+      "href": "/admin/es",
+      "title": "HOME",
+      "menu": "HOME"
+    },
+    "about": {
+      "href": "/admin/es/detalles",
+      "title": "Detalles de la aplicacion",
+      "menu": "INFO"
+    },
+    "login": {
+      "href": "/admin/es/entra",
+      "title": "ENTRA",
+      "menu": "ENTRA"
+    },
+    "clients": {
+      "href": "/admin/es/clientes",
+      "title": "CLIENTES",
+      "menu": "CLIENTES"
+    },
+    "orders": {
+      "href": "/admin/es/pedidos",
+      "title": "PEDIDOS",
+      "menu": "PEDIDOS"
+    },
+    "events": {
+      "href": "/admin/es/citas",
+      "title": "CITAS",
+      "menu": "CITAS"
+    },
+    "cash": {
+      "href": "/admin/es/caja",
+      "title": "CAJA DEL DIA",
+      "menu": "CAJA DEL DIA"
+    },
+    "history": {
+      "href": "/admin/es/historial",
+      "title": "HISTORICO CLIENTE",
+      "menu": "HISTORICO CLIENTE"
+    },
+    "calculator": {
+      "href": "/admin/es/calculadora",
+      "title": "CALCULADORA",
+      "menu": "CALCULADORA"
+    },
+    "bonuses": {
+      "href": "/admin/es/bonos",
+      "title": "BONOS",
+      "menu": "BONOS"
+    },
+    "print": {
+      "href": "/admin/es/imprimir",
+      "title": "IMPRIMIR",
+      "menu": "IMPRIMIR"
+    }
+  },
+  "menuHeader": {
+    "userNotLogged": "UTENTE...",
+    "logout": "ESCI..."
+  },
+  "login": {
+    "title": "ENTRA EN IN&OUT",
+    "password": "PASSWORD",
+    "button": "ENTRA"
+  },
+  "about": {
+    "titleLicence": "LICENZA",
+    "textLicence": "<ul><li>Este software es de propriedad de In&Out Belleza</li></ul>",
+    "titleInfo": "SOFTWARE:",
+    "listInfo": "<ul><li>Nombre: {{system.name}}</li><li>Descripcion: {{system.description}}</li><li>Versione: {{system.version}}</li><li>Desarrolo: {{system.author}}</li></ul>",
+    "titleThanks": "Enlaces:",
+    "listThanks": "<ul><li>MATERIAL DESIGN LITE</li><li>WEBPACK - BABEL</li><li>MONGODB</li><li>NODEJS EXPRESS</li><li>EVENNODE</li></ul>"
+  },
+  "templates": {
+    "loading": "<div style=\"text-align: center; width: 100%; margin: 10px 0\"><img src=\"/assets/images/loading.gif\" style=\"width: 36px\"/></div>"
+  },
+  "errors": {
+    "wrongEmail": "El correo no corresponde a ninguna cuenta.",
+    "generic": "Algo no salió bien. Inténtalo de nuevo en breve.",
+    "wrongPassword": "TU PASSWORD NO ES CORRECTA.",
+    "inactiveUser": "AUN NO HAS ACTIVADO TU CUENTA. SI NO TE HA LLEGADO EL CORREO PULSA AQUI PARA RECIBIRNE OTRO",
+    "missingEmail": "añade tu correo",
+    "missingName": "añade tu nombre",
+    "missingTel": "añade tu telefono",
+    "missingPassword": "añade una contraseña",
+    "malformedEmail": "tu correo no esta en un forma valida",
+    "malformedTel": "tu telefono no esta en un forma valida",
+    "missingUser": "El correo no crresponde a ninguna cuenta",
+    "existingUser": "El correo ya tiene una cuenta",
+    "camera-forbidden": "Tu dispositivo no permite el acceso a la camara",
+    "missing-star-rating": "Deja una valoracion con las estrellas",
+    "missing-review": "Deja tu comentario",
+    "cart-pay": "Un error ha accorrido. No hemos podido conseguir terminar tu pedido. Vuelve a enterntarlo.",
+    "session-expired": "Tu sesión ha caducado, por favor, vuelve a entrar en tu cuenta."
+  }
+}

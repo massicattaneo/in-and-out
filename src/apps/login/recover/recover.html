@@ -1,0 +1,12 @@
+<div #wrapper>
+    <h3>{{recover.title}}</h3>
+    <div class="box">
+        <form #form>
+            <label>{{recover.emailLabel}}</label>
+            <input #email class="required" type="email" />
+            <br/><br/>
+            <input type="button" onclick="this.form.recover()"
+                   class=" white-color green-bg-color button clickable" value="{{recover.recoverButton}}"/>
+        </form>
+    </div>
+</div>

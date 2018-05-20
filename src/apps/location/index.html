@@ -1,0 +1,32 @@
+<div #wrapper>
+    <h3>{{title}}</h3>
+
+    <div class="box">
+        {{location1Address}}
+        <br/>
+        <br/>
+        {{parkingDiscount}}
+        <br/>
+        <br/>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3198.365204032548!2d-4.429068084181276!3d36.71378937996639!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd72f790f163b407%3A0xbee3ebf8e48a93d3!2sCalle+Salitre%2C+11%2C+29002+M%C3%A1laga!5e0!3m2!1sit!2ses!4v1511978401758"
+                width="100%" frameborder="0" style="border:0" allowfullscreen></iframe>
+        <a #location1 class="button clickable white-color green-bg-color fa fa-map"
+           href="http://maps.apple.com/?q={{location1Latitude}},{{location1Longitude}}">
+            {{buttonText}}
+        </a>
+    </div>
+    <div class="box">
+        {{location2Address}}
+        <br/>
+        <br/>
+        {{parkingDiscount}}
+        <br/>
+        <br/>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2257.0730586613836!2d-4.426167376917535!3d36.72130207839323!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd72f7bdf55b79c5%3A0x33eb205e2f802fe6!2zQ2FsbGUgQ29tcGHDscOtYSwgNDIsIDI5MDA4IE3DoWxhZ2E!5e0!3m2!1sit!2ses!4v1511978031775"
+                width="100%" frameborder="0" style="border:0" allowfullscreen></iframe>
+        <a #location2 class="button clickable white-color green-bg-color fa fa-map"
+           href="http://maps.apple.com/?q={{location1Latitude}},{{location1Longitude}}">
+            {{buttonText}}
+        </a>
+    </div>
+</div>

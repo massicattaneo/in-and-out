@@ -1,0 +1,10 @@
+<output class="hour"
+        style="top: {{top}}px; height: {{height}}px"
+        ondragenter="this.form.dragEnter()"
+        ondragleave="this.form.dragLeave()"
+        ondragover="this.form.dragOver()"
+        ondblclick="this.form.drop({worker: '{{worker}}'}, {processId: 98})"
+        ondrop="this.form.drop({worker: '{{worker}}'})"
+        onclick="this.form.paste({worker: '{{worker}}'})">
+    <label>{{label}}</label>
+</output>

@@ -1,0 +1,19 @@
+<div class="box">
+    <span style="float: right; display: {{favouriteDisplay}}" class="text-checkbox">
+        <input type="checkbox" {{checked}}
+        id="x-treatment-{{item.identificador}}"
+        onchange="this.form.change('{{item.identificador}}', this.checked)"/>
+        <label class="clickable fa fa-star-o" for="x-treatment-{{item.identificador}}"></label>
+    </span>
+    <h2 class="green-color">{{item.titulo}}</h2>
+    {{newItem}}
+    <div style="font-size: 12px;margin: 10px;text-align: justify;">{{item.descripcion}}</div>
+    <div>{{item.precio_texto}}</div>
+    <input onclick="this.form.add('{{item.identificador}}');"
+            style="position: absolute;right: 9px;bottom: 5px; display:{{bookDisplay}};"
+            class="clickable button green-bg-color white-color"
+            type="button" value="{{addToCartButton}}" />
+    <a style="position: absolute;right: 9px;bottom: 5px; display: {{callDisplay}};"
+       href="tel:{{location1Phone}}"
+            class="clickable button green-bg-color white-color">{{callUsButton}}</a>
+</div>

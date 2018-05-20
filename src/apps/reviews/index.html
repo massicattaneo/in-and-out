@@ -1,0 +1,22 @@
+<div #wrapper>
+    <div #add>
+        <h3>{{title}}</h3>
+        <form #addreview>
+            <div #stars class="star-radios green-color">
+                <input type="radio" id="rating-5" name="rating" value="5"/><label class="clickable" for="rating-5">5</label>
+                <input type="radio" id="rating-4" name="rating" value="4"/><label class="clickable" for="rating-4">4</label>
+                <input type="radio" id="rating-3" name="rating" value="3"/><label class="clickable" for="rating-3">3</label>
+                <input type="radio" id="rating-2" name="rating" value="2"/><label class="clickable" for="rating-2">2</label>
+                <input type="radio" id="rating-1" name="rating" value="1"/><label class="clickable" for="rating-1">1</label>
+            </div>
+            <textarea rows="5" #description name="description"></textarea>
+            <input #submit type="submit" class=" white-color green-bg-color button clickable" value="{{buttonDone}}"/>
+        </form>
+        <hr/>
+    </div>
+    <h3 class="box">{{starAverage}} <span #staraverage></span></h3>
+
+    <h3>{{comments}}</h3>
+    <div #reviews></div>
+    <div #loading><img style="width: 33px" src="/assets/images/loading.gif" /></div>
+</div>

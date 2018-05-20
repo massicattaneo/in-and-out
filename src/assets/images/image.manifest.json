@@ -1,0 +1,7 @@
+[
+  { "type": "image", "stage": "system", "url": "/assets/images/flags.png", "size": 25290  },
+  { "type": "image", "stage": "system", "url": "/assets/images/manzana.svg", "size": 2520  },
+  { "type": "image", "stage": "system", "url": "/assets/images/logo.svg", "size": 4811  },
+  { "type": "image", "stage": "system", "url": "/assets/images/logo_text.svg", "size": 6163  },
+  { "type": "image", "stage": "system", "url": "/assets/images/loading.gif", "size": 55605  }
+]

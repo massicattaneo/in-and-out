@@ -1,0 +1,18 @@
+#wrapper {
+  margin: 10px;
+  overflow: hidden;
+  float: left;
+  display: flex;
+  position: relative;
+}
+
+#button {
+  position: absolute;
+  top: 21px;
+  transform: rotate(45deg);
+  right: -45px;
+}
+
+#title {
+  padding-right: 72px;
+}

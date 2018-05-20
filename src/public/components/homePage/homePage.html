@@ -1,0 +1,28 @@
+<div #wrapper class="dark-grey-color white-bg-color">
+    <div #error class="white-color red-bg-color"></div>
+    <div #container>
+        <div #scrollable>
+            <div #header></div>
+            <div #divider></div>
+            <div #iconswrapper>
+                <a target="_blank" href="/assets/images/tarifa_de_precios.pdf" class="clickable"
+                   style="position: relative;display: inline-block;width: 60px;
+                   height: 60px;margin: 10px 20px;text-align: center;cursor: pointer;
+                   vertical-align: middle;text-decoration: none;/* pointer-events: none; */">
+                    <div class="green-color flaticon-shopping-bag" style="font-size: 45px; opacity: 0.8;">
+                        <span class="icon-notify" style="color: white; display: none;">!</span>
+                    </div>
+                    <div class="dark-grey-color"
+                         style="font-size: 14px; height: 20px; position: absolute; left: -16px; width: 96px;">
+                        {{homePage.pdfPrices}}
+                    </div>
+                </a>
+                <span #icons></span>
+            </div>
+            <div #image>
+                <img src="/assets/images/slider-1.png"/>
+            </div>
+            <div #news></div>
+        </div>
+    </div>
+</div>

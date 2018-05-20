@@ -1,0 +1,20 @@
+<form #wrapper>
+    <div style="width: 100%; text-align: center;">
+        <div class="mdl-textfield mdl-js-textfield">
+            <input #date autocomplete="off" class="mdl-textfield__input" type="date" onchange="this.form.change()">
+        </div>
+    </div>
+    <div #cash></div>
+    <button #add
+            type="button"
+            onclick="this.form.add()"
+            class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+        <i class="material-icons">add</i>
+    </button>
+    <footer #footer class="mdl-mega-footer mdl-grid">
+        <div class="mdl-cell--3-col" #creditcards></div>
+        <div class="mdl-cell--3-col" #net></div>
+        <div class="mdl-cell--3-col" #iva></div>
+        <div class="mdl-cell--3-col" #total></div>
+    </footer>
+</form>

@@ -1,0 +1,48 @@
+<form #wrapper>
+    <div class="logo" style="background-image: url(/assets/images/manzana.svg?v={{system.version}})">
+        <div class="logo-text">in<span class="green-color">&</span>out</div>
+        <div class="logo-subtext">centro de belleza</div>
+    </div>
+    <input type="button" #snap class="button clickable green-bg-color white-color"
+        onclick="this.form.takePhoto()" value="{{photoButton}}"/>
+    <input type="button" #back class="button clickable green-bg-color white-color"
+           onclick="this.form.back()" value="{{snapAgain}}"/>
+    <input type="button" #camera class="button clickable green-bg-color white-color"
+           onclick="this.form.cameraToggle()" value="{{changeCamera}}"/>
+
+    <br/><br/>
+    <div #imagecontainer>
+        <img #image />
+        <div #horline1>
+            <div style="height: 1px; width: 100%; background-color: white;top:50%;position: relative;"></div>
+        </div>
+        <div #horline2>
+            <div style="height: 1px; width: 100%; background-color: green;top:50%;position: relative;"></div>
+        </div>
+        <div #horline3>
+            <div style="height: 1px; width: 100%; background-color: white;top:50%;position: relative;"></div>
+        </div>
+        <div #verline1>
+            <div style="height: 100%; width: 1px; background-color: white;left:50%;position: relative;"></div>
+        </div>
+        <div #verline2>
+            <div style="height: 100%; width: 1px; background-color: green;left:50%;position: relative;"></div>
+        </div>
+        <div #verline3>
+            <div style="height: 100%; width: 1px; background-color: white;left:50%;position: relative;"></div>
+        </div>
+    </div>
+    <div #videocontainer>
+        <div style="position: relative;">
+            <video autoplay playsinline #video></video>
+            <div #boxcontainer></div>
+            <div #centerline></div>
+        </div>
+        <ol>
+            <li>{{instruction1}}</li>
+            <li>{{instruction2}}</li>
+            <li>{{instruction3}}</li>
+            <li>{{instruction4}}</li>
+        </ol>
+    </div>
+</form>

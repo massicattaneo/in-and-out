@@ -1,0 +1,58 @@
+#header {
+  padding: 1%;
+  width: 98%;
+  height:55px;
+  box-shadow: 0px 2px 6px #727272;
+  font-size: 40px;
+  position: relative;
+  text-align: left;
+}
+
+#logo {
+  position: relative;
+  background-repeat: no-repeat;
+  margin: 3px;
+  height: 50px;
+  width: 160px;
+  display: inline-block;
+  background-size: contain;
+  vertical-align: top;
+}
+
+#text {
+  position: absolute;
+  top: 5px;
+  left: 60px;
+  font-size: 34px;
+}
+#subtext {
+  position: absolute;
+  top: 36px;
+  left: 60px;
+  font-size: 13px;
+}
+
+
+#cart {
+  line-height: 50px;
+  float: right;
+  margin: 5px 0;
+  padding: 0 15px;
+  cursor: pointer;
+  position: relative;
+  text-decoration: none;
+  color: white;
+}
+
+#user {
+  line-height: 50px;
+  float: right;
+  margin: 5px 0;
+  padding: 0 15px;
+  cursor: pointer;
+  text-decoration: none;
+}
+#divider {
+  float: right;
+}
+

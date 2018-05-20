@@ -1,0 +1,22 @@
+[
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-shopping-basket" , "name": "login", "url": "/cart.bundle.js", "stage": ["system"], "type": "application", "desktop": false, "size": 200000  },
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-profile" , "name": "login", "url": "/login.bundle.js", "stage": ["system"], "type": "application", "desktop": false, "size": 200000  },
+  { "color":"#ad119e", "showCartIcon": true, "icon": "flaticon-treatments", "name": "treatments", "url": "/treatments.bundle.js", "stage": ["treatments"], "type": "application", "desktop": true, "size": 200000 },
+  { "color":"#000000", "showCartIcon": true, "icon": "flaticon-scissors", "name": "bonusCards", "url": "/bonusCards.bundle.js", "stage": ["bonusCards"], "type": "application", "desktop": true, "size": 200000  },
+  { "color":"#2c6310", "showCartIcon": true, "icon": "flaticon-light-bulb" , "name": "promotions", "url": "/promotions.bundle.js", "stage": ["promotions"], "type": "application", "desktop": true, "size": 200000   },
+  { "color":"#651d1d", "showCartIcon": false, "icon": "flaticon-calendar", "name": "bookings", "url": "/bookings.bundle.js", "stage": ["bookings"], "type": "application", "desktop": true, "size": 200000  },
+  { "color":"#000000", "showCartIcon": true, "icon": "flaticon-shopping-bag", "name": "products", "url": "/products.bundle.js", "stage": ["products"], "type": "application", "desktop": false, "size": 200000  },
+  { "color":"#059e8c", "showCartIcon": false, "icon": "flaticon-champagne" , "name": "beautyparties", "url": "/beautyparties.bundle.js", "stage": ["beautyparties"], "type": "application", "desktop": true, "size": 200000  },
+  { "color":"#ff0000", "showCartIcon": false, "icon": "flaticon-fruit" , "name": "beautycorner", "url": "/beautycorner.bundle.js", "stage": ["beautycorner"], "type": "application", "desktop": true, "size": 200000   },
+  { "color":"#20275f", "showCartIcon": false, "icon": "flaticon-fruit-1" , "name": "inandoutgo", "url": "/inandoutgo.bundle.js", "stage": ["inandoutgo"], "type": "application", "desktop": true, "size": 200000   },
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-communications" , "name": "news", "url": "/news.bundle.js", "stage": ["news"], "type": "application", "desktop": true, "size": 200000   },
+  { "color":"#501c4e", "showCartIcon": false, "icon": "flaticon-photo" , "name": "photos", "url": "/photos.bundle.js", "stage": ["photos"], "type": "application", "desktop": true, "size": 200000  },
+  { "color":"#501c4e", "showCartIcon": false, "icon": "flaticon-woman-eye" , "name": "photoMeasure", "url": "/photoMeasure.bundle.js", "stage": ["photoMeasure"], "type": "application", "desktop": true, "size": 200000  },
+  { "color":"#009dff", "showCartIcon": false, "icon": "flaticon-people" , "name": "team", "url": "/team.bundle.js", "stage": ["team"], "type": "application", "desktop": true, "size": 200000  },
+  { "color":"#5c72c7", "showCartIcon": false, "icon": "flaticon-circular-clock-tool" , "name": "hours", "url": "/hours.bundle.js", "stage": ["hours"], "type": "application", "desktop": true, "size": 200000  },
+  { "color":"#7b0000", "showCartIcon": false, "icon": "flaticon-signs" , "name": "location", "url": "/location.bundle.js", "stage": ["location"], "type": "application", "desktop": true, "size": 200000  },
+  { "color":"#b77100", "showCartIcon": false, "icon": "flaticon-phone-call", "name": "callUs", "url": "/callUs.bundle.js", "stage": ["callUs"], "type": "application", "desktop": true, "size": 200000  },
+  { "color":"#717171", "showCartIcon": false, "icon": "flaticon-chat" , "name": "reviews", "url": "/reviews.bundle.js", "stage": ["reviews"], "type": "application", "desktop": true, "size": 200000  },
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-question" , "name": "questions", "url": "/questions.bundle.js", "stage": ["questions"], "type": "application", "desktop": true, "size": 200000  },
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-antenna" , "name": "press", "url": "/press.bundle.js", "stage": ["press"], "type": "application", "desktop": true, "size": 200000  }
+]

@@ -1,9 +1,5 @@
 {
   "name": "gml-utils",
   "version": "1.0.0",
-  "description": "Game Modeling Language",
-  "main": "index.js",
-  "private": true,
-  "author": "massicattaneo",
-  "license": "UNLICENSED"
+  "main": "index.js"
 }

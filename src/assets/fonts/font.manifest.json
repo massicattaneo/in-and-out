@@ -1,0 +1,6 @@
+[
+  { "type": "font", "stage": "system", "url": "/assets/fonts/beauty/Flaticon.ttf", "name" : "beauty" },
+  { "type": "font", "stage": "system", "url": "/assets/fonts/font-awesome/fontawesome-webfont.ttf", "name" : "fontawesome" },
+  { "type": "font", "stage": "system", "url": "/assets/fonts/HelveticaNeueLTStd-Bd/HelveticaNeueLTStd-Bd.ttf", "name" : "HelveticaBold" },
+  { "type": "font", "stage": "system", "url": "/assets/fonts/HelveticaNeueLTStd-MdCn/HelveticaNeueLTStd-MdCn.ttf", "name" : "HelveticaCondensed" }
+]

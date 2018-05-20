@@ -1,20 +1,17 @@
-import CanvasObject from './CanvasObject'
+import {Percentages, Defaults, Scale, Anchor} from "../../modules/gml-scss-loader/Utils";
+import DisplayObject from './DisplayObject';
 
-export default function({sys, renderer, template, style} = {}) {
-    var obj = CanvasObject(sys);
-    const s = style[template.attributes.id].style;
-    var ctx = renderer.getContext();
-    ctx.fillStyle = s.backgroundColor;
-    ctx.rect(s.top || 0, s.left || 0, s.width || 0, s.height || 0);
-
-    obj.update = function () {
-
-    };
-
-    obj.render = function () {
-        console.log('here');
-        ctx.fill();
-    };
-
-    return obj;
+export function Rectangle(style) {
+    return DisplayObject(style)
+        .before(Defaults)
+        .before(Percentages)
+        .before(Scale)
+        .before(Anchor)
+        .draw(({ ctx, style }) => {
+            ctx.beginPath();
+            const { x = 0, y = 0, width = 0, height = 0, backgroundColor } = style;
+            ctx.fillStyle = backgroundColor;
+            ctx.rect(x, y, width, height);
+            ctx.fill();
+        });
 }

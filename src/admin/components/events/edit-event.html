@@ -1,0 +1,34 @@
+<dialog class="mdl-dialog">
+    <form #form>
+        <div class="mdl-dialog__content">
+            <p>
+            <div class="mdl-textfield mdl-js-textfield">
+                <input #date autocomplete="off" value="{{date}}" class="mdl-textfield__input" type="datetime-local" id="date">
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input #summary autocomplete="off"
+                       value="{{summary}}" class="mdl-textfield__input" type="text" id="summary">
+                <label class="mdl-textfield__label" for="summary">SOMARIO</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input autocomplete="off" value="{{duration}}" class="mdl-textfield__input" type="text" id="duration">
+                <label class="mdl-textfield__label" for="duration">DURACION (minutos)</label>
+            </div>
+            <div>
+                {{description}}
+            </div>
+            <br/>
+            {{#each attendees}}
+            <span class="mdl-shadow--2dp mdl-chip process-color-{{processId}} process" data-on="dragstart:dragstart">
+                <label class="mdl-chip__text">{{this.displayName}} <em>{{this.email}}</em> </label>
+            </span>
+            {{/each}}
+            </p>
+        </div>
+        <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
+            <button type="button" class="mdl-button" onclick="this.form.save()">GUARDAR</button>
+            <button type="button" class="mdl-button close" onclick="this.form.close()">ANULAR</button>
+            <button type="button" class="mdl-button close mdl-color--red mdl-color-text--white" onclick="this.form.delete('{{worker}}', '{{id}}')">BORRAR</button>
+        </div>
+    </form>
+</dialog>

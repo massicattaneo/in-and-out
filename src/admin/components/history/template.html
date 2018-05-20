@@ -1,0 +1,123 @@
+<form #wrapper class="mdl-grid cgt-content">
+    <div style="line-height: 35px;padding: 0 10px;"
+            class="mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        {{client.surname}} {{client.name}}, {{client.email}} - {{client.tel}}
+
+        <button type="button"
+                style="float: right;"
+                onclick="this.form.writeCard()"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                data-upgraded=",MaterialButton,MaterialRipple">
+            <i class="material-icons">archive</i>
+            GRABAR EN TARJETA
+            <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+        </button>
+        <div style="clear:both;"></div>
+    </div>
+    <div class="cgt-graphs mdl-shadow--2dp mdl-cell mdl-cell--8-col" style="position: relative;">
+        <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+            BONUS
+        </div>
+        <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+            <!-- Tab Bars -->
+            <div class="mdl-tabs__tab-bar" id="history_bonus_tabs">
+                {{#each bonuses}}
+                    <a #bonus_{{this._id}} style="line-height: 1;" href="#bonus_{{this._id}}" onclick="this.setIndex()" class="mdl-tabs__tab is-active">{{this.title}}</a>
+                {{/each}}
+            </div>
+            {{#each bonuses}}
+                <div class="mdl-tabs__panel is-active" id="bonus_{{this._id}}">
+                    {{this.tab}}
+                </div>
+            {{/each}}
+
+        </div>
+        <button type="button"
+                style="position: absolute;right: 10px;bottom: 10px;"
+                onclick="this.form.addBonus()"
+                class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+                data-upgraded=",MaterialButton,MaterialRipple">
+            B
+            <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+        </button>
+        <button type="button"
+                style="position: absolute;right: 80px;bottom: 10px;"
+                onclick="this.form.addGift()"
+                class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+                data-upgraded=",MaterialButton,MaterialRipple">
+            TR
+            <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+        </button>
+    </div>
+    <div class="cgt-cards mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet mdl-grid mdl-grid--no-spacing">
+        <div class="cgt-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--12-col-desktop">
+            <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+                PEDIDOS ON-LINE
+            </div>
+            <div style="max-height: 250px; overflow-y: auto">
+                <table width="100%" style="font-size: 10px">
+                    <tr>
+                        <th>FECHA</th>
+                        <th>PAGADO</th>
+                        <th>UTILZADO</th>
+                        <th>TOTAL</th>
+                    </tr>
+                    {{#each orders}}
+                    <tr>
+                        <td>{{this.date}}</td>
+                        <td>{{this.payed}}</td>
+                        <td>{{this.used}}</td>
+                        <td style="text-align: right">{{this.amount}}</td>
+                    </tr>
+                    {{/each}}
+                </table>
+            </div>
+        </div>
+        <div class="cgt-separator mdl-cell--1-col"></div>
+        <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--3-col-tablet mdl-cell--12-col-desktop">
+            <div>
+                <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+                    COMPRAS
+                </div>
+                <div style="max-height: 250px; overflow-y: auto">
+                    <table width="100%" style="font-size: 10px">
+                        <tr>
+                            <th>FECHA</th>
+                            <th>DESCRIPCION</th>
+                            <th>TOTAL</th>
+                        </tr>
+                        {{#each transactions}}
+                        <tr>
+                            <td>{{this.date}}</td>
+                            <td>{{this.description}}</td>
+                            <td style="text-align: right">{{this.amount}}</td>
+                        </tr>
+                        {{/each}}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="line-height: 35px;padding: 0 10px;"
+         class="mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        BONOS ACABADOS
+    </div>
+
+    {{#each finished}}
+    <div class="mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet">
+        <div style="padding: 10px;font-size: 15px;"
+                class="mdl-card__title-text mdl-color-text--primary-contrast mdl-color--primary">{{this.title}}</div>
+        <div style="line-height: 35px;padding: 0 10px; max-height: 100px; overflow-y: auto">
+            <ol>{{this.list}}</ol>
+        </div>
+    </div>
+    {{/each}}
+
+</form>

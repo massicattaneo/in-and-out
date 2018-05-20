@@ -1,0 +1,20 @@
+<dialog class="mdl-dialog">
+    <form #form>
+        <div class="mdl-dialog__content">
+            <p>
+
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <textarea #note autocomplete="off" class="mdl-textfield__input" rows="6" type="text" id="note">{{note}}</textarea>
+                <label class="mdl-textfield__label" for="note">SOMARIO</label>
+            </div>
+            </p>
+        </div>
+        <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
+            <button type="button" class="mdl-button" onclick="this.form.save()">GUARDAR</button>
+            <button #close type="button" class="mdl-button close" onclick="this.form.close()">ANULAR</button>
+            <button type="button" class="mdl-button close mdl-color--red mdl-color-text--white"
+                    onclick="this.form.delete('{{worker}}', '{{id}}')">BORRAR
+            </button>
+        </div>
+    </form>
+</dialog>

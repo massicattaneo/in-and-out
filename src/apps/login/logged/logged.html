@@ -1,0 +1,30 @@
+<form #wrapper>
+    <!--<div class="box">-->
+        <!--MI TARJETA:-->
+        <!--<div #cards></div>-->
+    <!--</div>-->
+    <div class="box">
+        {{logged.bookTitle}}
+        <ul #appointments></ul>
+    </div>
+    <!--<div class="box">-->
+        <!--MIS PEDIDOS:-->
+        <!--<div #orders></div>-->
+    <!--</div>-->
+    <div class="box">
+        {{logged.logout}}
+        <input type="button" onclick="this.form.logout()"
+               class="white-color green-bg-color button clickable"
+               value="{{logged.logoutButton}}"/>
+    </div>
+    <div class="box">
+        {{logged.deleteAccount}}
+        <br/><br/>
+        <label >{{logged.deletePassword}}</label>
+        <input #password class="required" type="password" />
+        <div #error class="red-color"></div>
+        <input #delete type="button" onclick="this.form.deleteAccount()"
+               class="white-color green-bg-color button clickable"
+               value="{{logged.deleteAccountButton}}"/>
+    </div>
+</form>

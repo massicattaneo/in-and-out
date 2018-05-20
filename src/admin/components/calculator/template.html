@@ -1,0 +1,30 @@
+<form #wrapper>
+    <br/><br/>
+    <div #calculator class="calculator">
+
+        <button type="button" #clear class="clear">C</button>
+
+        <div #viewer class="viewer">0</div>
+
+        <button type="button" class="num" onclick="this.form.setNum('7')">7</button>
+        <button type="button" class="num" onclick="this.form.setNum('8')">8</button>
+        <button type="button" class="num" onclick="this.form.setNum('9')">9</button>
+        <button type="button" onclick="this.form.moveNum('+')" class="ops">+</button>
+
+        <button type="button" class="num" onclick="this.form.setNum('4')">4</button>
+        <button type="button" class="num" onclick="this.form.setNum('5')">5</button>
+        <button type="button" class="num" onclick="this.form.setNum('6')">6</button>
+        <button type="button" onclick="this.form.moveNum('-')" class="ops">-</button>
+
+        <button type="button" class="num" onclick="this.form.setNum('1')">1</button>
+        <button type="button" class="num" onclick="this.form.setNum('2')">2</button>
+        <button type="button" class="num" onclick="this.form.setNum('3')">3</button>
+        <button type="button" onclick="this.form.moveNum('*')" class="ops">*</button>
+
+        <button type="button" class="num" onclick="this.form.setNum('0')">0</button>
+        <button type="button" class="num" onclick="this.form.setNum('.')">.</button>
+        <button type="button" #equals class="equals" data-result="">=</button>
+        <button type="button" onclick="this.form.moveNum('/')" class="ops">/</button>
+    </div>
+
+</form>

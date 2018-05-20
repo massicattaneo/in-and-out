@@ -1,0 +1,95 @@
+#wrapper {
+  width: 100%;
+}
+
+
+
+#snap {
+  display: none;
+  float: right;
+  min-width: 101px;
+}
+
+#back {
+  display: none;
+  float: right;
+  min-width: 101px;
+}
+
+#camera {
+  display: none;
+  float: right;
+  min-width: 101px;
+  margin-top: -20px;
+}
+
+#image {
+  width: 100%;
+}
+
+#video {
+  width: 100%;
+}
+
+#boxcontainer {
+  border: 1px solid white;
+  border-radius: 20%;
+  height: 20%;
+  top: 20%;
+  position: absolute;
+}
+
+#imagecontainer {
+  position: relative;
+}
+
+#videocontainer {
+}
+
+#centerline {
+  position: absolute;
+  margin-left: 50%;
+  top: 1%;
+  border-right: 1px dashed red;
+  height: 94%;
+}
+
+#horline1 {
+  position: absolute;
+  top: 150px;
+  height: 30px;
+  width: 100%;
+}
+
+#horline2 {
+  position: absolute;
+  height: 30px;
+  width: 100%;
+}
+
+#horline3 {
+  position: absolute;
+  height: 30px;
+  width: 100%;
+}
+
+#verline1 {
+  position: absolute;
+  height: 98%;
+  width: 30px;
+  top: 0;
+}
+
+#verline2 {
+  position: absolute;
+  height: 98%;
+  width: 30px;
+  top: 0;
+}
+
+#verline3 {
+  position: absolute;
+  height: 98%;
+  width: 30px;
+  top: 0;
+}

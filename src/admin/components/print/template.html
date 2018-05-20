@@ -1,0 +1,49 @@
+<form #wrapper class="mdl-grid cgt-content">
+    <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">FACTURAS</div>
+        <div style="padding: 20px">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input value="1" autocomplete="off" class="mdl-textfield__input" type="number" id="progressive">
+                <label class="mdl-textfield__label" for="progressive">NUMERO DE FACTURA PROGRESSIVO {x}</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input value="{x}" autocomplete="off" class="mdl-textfield__input" type="text" id="expression">
+                <label class="mdl-textfield__label" for="expression">EXSPRESION DE NUMERO DE FACTURA</label>
+            </div>
+            <br/>
+            <div class="mdl-textfield mdl-js-textfield">
+                DESDE:
+                <input #from autocomplete="off" class="mdl-textfield__input" type="date" id="from">
+            </div>
+            <div class="mdl-textfield mdl-js-textfield">
+                HASTA:
+                <input #to autocomplete="off" class="mdl-textfield__input" type="date" id="to">
+            </div>
+            <br/>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input value="0" autocomplete="off" class="mdl-textfield__input" type="number" id="maximum">
+                <label class="mdl-textfield__label" for="maximum">MAXIMO EN EFECTIVO</label>
+            </div>
+            <br/>
+            <label style="width: auto;" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="salitre">
+                <input type="checkbox" id="salitre" class="mdl-switch__input">
+                <span class="mdl-switch__label">SALITRE</span>
+            </label>
+            <span style="display: inline-block; width: 100px;"></span>
+            <label style="width: auto;" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="compania">
+                <input type="checkbox" id="compania" class="mdl-switch__input">
+                <span class="mdl-switch__label">COMPAÑIA</span>
+            </label>
+            <button type="button"
+                    style="position: absolute;right: 80px;bottom: 10px;"
+                    onclick="this.form.print()"
+                    class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+                    data-upgraded=",MaterialButton,MaterialRipple">
+                <i class="material-icons" role="presentation">print</i>
+                <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+            </button>
+        </div>
+    </div>
+</form>

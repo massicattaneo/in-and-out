@@ -1,0 +1,33 @@
+<dialog class="mdl-dialog">
+    <form #form>
+        <div class="mdl-dialog__content">
+            <p>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input #title autocomplete="off"
+                       value="{{title}}" class="mdl-textfield__input" type="text" id="title">
+                <label class="mdl-textfield__label" for="title">TITULO</label>
+            </div>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input #amount autocomplete="off"
+                       value="{{amount}}" class="mdl-textfield__input" type="number" id="amount">
+                <label class="mdl-textfield__label" for="amount">VALOR</label>
+            </div>
+
+            <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-1">
+                <input type="radio" id="option-1" class="mdl-radio__button" name="type" value="tarjeta" {{tarjeta}} />
+                <span class="mdl-radio__label">TARJETA CREDITO</span>
+            </label>
+            <br/>
+            <label class="mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option-2">
+                <input type="radio" id="option-2" class="mdl-radio__button" name="type" value="efectivo" {{efectivo}}/>
+                <span class="mdl-radio__label">EFECTIVO</span>
+            </label>
+
+            </p>
+        </div>
+        <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
+            <button type="button" class="mdl-button" onclick="this.form.save()">GUARDAR</button>
+            <button type="button" class="mdl-button close" onclick="this.form.close()">ANULAR</button>
+        </div>
+    </form>
+</dialog>

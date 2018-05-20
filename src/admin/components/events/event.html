@@ -1,0 +1,8 @@
+<output id="{{id}}" class="event process-color-{{processId}}" draggable="true"
+        style="height: {{height}}px; top: {{top}}px"
+        ondragstart='this.form.dragStart({{json}}, "move")'
+        ondblclick='this.form.drop({worker: "{{worker}}"}, {{json}})'
+        onclick='this.form.clipboard({{json}})'
+        data-on="contextmenu:contextmenu||dblclick:edit||dragstart:dragstart||dragend:dragend">
+    <div data-item="summary" class="summary">{{summary}}</div>
+</output>

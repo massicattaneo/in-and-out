@@ -1,0 +1,24 @@
+<div>
+    <div class="box">
+        <div #cart>
+
+        </div>
+        <table>
+            <tr>
+                <td colspan="3">
+                    <hr/>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: right">TOTAL A PAGAR:</td>
+                <td colspan="2" style="text-align: right">
+                    {{total}}
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="box">
+        <label>ENVIA LA CONFIRMACION A ESTE CORREO:</label>
+        <input #email name="email" value="{{userEmail}}" type="text"/>
+    </div>
+</div>

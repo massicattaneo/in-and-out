@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link href="/css/material.css?v={{htmlWebpackPlugin.options.version}}" rel="stylesheet"/>
+    <link href="/css/material.select.min.css?v={{htmlWebpackPlugin.options.version}}" rel="stylesheet"/>
+    <link href="/css/admin.css?v={{htmlWebpackPlugin.options.version}}" rel="stylesheet"/>
+    <title>In&Out - centro de belleza</title>
+</head>
+<body>
+    <div id="app" style="opacity: 0" class="cgt-layout mdl-layout mdl-js-layout mdl-layout--fixed-drawer mdl-layout--fixed-header">
+        <header id="header" class="cgt-header mdl-layout__header"></header>
+        <div id="menu" class="cgt-drawer mdl-layout__drawer "></div>
+        <main id="main" class="mdl-layout__content"></main>
+    </div>
+    <div id="errors" class="mdl-js-snackbar mdl-snackbar">
+        <div class="mdl-snackbar__text"></div>
+        <button class="mdl-snackbar__action" type="button"></button>
+    </div>
+    <div id="modal"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+    <script src="https://unpkg.com/jspdf@latest/dist/jspdf.min.js"></script>
+    <script src="/assets/vendor/material.min.js?v={{htmlWebpackPlugin.options.version}}"></script>
+    <script src="/assets/vendor/material.select.js?v={{htmlWebpackPlugin.options.version}}"></script>
+    <script src="/admin.bundle.js?v={{htmlWebpackPlugin.options.version}}"></script>
+</body>
+</html>

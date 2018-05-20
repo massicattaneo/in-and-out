@@ -1,10 +1,427 @@
-* {
-    margin: 0;
-    padding: 0;
+* {margin: 0;padding: 0;}
+
+body, html {height: 100%;margin: 0;overflow: hidden;color: black;font-family: 'HelveticaCondensed';min-width: 320px;background-color: white}
+img {width: 100%}
+
+/** COLORS */
+.green-color {color: #56ab2a !important;}
+.green-bg-color {background-color: #56ab2a !important;}
+.green-border-color {border-color: #56ab2a !important;}
+.red-color {  color: #ff0000 !important;}
+.red-bg-color {  background-color: #ff0000 !important;}
+.white-color {color: #ffffff !important;}
+.white-bg-color {background-color: #ffffff !important;}
+.white-border-color {border-color: #ffffff !important;}
+.black-color {color: #000000 !important;}
+.black-bg-color {background-color: #000000 !important;}
+.black-border-color {border-color: #000000 !important;}
+.medium-grey-color {color: #949c95 !important;}
+.medium-grey-bg-color {background-color: #949c95 !important;}
+.medium-grey-border-color {border-color: #949c95 !important;}
+.dark-grey-color {color: #282828 !important;}
+.dark-grey-bg-color {background-color: #282828 !important;}
+.dark-grey-border-color {border-color: #282828 !important;}
+
+/** FONT AWESOME */
+.fa:before {font-family: fontawesome;}
+.fa-user-circle:before {content: "\f2bd";}
+.fa-cart-plus:before {content: "\f217";}
+.fa-shopping-cart:before {content: "\f07a";}
+.fa-list:before {content: "\f03a";}
+.fa-users:before {content: "\f0c0";}
+.fa-question:before {content: "\f128";}
+.fa-folder:before {content: "\f07b";}
+.fa-gift:before {content: "\f06b";}
+.fa-globe:before {content: "\f0ac";}
+.fa-map-marker:before {content: "\f041";}
+.fa-phone:before {content: "\f095";}
+.fa-bomb:before {content: "\f1e2";}
+.fa-bell:before {content: "\f0f3";}
+.fa-hourglass:before {content: "\f254";}
+.fa-calendar:before {content: "\f073"}
+.fa-photo:before {content: "\f03e"}
+.fa-window-close:before {content: "\f2d3"}
+.fa-spinner:before {content: "\f110"; animation: 1s rotate infinite; position: absolute;}
+.fa-map:before {content: "\f279"}
+.fa-comments:before {content: "\f086"}
+.fa-heart:before {content: "\f004"}
+.fa-star:before {content: "\f005"}
+.fa-star-o:before {content: "\f006"}
+.fa-press:before {content: "\f0c5"}
+.fa-arrow-circle-left:before {content: "\f0a8"}
+.fa-arrow-circle-right:before {content: "\f0a9"}
+.fa-whatsapp:before {content: "\f232"}
+
+/** html tags */
+hr {margin: 10px 0;}
+strong { font-family: HelveticaBold }
+table {width: 100%}
+p, h1,h2,h3,h4,h5,h6, fieldset { margin: 10px 0;}
+ul,ol {margin-left: 14px;}
+a {color: #56ab2a;}
+a:hover, a:active {text-decoration: none;}
+textarea {
+    width: 96%;
+    font-size: 20px;
+    padding: 0 2%;
+    border-radius: 4px;
+    border: 1px inset;
+    outline: none;
 }
-body, html {
-    background: black;
+input {
+    width: 96%;
+    height: 29px;
+    border-radius: 4px;
+    font-size: 20px;
+    line-height: 29px;
+    padding: 0 2%;
+    display: inline-block;
+    border: 1px inset;
+    outline: none;
+    max-width: 320px;
+}
+input.required:after {
+    content: "*";
+    color: red;
+}
+label {
+    min-width: 150px;
+    display: inline-block;
+}
+/** BUTTONS */
+.button {
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    width: auto;
+    display: inline-block;
+    padding: 5px;
+    font-family: HelveticaCondensed;
+    text-align: center;
+    box-sizing: initial;
+    align-items: initial;
+    -webkit-appearance: none;
+    min-width: 150px;
+    font-size: 15px;
+    height: 20px;
+    line-height: 25px;
+    outline: none;
+}
+.button:before {
+    padding-right: 6px;
+}
+/** LOADER */
+.loader {
+    width: 50px;
+    position: relative;
+    margin: 0 auto;
+    display: block;
+}
+
+/** LOGO */
+.logo {
+    position: relative;
+    background-repeat: no-repeat;
+    margin: 3px;
+    height: 50px;
+    width: 160px;
+    display: inline-block;
+    background-size: contain;
+    vertical-align: top;
+}
+.logo .logo-text {
+    position: absolute;
+    top: 5px;
+    left: 60px;
+    font-size: 34px;
+}
+
+.logo .logo-subtext {
+    position: absolute;
+    top: 36px;
+    left: 60px;
+    font-size: 13px;
+}
+/** SELECT RADIOS */
+.select-radios {
+    margin: 1px;
+}
+
+/** ICON */
+.icon-notify {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    top: 0;
+    font-size: 15px;
+    right: 0;
+    line-height: 23px;
+    border: 1px solid white;
+    border-radius: 20px;
+    text-align: center;
+}
+.new {
     color: white;
-    height: 100%;
-    margin: 0;
+    background-color: red;
+    text-align: center;
+    height: 42px;
+    width: 42px;
+    line-height: 48px;
+    border-radius: 50%;
+    position: absolute;
+    right: -8px;
+    top: -16px;
 }
+
+.select-radios input {
+    display: none;
+}
+.select-radios > input + label {
+    background-color: #d9dcda;
+    border-radius: 10px;
+    line-height: 25px;
+    display: inline-block;
+    padding: 0 3px;
+}
+.select-radios > input:checked ~ label, .select-radios > input + label:hover ~ label, .select-radios > input + label:hover {
+    background-color: #56ab2a;
+    color: white;
+}
+
+.select-radios img {
+    width: 50px;
+    vertical-align: middle;
+    border-radius: 6px;
+}
+/** MENU */
+.menu-item {
+    width: 100%;
+    line-height: 38px;
+    border-style: solid;
+    border-width: 1px;
+    margin: 10px 0;
+    text-align: center;
+    font-size: 20px;
+    cursor: pointer;
+    position: relative;
+}
+
+.menu-button:before {
+    font-family: fontawesome;
+    content: "\f0c9";
+    position: absolute;
+    left: 11px;
+    color: #000;
+
+}
+
+/** css styles */
+.align-center {text-align: center}
+
+/** BOXES */
+.box {
+    position: relative;
+    background-color: #ffffff;
+    margin: 20px 0;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    border-radius: 2px;
+}
+.box h3 {
+    background-color: #56ab2a;
+    color: white !important;
+    padding: 20px;
+    margin: -10px -10px 10px -10px;
+}
+
+@keyframes rotate {
+    0% {transform: rotate(0deg)}
+    100% {transform: rotate(360deg)}
+}
+
+.apply-transform-transition {
+    transition: transform 0.5s;
+}
+
+/** animations */
+.clickable:active {
+    transform: scale3d(0.9,0.9,1);
+    transition: transform 0.2s;
+}
+.fade-in {
+    opacity: 1 !important;;
+    transition: opacity 0.5s;
+}
+.fade-out {
+    opacity: 0 !important;
+    transition: opacity 0.5s;
+}
+
+/************************************************************************ STAR RADIOS */
+.star-radios {
+    /* remove inline-block whitespace */
+    font-size: 0;
+    /* flip the order so we can use the + and ~ combinators */
+    unicode-bidi: bidi-override;
+    direction: rtl;
+    /* the hidden clearer */
+}
+.star-radios * {
+    font-family: fontawesome;
+    font-size: 42px;
+}
+.star-radios > input {
+    display: none;
+}
+.star-radios > input + label {
+    /* only enough room for the star */
+    display: inline-block;
+    overflow: hidden;
+    text-indent: 9999px;
+    white-space: nowrap;
+    cursor: pointer;
+    width: 42px;
+    min-width: auto;
+}
+.star-radios > input + label:before {
+    display: inline-block;
+    text-indent: -9999px;
+    content: "\f006";
+    color: #888;
+}
+.star-radios > input:checked ~ label:before, .star-radios > input + label:hover ~ label:before, .star-radios > input + label:hover:before {
+    content: "\f005";
+    color: inherit;
+}
+.star-radios > .star-cb-clear + label {
+    text-indent: -9999px;
+}
+.star-radios > .star-cb-clear + label:before {
+}
+.star-radios:hover > input + label:before {
+    content: "\f006";
+    color: #888;
+}
+.star-radios:hover > input + label:hover ~ label:before, .star-radios:hover > input + label:hover:before {
+    content: "\f005";
+    color: inherit;
+}
+/************************************************************************ BEAUTY FONT */
+/*
+  Flaticon icon font: Flaticon
+  Creation date: 08/01/2018 09:06
+  */
+
+@font-face {
+    font-family: "beauty";
+    src: url("../assets/fonts/beauty/Flaticon.eot");
+    src: url("../assets/fonts/beauty/Flaticon.eot?#iefix") format("embedded-opentype"),
+    url("../assets/fonts/beauty/Flaticon.woff") format("woff"),
+    url("../assets/fonts/beauty/Flaticon.ttf") format("truetype"),
+    url("../assets/fonts/beauty/Flaticon.svg#Flaticon") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    @font-face {
+        font-family: "beauty";
+        src: url("../assets/fonts/beauty/Flaticon.svg#Flaticon") format("svg");
+    }
+}
+
+[class^="flaticon-"]:before, [class*=" flaticon-"]:before,
+[class^="flaticon-"]:after, [class*=" flaticon-"]:after {
+    font-family: beauty;
+    font-style: normal;
+}
+
+.flaticon-fashion:before { content: "\f100"; }
+.flaticon-mirror:before { content: "\f101"; }
+.flaticon-antenna:before { content: "\f102"; }
+.flaticon-question:before { content: "\f103"; }
+.flaticon-phone-call:before { content: "\f104"; }
+.flaticon-signs:before { content: "\f105"; }
+.flaticon-circular-clock-tool:before { content: "\f106"; }
+.flaticon-people:before { content: "\f107"; }
+.flaticon-photo:before { content: "\f108"; }
+.flaticon-communications:before { content: "\f109"; }
+.flaticon-fruit-1:before { content: "\f10a"; }
+.flaticon-fruit:before { content: "\f10b"; }
+.flaticon-champagne:before { content: "\f10c"; }
+.flaticon-scissors:before { content: "\f10d"; }
+.flaticon-treatments:before { content: "\f10e"; }
+.flaticon-yarn:before { content: "\f10f"; }
+.flaticon-calendar:before { content: "\f110"; }
+.flaticon-profile:before { content: "\f111"; }
+.flaticon-padlock:before { content: "\f112"; }
+.flaticon-shopping-basket:before { content: "\f113"; }
+.flaticon-chat:before { content: "\f114"; }
+.flaticon-settings:before { content: "\f115"; }
+.flaticon-link:before { content: "\f116"; }
+.flaticon-search:before { content: "\f117"; }
+.flaticon-email:before { content: "\f118"; }
+.flaticon-light-bulb:before { content: "\f119"; }
+.flaticon-photo-camera:before { content: "\f11a"; }
+.flaticon-shopping-bag:before { content: "\f11b"; }
+.flaticon-cosmetics:before { content: "\f11c"; }
+.flaticon-light:before { content: "\f11d"; }
+.flaticon-love:before { content: "\f11e"; }
+.flaticon-barber:before { content: "\f11f"; }
+.flaticon-hand-mirror:before { content: "\f120"; }
+.flaticon-beauty-salon-chair:before { content: "\f121"; }
+.flaticon-mascara:before { content: "\f122"; }
+.flaticon-liquid-lipstick:before { content: "\f123"; }
+.flaticon-woman-face:before { content: "\f124"; }
+.flaticon-woman-eye:before { content: "\f125"; }
+.flaticon-liquid-soap:before { content: "\f126"; }
+.flaticon-cucumber-slices-on-face:before { content: "\f127"; }
+.flaticon-aloe-vera:before { content: "\f128"; }
+.flaticon-french-perfume:before { content: "\f129"; }
+.flaticon-women-makeup:before { content: "\f12a"; }
+.flaticon-makeup-mirror:before { content: "\f12b"; }
+.flaticon-two-eyelashes:before { content: "\f12c"; }
+.flaticon-finger-with-nail:before { content: "\f12d"; }
+.flaticon-facial-cream:before { content: "\f12e"; }
+.flaticon-inclined-makeup-brush:before { content: "\f12f"; }
+.flaticon-inclined-lipstick:before { content: "\f130"; }
+.flaticon-woman-lips:before { content: "\f131"; }
+
+/************************************************************************ TEXT-CHECKBOX */
+.text-checkbox {
+    margin: 2px 1px;
+    display: inline-block;
+}
+.text-checkbox > input {
+    display: none;
+}
+.text-checkbox > input + label {
+    display: inline-block;
+    cursor: pointer;
+    background-color: gray;
+    color: white;
+    padding: 6px 5px 1px 5px;
+    border-radius: 5px;
+    min-width: auto;
+}
+
+.text-checkbox > input:checked ~ label {
+    background-color: #ee9ffc;
+    color: white;
+}
+
+#welcome {
+    padding: 100px 10px 0 10px;
+    text-align: center;
+    background-color: rgba(0,0,0,0.7);
+    color: white;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    display: none;
+}
+

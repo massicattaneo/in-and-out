@@ -1,0 +1,23 @@
+{
+  "createAnAccount": {
+    "title1": "?AUN NO TIENES UNA CUENTA?",
+    "paragraph1": "Crea tu nueva cuenta para:",
+    "item-list1": "RESERVAR TU CITA ONLINE",
+    "item-list2": "UTILIZAR EL MEDIDOR DE CEJAS",
+    "item-list3": "DEJAR UN COMENTARIO SOBRE NOSOTROS",
+    "item-list4": "Y MUCHO MAS ...",
+    "loginButton": "YA TENGO UNA CUENTA",
+    "registerButton": "QUIERO CREAR UNA CUENTA"
+  },
+  "urls": {
+    "login": "/es/cuenta/entrar",
+    "register": "/es/cuenta/crear",
+    "treatments": "/es/tratamientos",
+    "loginHome": "/es/cuenta",
+    "home": "/es",
+    "cart": "/es/cesta"
+  },
+  "signature": "Tu equipo de In<span class=\"green-color\">&</span>Out.",
+  "newItemTemplate": "<div class=\"new\">NEW</div>",
+  "addToCartButton": "AÑADE AL CARRITO"
+}

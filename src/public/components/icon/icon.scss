@@ -1,0 +1,42 @@
+#wrapper {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  margin: 10px 20px;
+  text-align: center;
+  cursor: pointer;
+  vertical-align: middle;
+  text-decoration: none;
+}
+
+#icon {
+  font-size: 45px;
+  opacity: 0.8;
+}
+
+#text {
+  font-size: 14px;
+  height:20px;
+  position: absolute;
+  left: -16px;
+  width: 96px;
+}
+
+#notify {
+  color: white;
+}
+
+#loader {
+  position: absolute;
+  z-index: 3;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background-color: black;
+  border-radius: 12px;
+  opacity: 0.6;
+  color: white;
+  padding: 14px 0;
+}

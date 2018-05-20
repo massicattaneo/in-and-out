@@ -1,0 +1,139 @@
+    /*
+    Flaticon icon font: Flaticon
+    Creation date: 08/01/2018 09:06
+    */
+
+    @font-face {
+  font-family: "Flaticon";
+  src: url("./Flaticon.eot");
+  src: url("./Flaticon.eot?#iefix") format("embedded-opentype"),
+       url("./Flaticon.woff") format("woff"),
+       url("./Flaticon.ttf") format("truetype"),
+       url("./Flaticon.svg#Flaticon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "Flaticon";
+    src: url("./Flaticon.svg#Flaticon") format("svg");
+  }
+}
+
+    .fi:before{
+        display: inline-block;
+  font-family: "Flaticon";
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  line-height: 1;
+  text-decoration: inherit;
+  text-rendering: optimizeLegibility;
+  text-transform: none;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  font-smoothing: antialiased;
+    }
+
+    .flaticon-fashion:before { content: "\f100"; }
+.flaticon-mirror:before { content: "\f101"; }
+.flaticon-antenna:before { content: "\f102"; }
+.flaticon-question:before { content: "\f103"; }
+.flaticon-phone-call:before { content: "\f104"; }
+.flaticon-signs:before { content: "\f105"; }
+.flaticon-circular-clock-tool:before { content: "\f106"; }
+.flaticon-people:before { content: "\f107"; }
+.flaticon-photo:before { content: "\f108"; }
+.flaticon-communications:before { content: "\f109"; }
+.flaticon-fruit-1:before { content: "\f10a"; }
+.flaticon-fruit:before { content: "\f10b"; }
+.flaticon-champagne:before { content: "\f10c"; }
+.flaticon-scissors:before { content: "\f10d"; }
+.flaticon-treatments:before { content: "\f10e"; }
+.flaticon-yarn:before { content: "\f10f"; }
+.flaticon-calendar:before { content: "\f110"; }
+.flaticon-profile:before { content: "\f111"; }
+.flaticon-padlock:before { content: "\f112"; }
+.flaticon-shopping-basket:before { content: "\f113"; }
+.flaticon-chat:before { content: "\f114"; }
+.flaticon-settings:before { content: "\f115"; }
+.flaticon-link:before { content: "\f116"; }
+.flaticon-search:before { content: "\f117"; }
+.flaticon-email:before { content: "\f118"; }
+.flaticon-light-bulb:before { content: "\f119"; }
+.flaticon-photo-camera:before { content: "\f11a"; }
+.flaticon-shopping-bag:before { content: "\f11b"; }
+.flaticon-cosmetics:before { content: "\f11c"; }
+.flaticon-light:before { content: "\f11d"; }
+.flaticon-love:before { content: "\f11e"; }
+.flaticon-barber:before { content: "\f11f"; }
+.flaticon-hand-mirror:before { content: "\f120"; }
+.flaticon-beauty-salon-chair:before { content: "\f121"; }
+.flaticon-mascara:before { content: "\f122"; }
+.flaticon-liquid-lipstick:before { content: "\f123"; }
+.flaticon-woman-face:before { content: "\f124"; }
+.flaticon-woman-eye:before { content: "\f125"; }
+.flaticon-liquid-soap:before { content: "\f126"; }
+.flaticon-cucumber-slices-on-face:before { content: "\f127"; }
+.flaticon-aloe-vera:before { content: "\f128"; }
+.flaticon-french-perfume:before { content: "\f129"; }
+.flaticon-women-makeup:before { content: "\f12a"; }
+.flaticon-makeup-mirror:before { content: "\f12b"; }
+.flaticon-two-eyelashes:before { content: "\f12c"; }
+.flaticon-finger-with-nail:before { content: "\f12d"; }
+.flaticon-facial-cream:before { content: "\f12e"; }
+.flaticon-inclined-makeup-brush:before { content: "\f12f"; }
+.flaticon-inclined-lipstick:before { content: "\f130"; }
+.flaticon-woman-lips:before { content: "\f131"; }
+    
+    $font-Flaticon-fashion: "\f100";
+    $font-Flaticon-mirror: "\f101";
+    $font-Flaticon-antenna: "\f102";
+    $font-Flaticon-question: "\f103";
+    $font-Flaticon-phone-call: "\f104";
+    $font-Flaticon-signs: "\f105";
+    $font-Flaticon-circular-clock-tool: "\f106";
+    $font-Flaticon-people: "\f107";
+    $font-Flaticon-photo: "\f108";
+    $font-Flaticon-communications: "\f109";
+    $font-Flaticon-fruit-1: "\f10a";
+    $font-Flaticon-fruit: "\f10b";
+    $font-Flaticon-champagne: "\f10c";
+    $font-Flaticon-scissors: "\f10d";
+    $font-Flaticon-treatments: "\f10e";
+    $font-Flaticon-yarn: "\f10f";
+    $font-Flaticon-calendar: "\f110";
+    $font-Flaticon-profile: "\f111";
+    $font-Flaticon-padlock: "\f112";
+    $font-Flaticon-shopping-basket: "\f113";
+    $font-Flaticon-chat: "\f114";
+    $font-Flaticon-settings: "\f115";
+    $font-Flaticon-link: "\f116";
+    $font-Flaticon-search: "\f117";
+    $font-Flaticon-email: "\f118";
+    $font-Flaticon-light-bulb: "\f119";
+    $font-Flaticon-photo-camera: "\f11a";
+    $font-Flaticon-shopping-bag: "\f11b";
+    $font-Flaticon-cosmetics: "\f11c";
+    $font-Flaticon-light: "\f11d";
+    $font-Flaticon-love: "\f11e";
+    $font-Flaticon-barber: "\f11f";
+    $font-Flaticon-hand-mirror: "\f120";
+    $font-Flaticon-beauty-salon-chair: "\f121";
+    $font-Flaticon-mascara: "\f122";
+    $font-Flaticon-liquid-lipstick: "\f123";
+    $font-Flaticon-woman-face: "\f124";
+    $font-Flaticon-woman-eye: "\f125";
+    $font-Flaticon-liquid-soap: "\f126";
+    $font-Flaticon-cucumber-slices-on-face: "\f127";
+    $font-Flaticon-aloe-vera: "\f128";
+    $font-Flaticon-french-perfume: "\f129";
+    $font-Flaticon-women-makeup: "\f12a";
+    $font-Flaticon-makeup-mirror: "\f12b";
+    $font-Flaticon-two-eyelashes: "\f12c";
+    $font-Flaticon-finger-with-nail: "\f12d";
+    $font-Flaticon-facial-cream: "\f12e";
+    $font-Flaticon-inclined-makeup-brush: "\f12f";
+    $font-Flaticon-inclined-lipstick: "\f130";
+    $font-Flaticon-woman-lips: "\f131";
