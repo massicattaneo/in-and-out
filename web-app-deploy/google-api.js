@@ -165,7 +165,7 @@ module.exports = function(utils) {
     obj.initDrivePhotos = function() {
         const promises = [];
         return new Promise(function(res, rej) {
-            deleteFolder(`${__dirname}/google/drive`);
+            // deleteFolder(`${__dirname}/google/drive`);
             if (!fs.existsSync(`${__dirname}/google/drive`)){
                 fs.mkdirSync(`${__dirname}/google/drive`);
             }

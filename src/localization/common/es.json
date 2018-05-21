@@ -15,7 +15,8 @@
     "treatments": "/es/tratamientos",
     "loginHome": "/es/cuenta",
     "home": "/es",
-    "cart": "/es/cesta"
+    "cart": "/es/cesta",
+    "promotions": "/es/promociones"
   },
   "signature": "Tu equipo de In<span class=\"green-color\">&</span>Out.",
   "newItemTemplate": "<div class=\"new\">NEW</div>",

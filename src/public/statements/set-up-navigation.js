@@ -11,7 +11,7 @@ export default async function({ system, wait, thread }) {
     context.window = {
         x: 100,
         y: 100,
-        height: system.deviceInfo().height - 150,
+        height: system.deviceInfo().height - 200,
         width: Math.min(system.deviceInfo().width - 200, 600)
     };
 
@@ -83,6 +83,8 @@ export default async function({ system, wait, thread }) {
             activeUrl = '/es';
             if (context.focuses.length) {
                 context.focuses[context.focusIndex].destroy();
+                context.window.x = Math.max(100, context.window.x - 40);
+                context.window.y = Math.max(100, context.window.y - 40);
             }
             if (context.locale) {
                 document.title = context.locale.get('documentTitle');
@@ -108,5 +110,14 @@ export default async function({ system, wait, thread }) {
         this.event.preventDefault();
         system.navigateTo(el.pathname);
     };
+
+    system
+        .onNavigate()
+        .subscribe(url => {
+            if (this.lastUrlVisited !== url) {
+                ga('send', 'pageview');
+            }
+            this.lastUrlVisited = url;
+        })
 
 }

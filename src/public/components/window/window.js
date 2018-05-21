@@ -128,17 +128,10 @@ export default async function({ thread, system, context, parent, title, showCart
         setTimeout(function() {
             if (!isDestroyed) {
                 const style = view.get().style;
-
-                // const border = convert(style.borderWidth) * 2;
-                // model.width = convert(style.width) + view.get().offsetWidth - view.get().clientWidth + border;
-                // model.height = convert(style.height) + view.get().offsetWidth - view.get().clientWidth + border;
-
-
                 model.width = convert(style.width);
                 model.height = convert(style.height);
                 context.window.width = convert(style.width);
                 context.window.height = convert(style.height);
-                //600 + 608 - 585 - 8
             }
         }, 10);
     }
