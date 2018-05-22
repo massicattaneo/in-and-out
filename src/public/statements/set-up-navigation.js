@@ -92,7 +92,8 @@ export default async function({ system, wait, thread }) {
             system.store.windowOpened = false;
             if (system.info().lang === 'es') return;
             system.info().lang = 'es';
-            return system.locale(`/localization/system/es.json`).then(function(locale) {
+            return system.locale(`/localization/system/es.json`).then(async function(locale) {
+                await locale.load(`/localization/static.json`);
                 context.locale = locale;
             });
         });
