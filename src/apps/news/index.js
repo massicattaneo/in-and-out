@@ -8,6 +8,7 @@ function news({ system }) {
     return async function ({ parent, db }) {
         let obj = {};
         const locale = await system.locale(`/localization/common/es.json`);
+        await locale.load('/localization/static.json');
         const view = HtmlView(template, styles, locale.get());
         const newsList = system.store.news.slice(0);
         const disconnect = ({ orientation: () => system.deviceInfo().orientation })

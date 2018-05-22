@@ -8,6 +8,7 @@ function press({ system }) {
     return async function ({ parent, db, thread }) {
         let obj = {};
         const locale = await system.locale(`/localization/common/es.json`);
+        await locale.load('/localization/static.json');
         const view = HtmlView(template, styles, locale.get());
 
         const press = system.store.press.slice(0)

@@ -28,17 +28,24 @@ folders.keys().forEach((filename) => {
     await thread.execute('create-store');
     thread.execute('set-up-navigation');
     await thread.execute('load-resources');
-
     const welcomeEl = document.getElementById('welcome');
-    if (!system.getStorage('in-and-out-accepted-cookies')) {
+
+    function click() {
         const view = HtmlView(cookiesTpl, [], {});
         view.get().cookieAccept = function() {
             system.setStorage({ 'in-and-out-accepted-cookies': true });
             welcomeEl.style.display = 'none';
         };
-        welcomeEl.innerHTML = '';
+        welcomeEl.removeEventListener('click', click);
+        welcomeEl.removeEventListener('touchstart', click);
         welcomeEl.appendChild(view.get());
         welcomeEl.style.opacity = 1;
+    }
+
+    if (!system.getStorage('in-and-out-accepted-cookies')) {
+        welcomeEl.innerHTML = '';
+        welcomeEl.addEventListener('click', click);
+        welcomeEl.addEventListener('touchstart', click);
     } else {
         welcomeEl.style.display = 'none';
     }
