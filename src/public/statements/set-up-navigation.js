@@ -115,7 +115,7 @@ export default async function({ system, wait, thread }) {
         .onNavigate()
         .subscribe(url => {
             if (this.lastUrlVisited !== url) {
-                ga('send', 'pageview');
+                ga('send', 'pageview', url);
             }
             this.lastUrlVisited = url;
         })

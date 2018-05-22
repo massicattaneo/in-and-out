@@ -335,6 +335,16 @@ const adminKeys = require('./private/adminKeys');
                 })
         });
 
+    app.get('/sitemap.xml', function(req, res) {
+        google.createSitemap().toXML( function (err, xml) {
+            if (err) {
+                return res.status(500).end();
+            }
+            res.header('Content-Type', 'application/xml');
+            res.send( xml );
+        });
+    });
+
     app.post('/api/rest/*',
         requiresAdmin,
         async function(req, res) {

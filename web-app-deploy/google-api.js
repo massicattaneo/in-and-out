@@ -19,8 +19,8 @@ const jwtClient = new google.auth.JWT(
 const sharp = require('sharp');
 google.options({ auth: jwtClient });
 const processes = require('./processes.json');
-
-// Object.keys(google).forEach(key => console.log(key))
+const sm = require('sitemap');
+const appsManifest = require('./static/localization/system/es.json');
 
 function deleteFolder(path) {
     if (fs.existsSync(path)) {
@@ -97,6 +97,10 @@ function parseSheet(sht) {
                 return ret;
             }, {});
         });
+}
+
+function getLastmodISO(string) {
+    return new Date(string.split('/').reverse().join('-')).toISOString();
 }
 
 module.exports = function(utils) {
@@ -414,6 +418,39 @@ module.exports = function(utils) {
             });
         }));
         return results.reduce((a, b) => a.concat(b), []);
+    };
+
+    obj.createSitemap = function() {
+        const urls = Object.keys(appsManifest.apps).map(key => {
+            return { url: `/es/${appsManifest.apps[key].url}`,  changefreq: 'monthly', priority: 1 }
+        });
+        urls.push(...sheets.promotions.map(item => {
+            return { url: `/es/promociones/${item.href}`,  changefreq: 'monthly', priority: 0.8, lastmodISO: getLastmodISO(item.creacion) }
+        }));
+        urls.push(...sheets.treatments.reduce((arr, item) => {
+            if (arr.indexOf(item.tipo) === -1) arr.push(item.tipo);
+            return arr;
+        },[]).map(item => {
+            return { url: `/es/tratamientos/${item}`,  changefreq: 'monthly', priority: 0.8, lastmodISO: getLastmodISO("01/05/2018") }
+        }));
+        urls.push(...sheets.bonusCards.map(item => {
+            return { url: `/es/tarjetas/${item.href}`,  changefreq: 'monthly', priority: 0.8, lastmodISO: getLastmodISO(item.desde) }
+        }));
+        urls.push(...sheets.beautyparties.map(item => {
+            return { url: `/es/beauty-parties/${item.href}`,  changefreq: 'monthly', priority: 0.8, lastmodISO: getLastmodISO("01/05/2018") }
+        }));
+        urls.push(...sheets.news.map(item => {
+            return { url: `/es/novedades/${item.href}`,  changefreq: 'monthly', priority: 0.8, lastmodISO: getLastmodISO(item.fecha) }
+        }));
+        urls.push(...sheets.press.map(item => {
+            return { url: `/es/en-los-medios/${item.href}`,  changefreq: 'monthly', priority: 0.8, lastmodISO: getLastmodISO(item.fecha) }
+        }));
+
+        return sm.createSitemap({
+            hostname: 'https://inandoutbelleza.eu-4.evennode.com/',
+            cacheTime: 600000,
+            urls
+        });
     };
 
     function getTreatmentsList() {
