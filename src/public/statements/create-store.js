@@ -4,6 +4,9 @@ function sortByDate(field) {
             (new Date(a[field].split('/').reverse().join('-'))).getTime();
     }
 }
+function addDescription(i) {
+    return Object.assign(i, {descripcion: i.descripcion || ''});
+}
 export default async function ({ system, wait, thread }) {
     let status = await getStatus();
     const context = this;
@@ -11,6 +14,9 @@ export default async function ({ system, wait, thread }) {
     const publicDb = JSON.parse((await reqPhotos.get()).responseText);
     const deviceType = system.deviceInfo().deviceType === 'unknown' ?
         'desktop' : system.deviceInfo().deviceType;
+
+    publicDb.press = (publicDb.press || []).map(addDescription);
+
 
     const staticStore = {
         logged: status.logged,
