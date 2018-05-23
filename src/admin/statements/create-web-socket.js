@@ -1,6 +1,7 @@
 export default function({ system, gos }) {
     const ctx = this;
     return new Promise(function(resolve) {
+            if (!system.store.logged) return resolve();
             const serverWs = new WebSocket(`ws://${location.hostname}:${location.port}`);
             const nfcWs = new WebSocket('ws://localhost:8999');
             const restMapping = { users: 'clients', cash: 'cash', orders: 'orders' };
@@ -19,7 +20,7 @@ export default function({ system, gos }) {
                         system.throw('custom', { message: 'LECTOR DE TARJETAS NO ESTA LISTO' });
                     };
                 })
-            ]).then(resolve);
+            ]).then(resolve).catch(resolve);
 
             serverWs.onmessage = function(ev) {
                 const { type, data } = JSON.parse(ev.data);
@@ -70,11 +71,11 @@ export default function({ system, gos }) {
                     read: 'ERROR NEL LEER LA TARJETA'
                 };
                 if (ev.data === 'write-done') {
-                    system.throw('custom', { message: 'TARJETA GRABADA' })
+                    system.throw('custom', { message: 'TARJETA GRABADA' });
                 }
                 const { id, error } = JSON.parse(ev.data);
                 if (error) {
-                    system.throw('custom', { message: errors[error] })
+                    system.throw('custom', { message: errors[error] });
                 } else if (id) {
                     const old = system.store.clients.find(c => c.fb_cardId === id.substr(0, 20));
                     if (old) {
@@ -84,13 +85,13 @@ export default function({ system, gos }) {
                         if (newC) {
                             system.navigateTo(ctx.locale.get('urls.history.href') + `?id=${newC._id}`);
                         } else {
-                            system.throw('custom', { message: 'LA TARJETA NO APARTIENE A NINGUN CLIENTE' })
+                            system.throw('custom', { message: 'LA TARJETA NO APARTIENE A NINGUN CLIENTE' });
                         }
                     }
                 }
-            }
+            };
 
             system.nfc = nfcWs;
         }
-    )
+    );
 }

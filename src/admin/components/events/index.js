@@ -341,9 +341,11 @@ export default async function({ locale, system, thread }) {
         const month = m;
         const year = y;
         let day = 1;
-        let date = new Date(`${year}-${month}-${day}`);
+
+        let date = new Date(`${year}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}`);
+        console.warn(year, month,day);
         const today = new Date();
-        miniView.get('month').innerText = (new Date(`${year}-${month}-${d}`)).formatDay('mmm yy', [], monthNames);
+        miniView.get('month').innerText = (new Date(`${year}-${month.toString().padLeft(2, '0')}-${d.toString().padLeft(2, '0')}`)).formatDay('mmm yy', [], monthNames);
         today.setHours(0, 0, 0, 0);
         [1, 2, 3, 4, 5, 6].forEach(function(r) {
             [0, 1, 2, 3, 4, 5, 6].forEach(function(c) {
@@ -355,14 +357,14 @@ export default async function({ locale, system, thread }) {
                 node.setAttribute('data-day', '');
                 if (c === date.getDay() && date.getMonth() === month - 1) {
                     if (d === date.getDate()) node.classList.add('selected');
-                    date = new Date(`${year}-${month}-${day}`);
+                    date = new Date(`${year}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}`);
                     if (today.getTime() > date.getTime()) node.classList.add('old');
                     if (isWorkDay(date)) {
                         node.classList.add('work');
                     }
                     node.innerText = (date.getDate());
                     node.setAttribute('data-day', date.getDate());
-                    date = new Date(`${year}-${month}-${++day}`);
+                    date = new Date(`${year}-${month.toString().padLeft(2, '0')}-${(++day).toString().padLeft(2, '0')}`);
                 }
             })
         })
