@@ -91,6 +91,6 @@ export default async function({ system, thread }) {
         .reactive()
         .connect(whenLogged);
 
-    await whenLogged(system.store);
+    await whenLogged(system.store).catch(e => e);
 
 }
