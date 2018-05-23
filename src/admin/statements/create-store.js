@@ -73,19 +73,24 @@ export default async function({ system, thread }) {
         }
     }
 
+    async function whenLogged({ logged }) {
+        const s = await getStatus();
+        const data = await thread.execute('get-admin-db');
+        system.store.adminLevel = s.adminLevel;
+        system.store.clients.splice(0, system.store.clients.length);
+        system.store.clients.push(...data.clients);
+        system.store.orders.splice(0, system.store.orders.length);
+        system.store.orders.push(...data.orders);
+        system.store.users.splice(0, system.store.users.length);
+        if (logged) {
+            system.store.users.push(...((decodeURI(system.cookies.getItem('users')) || '')).split('|'));
+        }
+    }
+
     ({ logged: () => system.store.logged })
         .reactive()
-        .connect(async function({ logged }) {
-            const s = await getStatus();
-            const data = await thread.execute('get-admin-db');
-            system.store.adminLevel = s.adminLevel;
-            system.store.clients.splice(0, system.store.clients.length);
-            system.store.clients.push(...data.clients);
-            system.store.orders.splice(0, system.store.orders.length);
-            system.store.orders.push(...data.orders);
-            system.store.users.splice(0, system.store.users.length);
-            if (logged) {
-                system.store.users.push(...((decodeURI(system.cookies.getItem('users')) || '')).split('|'));
-            }
-        });
+        .connect(whenLogged);
+
+    await whenLogged(system.store);
+
 }
