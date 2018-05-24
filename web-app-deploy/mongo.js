@@ -229,9 +229,7 @@ module.exports = function(isDeveloping, utils) {
     obj.buy = function({ cart = [], userId, amount, email }) {
         return new Promise(function(resolve, reject) {
             const doc = {
-                userId, cart: cart.map(id => {
-                    return { id, used: false }
-                }), email, amount, payed: false
+                userId, cart, email, amount, payed: false
             };
             db.collection("orders").insertOne(doc, function(err, res) {
                 if (err)

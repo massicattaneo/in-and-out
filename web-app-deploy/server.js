@@ -1,14 +1,14 @@
-const { firebaseBonuses, firebaseClients, firebaseTransactions } = require("./firebaseImporter");
+const { firebaseBonuses, firebaseClients, firebaseTransactions } = require('./firebaseImporter');
 
 const path = require('path');
 const utils = {};
 const express = require('express');
 const port = process.env.PORT || 8090;
 const app = express();
-const google = require("./google-api")(utils);
-const mailer = require("./mailer/mailer")();
-const isDeveloping = process.env.NODE_ENV === "development";
-const mongo = require("./mongo")(isDeveloping, utils);
+const google = require('./google-api')(utils);
+const mailer = require('./mailer/mailer')();
+const isDeveloping = process.env.NODE_ENV === 'development';
+const mongo = require('./mongo')(isDeveloping, utils);
 const bodyParser = require('body-parser');
 const ExpressBrute = require('express-brute');
 const session = require('express-session');
@@ -32,7 +32,7 @@ const httpsOptions = {
 };
 const adminKeys = require('./private/adminKeys');
 
-(async function() {
+(async function () {
     const { store, db } = await mongo.connect();
     const bruteforce = new ExpressBrute(store);
 
@@ -55,7 +55,7 @@ const adminKeys = require('./private/adminKeys');
         if (req.session && req.session.isAdmin) {
             return next();
         } else {
-            req.session.destroy(function(err) {
+            req.session.destroy(function (err) {
                 if (err) {
                     res.status(500);
                     return res.send('error');
@@ -71,7 +71,7 @@ const adminKeys = require('./private/adminKeys');
         if (req.session && req.session.userId) {
             return next();
         } else {
-            req.session.destroy(function(err) {
+            req.session.destroy(function (err) {
                 if (err) {
                     res.status(500);
                     return res.send('error');
@@ -90,90 +90,93 @@ const adminKeys = require('./private/adminKeys');
     await google.initDrivePhotos();
     await google.initDriveSheets();
 
-    app.get('/google/drive/*', function(req, res) {
+    app.get('/google/drive/*', function (req, res) {
         const file = __dirname + decodeURI(urlParse.parse(req.url).pathname);
         if (fs.existsSync(file)) {
             const s = fs.createReadStream(file);
             res.set('Content-Type', 'image/jpg');
             s.pipe(res);
         } else {
-            // res.error(404);
+            // res.status(404);
             res.send('');
         }
     });
 
-    app.get('/api/public-db', async function(req, res) {
+    app.get('/api/public-db', async function (req, res) {
         res.send(Object.assign({}, google.publicDb(), { reviews: await mongo.getReviewsInfo() }));
     });
 
-    app.get('/api/reviews/*', function(req, res) {
+    app.get('/api/reviews/*', function (req, res) {
         const start = Number(req.url.substr(req.url.lastIndexOf('/') + 1)) * 3;
         mongo.reviewsList()
-            .then(function(list) {
-                res.send(list.splice(start, 3))
+            .then(function (list) {
+                res.send(list.splice(start, 3));
             })
-            .catch(function(err) {
-                res.error(500);
+            .catch(function (err) {
+                res.status(500);
                 res.send(err.message);
-            })
+            });
     });
 
     app.post('/api/treatments/favourite',
         requiresLogin,
-        function(req, res) {
+        function (req, res) {
             mongo.favouriteTreatment({
                 treatmentId: req.body.id,
                 value: req.body.value,
                 userId: req.session.userId
-            }).then(function() {
-                res.send('ok')
-            })
+            }).then(function () {
+                res.send('ok');
+            });
         });
 
     app.post('/api/reviews',
         requiresLogin,
-        function(req, res) {
+        function (req, res) {
             mongo.insertReview({
                 rate: req.body.rate,
                 lang: req.body.lang,
                 description: req.body.description,
                 userId: req.session.userId,
             })
-                .then(function(review) {
-                    res.send(review)
+                .then(function (review) {
+                    res.send(review);
                 })
-                .catch(function(err) {
-                    res.error(500);
+                .catch(function (err) {
+                    res.status(500);
                     res.send(err.message);
-                })
+                });
         });
 
     app.post('/google/free-busy',
         requiresLogin,
-        function(req, res) {
+        function (req, res) {
             google
                 .freeBusy(req.body)
-                .then(function(review) {
-                    res.send(review)
+                .then(function (review) {
+                    res.send(review);
                 })
-                .catch(function(err) {
-                    res.error(500);
+                .catch(function (err) {
+                    res.status(500);
                     res.send(err.message);
-                })
+                });
         });
 
     app.post('/api/stripe/pay',
-        async function(req, res) {
-            const { token, cart, email } = req.body;
+        async function (req, res) {
+            const { token, email } = req.body;
+            const cart = req.body.cart.map(id => {
+                return { id, used: false };
+            });
             const pos = { 'TAR': 'bonusCards', 'TRT': 'treatments' };
             const amount = cart
-                .map(id => {
+                .map(({ id }) => {
                     return google.publicDb()[pos[id.substr(0, 3)]].filter(c => c.identificador === id)[0];
                 })
                 .reduce((tot, { precio }) => tot + Number(precio), 0) * 100;
             const { id } = await mongo.buy({ cart, userId: req.session.userId, email, amount });
             stripe.pay({ token, amount, orderId: id, cart, email })
-                .then(async function(stripeRes) {
+                .then(async function (stripeRes) {
                     await mongo.confirmBuy({
                         id,
                         stripeId: stripeRes.id,
@@ -191,14 +194,15 @@ const adminKeys = require('./private/adminKeys');
                     delete emailParams.googleDb;
                     await res.send(emailParams);
                 })
-                .catch(function(err) {
-                    res.error(500);
+                .catch(function (err) {
+                    console.log(err);
+                    res.status(500);
                     res.send(err.message);
-                })
+                });
         });
 
     app.get('/api/pdf/*',
-        async function(req, res) {
+        async function (req, res) {
             const orderId = req.url.substr(req.url.lastIndexOf('/') + 1);
             const { cart } = await mongo.getOrderInfo(orderId);
             createPdfOrder(res, google.publicDb(), orderId, cart);
@@ -206,7 +210,7 @@ const adminKeys = require('./private/adminKeys');
 
     app.post('/google/calendar/insert',
         requiresLogin,
-        async function(req, res) {
+        async function (req, res) {
             const { treatments, start, locationIndex } = req.body;
             const { name, tel, email } = await mongo.getUser({ _id: new ObjectId(req.session.userId) });
             const from = new Date(start);
@@ -238,18 +242,18 @@ const adminKeys = require('./private/adminKeys');
                     res.send(e);
                 })
                     .catch(() => {
-                        res.error(500);
+                        res.status(500);
                         res.send('error');
-                    })
+                    });
             } else {
-                res.error(500);
+                res.status(500);
                 res.send('error');
             }
         });
 
     app.post('/google/calendar/delete',
         requiresLogin,
-        async function(req, res) {
+        async function (req, res) {
             const { eventId, calendarId } = req.body;
             google
                 .calendarDelete({ eventId, calendarId })
@@ -257,14 +261,14 @@ const adminKeys = require('./private/adminKeys');
                     res.send('ok');
                 })
                 .catch(() => {
-                    res.error(500);
+                    res.status(500);
                     res.send('error');
-                })
+                });
         });
 
     app.post('/google/calendar/get',
         requiresAdmin,
-        async function(req, res) {
+        async function (req, res) {
             const { timestamp, calendarId } = req.body;
             google
                 .calendarGet(calendarId, new Date(timestamp))
@@ -272,14 +276,14 @@ const adminKeys = require('./private/adminKeys');
                     res.send(r);
                 })
                 .catch((e) => {
-                    res.error(500);
+                    res.status(500);
                     res.send('error');
-                })
+                });
         });
 
     app.post('/google/calendar/add',
         requiresAdmin,
-        async function(req, res) {
+        async function (req, res) {
             const { duration, calendarId, date, summary, label = '', processId, description } = req.body;
             const from = new Date(date);
             google.calendarInsert({
@@ -295,15 +299,15 @@ const adminKeys = require('./private/adminKeys');
                     res.send(e);
                 })
                 .catch(() => {
-                    res.error(500);
+                    res.status(500);
                     res.send('error');
-                })
+                });
         });
 
 
     app.get(
         '/api/qr-code/*',
-        async function(req, res) {
+        async function (req, res) {
             const order = req.url.substr(req.url.lastIndexOf('/') + 1);
             await QRCode.toFile(`${__dirname}/order-qr-codes/${order}.png`, `${order}`);
             const stream = fs.createReadStream(`${__dirname}/order-qr-codes/${order}.png`);
@@ -314,7 +318,7 @@ const adminKeys = require('./private/adminKeys');
 
     app.get('/api/adminDb',
         requiresAdmin,
-        async function(req, res) {
+        async function (req, res) {
             res.send({
                 clients: await mongo.getAll('users'),
                 orders: await mongo.getAll('orders')
@@ -323,74 +327,74 @@ const adminKeys = require('./private/adminKeys');
 
     app.get('/api/rest/*',
         requiresAdmin,
-        async function(req, res) {
+        async function (req, res) {
             const path = decodeURI(req.url).substr(10, 1000000).split('?');
             mongo.rest.get(path[0], path[1])
-                .then(function(cash) {
-                    res.send(cash)
+                .then(function (cash) {
+                    res.send(cash);
                 })
-                .catch(function(err) {
-                    res.error(500);
+                .catch(function (err) {
+                    res.status(500);
                     res.send(err.message);
-                })
+                });
         });
 
-    app.get('/sitemap.xml', function(req, res) {
-        google.createSitemap().toXML( function (err, xml) {
+    app.get('/sitemap.xml', function (req, res) {
+        google.createSitemap().toXML(function (err, xml) {
             if (err) {
                 return res.status(500).end();
             }
             res.header('Content-Type', 'application/xml');
-            res.send( xml );
+            res.send(xml);
         });
     });
 
     app.post('/api/rest/*',
         requiresAdmin,
-        async function(req, res) {
+        async function (req, res) {
             const paths = req.url.split('/');
             const table = paths[paths.length - 1];
             const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
             mongo.rest.insert(table, Object.assign(req.body, { ip }))
-                .then(function(cash) {
-                    res.send(cash)
+                .then(function (cash) {
+                    res.send(cash);
                 })
-                .catch(function(err) {
-                    res.error(500);
+                .catch(function (err) {
+                    res.status(500);
                     res.send(err.message);
-                })
+                });
         });
 
     app.put('/api/rest/*',
         requiresAdmin,
-        async function(req, res) {
+        async function (req, res) {
             const paths = req.url.split('/');
             const table = paths[paths.length - 2];
             const id = paths[paths.length - 1];
             mongo.rest.update(table, id, req.body)
-                .then(function(cash) {
-                    res.send(cash)
+                .then(function (cash) {
+                    res.send(cash);
                 })
-                .catch(function(err) {
-                    res.error(500);
+                .catch(function (err) {
+                    res.status(500);
                     res.send(err.message);
-                })
+                });
         });
 
     app.delete('/api/rest/*',
         requiresAdmin,
-        async function(req, res) {
+        async function (req, res) {
             const paths = req.url.split('/');
             const table = paths[paths.length - 2];
             const id = paths[paths.length - 1];
             mongo.rest.delete(table, id)
-                .then(function(cash) {
-                    res.send(cash)
+                .then(function (cash) {
+                    res.send(cash);
                 })
-                .catch(function(err) {
-                    res.error(500);
+                .catch(function (err) {
+                    res.status(500);
                     res.send(err.message);
-                })
+                });
         });
 
     let callback;
@@ -411,7 +415,7 @@ const adminKeys = require('./private/adminKeys');
 
 
     const server = http.createServer(app).listen(port, () => {
-        console.log('http server running at ' + port)
+        console.log('http server running at ' + port);
     });
 
     // const httpsPort = 8091;

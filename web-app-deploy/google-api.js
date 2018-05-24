@@ -24,8 +24,8 @@ const appsManifest = require('./static/localization/system/es.json');
 
 function deleteFolder(path) {
     if (fs.existsSync(path)) {
-        fs.readdirSync(path).forEach(function(file) {
-            const curPath = path + "/" + file;
+        fs.readdirSync(path).forEach(function (file) {
+            const curPath = path + '/' + file;
             if (fs.lstatSync(curPath).isDirectory()) {
                 deleteFolder(curPath);
             } else { // delete file
@@ -52,7 +52,7 @@ function formatGoogleSheet({ value, format }) {
     }
 
     let str = '';
-    format.forEach(function(item, i, a) {
+    format.forEach(function (item, i, a) {
         const startIndex = item.startIndex || 0;
         const nextIndex = a[i + 1] ? a[i + 1].startIndex : value.length;
         str += formatted(value.substr(startIndex, nextIndex - startIndex), item.format);
@@ -65,37 +65,39 @@ function parseSheet(sht) {
     const cols = sht[0].filter(i => i.formattedValue).map(i => i.formattedValue.replace(/\s/g, '_'));
     return sht.slice(1)
         .filter(sh => sh && sh[0] && sh[0].formattedValue !== undefined)
-        .map(function(sh) {
+        .map(function (sh) {
             return cols.map((name, index) => {
                 if (!sh[index]) return { value: '' };
                 if (sh[index].textFormatRuns)
                     return formatGoogleSheet({ value: sh[index].formattedValue, format: sh[index].textFormatRuns });
                 return sh[index].formattedValue;
-            }).reduce((ret, item, index) => {
-                const col = cols[index];
-                if (col === 'titulo') {
-                    ret['href'] = item.toLowerCase()
-                        .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
-                        .replace(/à/g, 'a')
-                        .replace(/ä/g, 'a')
-                        .replace(/á/g, 'a')
-                        .replace(/é/g, 'e')
-                        .replace(/è/g, 'e')
-                        .replace(/ë/g, 'e')
-                        .replace(/ï/g, 'i')
-                        .replace(/í/g, 'i')
-                        .replace(/ì/g, 'i')
-                        .replace(/ö/g, 'o')
-                        .replace(/ò/g, 'o')
-                        .replace(/ó/g, 'o')
-                        .replace(/ü/g, 'u')
-                        .replace(/ù/g, 'u')
-                        .replace(/ú/g, 'u')
-                        .replace(/\s/g, '-')
-                }
-                ret[col] = item;
-                return ret;
-            }, {});
+            })
+                .filter(i => i)
+                .reduce((ret, item, index) => {
+                    const col = cols[index];
+                    if (col === 'titulo') {
+                        ret['href'] = item.toLowerCase()
+                            .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
+                            .replace(/à/g, 'a')
+                            .replace(/ä/g, 'a')
+                            .replace(/á/g, 'a')
+                            .replace(/é/g, 'e')
+                            .replace(/è/g, 'e')
+                            .replace(/ë/g, 'e')
+                            .replace(/ï/g, 'i')
+                            .replace(/í/g, 'i')
+                            .replace(/ì/g, 'i')
+                            .replace(/ö/g, 'o')
+                            .replace(/ò/g, 'o')
+                            .replace(/ó/g, 'o')
+                            .replace(/ü/g, 'u')
+                            .replace(/ù/g, 'u')
+                            .replace(/ú/g, 'u')
+                            .replace(/\s/g, '-');
+                    }
+                    ret[col] = item;
+                    return ret;
+                }, {});
         });
 }
 
@@ -103,13 +105,13 @@ function getLastmodISO(string) {
     return new Date(string.split('/').reverse().join('-')).toISOString();
 }
 
-module.exports = function(utils) {
+module.exports = function (utils) {
     const obj = {};
     const calendars = {};
 
-    obj.authorize = function() {
-        return new Promise(function(resolve, reject) {
-            jwtClient.authorize(function(err, token) {
+    obj.authorize = function () {
+        return new Promise(function (resolve, reject) {
+            jwtClient.authorize(function (err, token) {
                 if (err) {
                     reject(err);
                     return;
@@ -120,15 +122,15 @@ module.exports = function(utils) {
         });
     };
 
-    obj.initCalendar = function() {
-        return new Promise(function(res, rej) {
+    obj.initCalendar = function () {
+        return new Promise(function (res, rej) {
             calendar.calendarList
-                .list(function(err, resp) {
-                    resp.items.forEach(function(c) {
+                .list(function (err, resp) {
+                    resp.items.forEach(function (c) {
                         calendars[c.id] = c;
                     });
                     res(calendars);
-                })
+                });
         });
     };
 
@@ -137,7 +139,7 @@ module.exports = function(utils) {
     const root = '/google/drive/';
 
     function savePhoto(fold, item, imageWidth, deviceType) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             const dest = fs.createWriteStream(__dirname + `${root}${fold.name}/${deviceType}.${item.originalFilename}`);
             const format = item.mimeType.replace('image/', '');
             const existsSync = fs.existsSync(__dirname + `${root}${fold.name}/${deviceType}.${item.originalFilename}`);
@@ -146,14 +148,14 @@ module.exports = function(utils) {
                     url: `${root}${fold.name}/${deviceType}.${item.originalFilename}`,
                     name: item.originalFilename,
                     folder: fold.name
-                })
+                });
             }
 
             const resizer = sharp().resize(imageWidth,
                 parseInt((imageWidth / item.imageMediaMetadata.width) * item.imageMediaMetadata.height, 10))
                 .rotate()[format]();
             drive.files.get({ fileId: item.id, alt: 'media' })
-                .on('end', function() {
+                .on('end', function () {
                     resolve({
                         url: `${root}${fold.name}/${deviceType}.${item.originalFilename}`,
                         name: item.originalFilename,
@@ -166,60 +168,60 @@ module.exports = function(utils) {
         });
     }
 
-    obj.initDrivePhotos = function() {
+    obj.initDrivePhotos = function () {
         const promises = [];
-        return new Promise(function(res, rej) {
+        return new Promise(function (res, rej) {
             // deleteFolder(`${__dirname}/google/drive`);
-            if (!fs.existsSync(`${__dirname}/google/drive`)){
+            if (!fs.existsSync(`${__dirname}/google/drive`)) {
                 fs.mkdirSync(`${__dirname}/google/drive`);
             }
 
-            drive.files.list({}, function(err, list) {
+            drive.files.list({}, function (err, list) {
                 const folders = list.items
                     .filter(item => item.mimeType === 'application/vnd.google-apps.folder')
                     .filter(item => item.title !== 'website')
                     .map(item => {
-                        if (!fs.existsSync(`${__dirname}/google/drive/${item.title}`)){
+                        if (!fs.existsSync(`${__dirname}/google/drive/${item.title}`)) {
                             fs.mkdirSync(`${__dirname}/google/drive/${item.title}`);
                         }
                         return {
                             id: item.id,
                             name: item.title
-                        }
+                        };
                     });
 
                 promises.push(...list.items
-                    .map(function(i) {
+                    .map(function (i) {
                         // if (i.mimeType === 'application/vnd.google-apps.spreadsheet')
                         //     console.log(i.mimeType, i.id);
                         return i;
                     })
                     .filter(item => item.mimeType === 'image/jpeg')
-                    .map(function(item, index) {
+                    .map(function (item, index) {
                         const fold = folders.filter(f => f.id === item.parents[0].id)[0];
                         if (fold) {
-                            return async function() {
+                            return async function () {
                                 photos.push(await savePhoto(fold, item, 320, 'mobile'));
                                 photos.push(await savePhoto(fold, item, 768, 'tablet'));
                                 photos.push(await savePhoto(fold, item, 1024, 'desktop'));
-                            }
+                            };
                         }
-                        return function() {
-                            return Promise.resolve()
+                        return function () {
+                            return Promise.resolve();
                         };
                     }));
 
                 (function queue(index) {
                     if (promises[index]) {
                         promises[index]()
-                            .then(function() {
-                                queue(index + 1)
+                            .then(function () {
+                                queue(index + 1);
                             })
-                            .catch(function() {
-                                queue(index + 1)
-                            })
+                            .catch(function () {
+                                queue(index + 1);
+                            });
                     } else {
-                        res()
+                        res();
                     }
                 })(0);
 
@@ -228,7 +230,7 @@ module.exports = function(utils) {
         });
     };
 
-    obj.publicDb = function() {
+    obj.publicDb = function () {
         const ret = { photos };
         Object.assign(ret, sheets, {
             calendars: googleDb.calendars,
@@ -238,7 +240,7 @@ module.exports = function(utils) {
         return ret;
     };
 
-    obj.initDriveSheets = function() {
+    obj.initDriveSheets = function () {
         return Promise.all([
             getTreatmentsList(),
             getBeautypartiesList(),
@@ -247,7 +249,7 @@ module.exports = function(utils) {
             getProductsList(),
             getPressList(),
             getBonusCardsList()
-        ]).then(function(array) {
+        ]).then(function (array) {
             const modified = array.map(parseSheet);
             sheets.treatments = modified[0] || [];
             sheets.beautyparties = modified[1] || [];
@@ -256,43 +258,43 @@ module.exports = function(utils) {
             sheets.products = modified[4] || [];
             sheets.press = modified[5] || [];
             sheets.bonusCards = modified[6] || [];
-        })
+        });
     };
 
-    obj.freeBusy = function({ timestamp, calendars, timeFrame }) {
-        return new Promise(function(res, rej) {
+    obj.freeBusy = function ({ timestamp, calendars, timeFrame }) {
+        return new Promise(function (res, rej) {
             const from = new Date(timestamp);
             const to = new Date(timestamp);
             from.setUTCHours(7, 0, 0, 0);
             to.setUTCHours(18, 0, 0, 0);
             const temp = {
-                headers: { "content-type": "application/json" },
+                headers: { 'content-type': 'application/json' },
                 resource: {
                     timeMin: timeFrame ? new Date(timeFrame.from).toISOString() : from.toISOString(),
                     timeMax: timeFrame ? new Date(timeFrame.to).toISOString() : to.toISOString(),
                     items: calendars.map(i => {
-                        return { id: googleDb.calendars[i].id }
+                        return { id: googleDb.calendars[i].id };
                     })
                 }
             };
-            calendar.freebusy.query(temp, function(err, data) {
+            calendar.freebusy.query(temp, function (err, data) {
                 if (err) return rej(new Error('error'));
                 if (!data) return rej(new Error('error'));
                 const array = Object.keys(data.calendars).map(id => {
                     return {
                         id: googleDb.calendars.filter(item => item.id === id)[0].worker,
                         busy: data.calendars[id].busy
-                    }
+                    };
                 }).reduce((ret, item) => {
                     ret[item.id] = item.busy;
                     return ret;
                 }, {});
                 return res(array);
-            })
-        })
+            });
+        });
     };
 
-    obj.getTreatmentsDuration = function(treatments, calendarIndex, locationIndex, timestamp) {
+    obj.getTreatmentsDuration = function (treatments, calendarIndex, locationIndex, timestamp) {
         // console.log('************ CALENDAR', calendarIndex, locationIndex);
         const number = treatments
             .map(id => {
@@ -307,19 +309,19 @@ module.exports = function(utils) {
                     from.setUTCHours(...decimalToTime(period[0]));
                     const to = new Date(timestamp);
                     to.setUTCHours(...decimalToTime(period[1]));
-                    return date.getTime() >= from.getTime() && date.getTime() <= to.getTime()
+                    return date.getTime() >= from.getTime() && date.getTime() <= to.getTime();
                 });
                 // console.log('IS WORKING DAY', isWorkingDay);
                 if (isWorkingDay.length === 0) return -2000000000000;
                 // console.log('ONE TREATMENT', treat[cal.worker]);
                 if (parseInt(treat[cal.worker], 10) === 0) return -2000000000000;
-                return parseInt(treat[cal.worker], 10)
+                return parseInt(treat[cal.worker], 10);
             })
             .reduce((a, b) => a + b, 0);
         return (Math.ceil(number / 15) * 15) * 60 * 1000;
     };
 
-    obj.getTreatmentsLabel = function(treatments) {
+    obj.getTreatmentsLabel = function (treatments) {
         return treatments
             .map(id => {
                 const treat = sheets.treatments.filter(t => t.identificador === id)[0];
@@ -328,21 +330,21 @@ module.exports = function(utils) {
             .join(' - ');
     };
 
-    obj.calendarInsert = function({ id, from, to, label, description = '', summary, processId = 97 }) {
-        return new Promise(function(resolve, reject) {
+    obj.calendarInsert = function ({ id, from, to, label, description = '', summary, processId = 97 }) {
+        return new Promise(function (resolve, reject) {
             const params = {
                 calendarId: id,
                 resource: {
                     summary,
                     location: googleDb.centers[googleDb.calendars.filter(c => c.id === id)[0].location].address,
-                    start: { "dateTime": (new Date(from)).toISOString() },
-                    end: { "dateTime": (new Date(to)).toISOString() },
+                    start: { 'dateTime': (new Date(from)).toISOString() },
+                    end: { 'dateTime': (new Date(to)).toISOString() },
                     description,
                     extendedProperties: { private: { processId, label } }
                 }
             };
 
-            calendar.events.insert(params, function(e, o) {
+            calendar.events.insert(params, function (e, o) {
                 if (e) return reject(new Error('error'));
                 const start = new Date(o.start.dateTime);
                 const end = new Date(o.end.dateTime);
@@ -355,27 +357,27 @@ module.exports = function(utils) {
                     date: start.toISOString(),
                     start: start.toISOString(),
                     end: end.toISOString(),
-                    duration: (end.getTime() - start.getTime()) / (60*1000),
+                    duration: (end.getTime() - start.getTime()) / (60 * 1000),
                     description,
                     label,
                     processId
                 };
                 utils.wss.broadcast(JSON.stringify({ type: 'insertEvent', data: evt }));
-                resolve(evt)
-            })
-        })
+                resolve(evt);
+            });
+        });
     };
 
-    obj.calendarDelete = function({ eventId, calendarId }) {
-        return new Promise(function(resolve, reject) {
-            calendar.events.delete({ eventId, calendarId }, function(e, o) {
+    obj.calendarDelete = function ({ eventId, calendarId }) {
+        return new Promise(function (resolve, reject) {
+            calendar.events.delete({ eventId, calendarId }, function (e, o) {
                 utils.wss.broadcast(JSON.stringify({ type: 'deleteEvent', data: { calendarId, eventId } }));
-                resolve()
-            })
-        })
+                resolve();
+            });
+        });
     };
 
-    obj.calendarGet = function(calendarId, date) {
+    obj.calendarGet = function (calendarId, date) {
         date.setHours(0, 0, 0, 0);
         const timeMin = date.toISOString();
         date.setHours(23, 59, 59, 999);
@@ -386,24 +388,24 @@ module.exports = function(utils) {
             timeMax: timeMax,
             timeZone: 'Europe/Madrid'
         };
-        return new Promise(function(resolve, reject) {
-            calendar.events.list(params, function(e, d) {
+        return new Promise(function (resolve, reject) {
+            calendar.events.list(params, function (e, d) {
                 if (e) return reject(new Error('error'));
                 resolve(d);
 
-            })
+            });
         });
     };
 
-    obj.getBookings = async function(hash) {
+    obj.getBookings = async function (hash) {
         const results = await Promise.all(googleDb.calendars.map(({ id }) => {
-            return new Promise(function(resolve, reject) {
+            return new Promise(function (resolve, reject) {
                 const calendarId = id;
                 calendar.events.list({
                     calendarId,
                     timeMin: (new Date()).toISOString(),
                     q: hash
-                }, function(err, o) {
+                }, function (err, o) {
                     if (err) return reject(new Error('error'));
                     resolve(o.items.map(({ id, summary, extendedProperties, location, start, end }) => {
                         return {
@@ -412,7 +414,7 @@ module.exports = function(utils) {
                             summary: summary, location,
                             start: new Date(start.dateTime).getTime(),
                             end: new Date(end.dateTime).getTime()
-                        }
+                        };
                     }));
                 });
             });
@@ -420,30 +422,60 @@ module.exports = function(utils) {
         return results.reduce((a, b) => a.concat(b), []);
     };
 
-    obj.createSitemap = function() {
+    obj.createSitemap = function () {
         const urls = Object.keys(appsManifest.apps).map(key => {
-            return { url: `/es/${appsManifest.apps[key].url}`,  changefreq: 'monthly', priority: 1 }
+            return { url: `/es/${appsManifest.apps[key].url}`, changefreq: 'monthly', priority: 1 };
         });
         urls.push(...sheets.promotions.map(item => {
-            return { url: `/es/promociones/${item.href}`,  changefreq: 'monthly', priority: 0.8, lastmodISO: getLastmodISO(item.creacion) }
+            return {
+                url: `/es/promociones/${item.href}`,
+                changefreq: 'monthly',
+                priority: 0.8,
+                lastmodISO: getLastmodISO(item.creacion)
+            };
         }));
         urls.push(...sheets.treatments.reduce((arr, item) => {
             if (arr.indexOf(item.tipo) === -1) arr.push(item.tipo);
             return arr;
-        },[]).map(item => {
-            return { url: `/es/tratamientos/${item}`,  changefreq: 'monthly', priority: 0.8, lastmodISO: getLastmodISO("01/05/2018") }
+        }, []).map(item => {
+            return {
+                url: `/es/tratamientos/${item}`,
+                changefreq: 'monthly',
+                priority: 0.8,
+                lastmodISO: getLastmodISO('01/05/2018')
+            };
         }));
         urls.push(...sheets.bonusCards.map(item => {
-            return { url: `/es/tarjetas/${item.href}`,  changefreq: 'monthly', priority: 0.8, lastmodISO: getLastmodISO(item.desde) }
+            return {
+                url: `/es/tarjetas/${item.href}`,
+                changefreq: 'monthly',
+                priority: 0.8,
+                lastmodISO: getLastmodISO(item.desde)
+            };
         }));
         urls.push(...sheets.beautyparties.map(item => {
-            return { url: `/es/beauty-parties/${item.href}`,  changefreq: 'monthly', priority: 0.8, lastmodISO: getLastmodISO("01/05/2018") }
+            return {
+                url: `/es/beauty-parties/${item.href}`,
+                changefreq: 'monthly',
+                priority: 0.8,
+                lastmodISO: getLastmodISO('01/05/2018')
+            };
         }));
         urls.push(...sheets.news.map(item => {
-            return { url: `/es/novedades/${item.href}`,  changefreq: 'monthly', priority: 0.8, lastmodISO: getLastmodISO(item.fecha) }
+            return {
+                url: `/es/novedades/${item.href}`,
+                changefreq: 'monthly',
+                priority: 0.8,
+                lastmodISO: getLastmodISO(item.fecha)
+            };
         }));
         urls.push(...sheets.press.map(item => {
-            return { url: `/es/en-los-medios/${item.href}`,  changefreq: 'monthly', priority: 0.8, lastmodISO: getLastmodISO(item.fecha) }
+            return {
+                url: `/es/en-los-medios/${item.href}`,
+                changefreq: 'monthly',
+                priority: 0.8,
+                lastmodISO: getLastmodISO(item.fecha)
+            };
         }));
 
         return sm.createSitemap({
@@ -454,94 +486,94 @@ module.exports = function(utils) {
     };
 
     function getTreatmentsList() {
-        return new Promise(function(res, reject) {
+        return new Promise(function (res, reject) {
             googleSheets.spreadsheets.get({
                 spreadsheetId: '1nIQYlop5M1d1InuGzVAvR8-uQOgNaBrNYEEcC15bmb8',
                 includeGridData: true
-            }, function(err, sht) {
+            }, function (err, sht) {
                 if (err) return reject(new Error('error'));
                 if (!sht) return reject(new Error('error'));
                 res(sht.sheets[0].data[0].rowData.map(i => i.values));
             });
-        })
+        });
     }
 
     function getPressList() {
-        return new Promise(function(res, reject) {
+        return new Promise(function (res, reject) {
             googleSheets.spreadsheets.get({
                 spreadsheetId: '1Bby3yuw3kf3primfpbN_4h04-M9UbrJZXiZXPot3FpI',
                 includeGridData: true
-            }, function(err, sht) {
+            }, function (err, sht) {
                 if (err) return reject(new Error('error'));
                 if (!sht) return reject(new Error('error'));
                 res(sht.sheets[0].data[0].rowData.map(i => i.values));
             });
-        })
+        });
     }
 
     function getBonusCardsList() {
-        return new Promise(function(res, reject) {
+        return new Promise(function (res, reject) {
             googleSheets.spreadsheets.get({
                 spreadsheetId: '1ckXjaG3YaF1any7O3ESZ3gtrnzLkb2M-z5G6b-zG2XU',
                 includeGridData: true
-            }, function(err, sht) {
+            }, function (err, sht) {
                 if (err) return reject(new Error('error'));
                 if (!sht) return reject(new Error('error'));
                 res(sht.sheets[0].data[0].rowData.map(i => i.values));
             });
-        })
+        });
     }
 
     function getBeautypartiesList() {
-        return new Promise(function(res, reject) {
+        return new Promise(function (res, reject) {
             googleSheets.spreadsheets.get({
                 spreadsheetId: '1DSPMJQWDeBDe4fU7g1f-uDqE6dJYaN7VWoAF_IqGor8',
                 includeGridData: true
-            }, function(err, sht) {
+            }, function (err, sht) {
                 if (err) return reject(new Error('error'));
                 if (!sht) return reject(new Error('error'));
                 res(sht.sheets[0].data[0].rowData.map(i => i.values));
             });
-        })
+        });
     }
 
     function getNewsList() {
-        return new Promise(function(res, reject) {
+        return new Promise(function (res, reject) {
             googleSheets.spreadsheets.get({
                 spreadsheetId: '1EkHDQnTRNF5FupkFyiYET-bab4YRLwT31z2fmCeefa0',
                 includeGridData: true
-            }, function(err, sht) {
+            }, function (err, sht) {
                 if (err) return reject(new Error('error'));
                 if (!sht) return reject(new Error('error'));
                 res(sht.sheets[0].data[0].rowData.map(i => i.values));
             });
-        })
+        });
     }
 
     function getProductsList() {
-        return new Promise(function(res, reject) {
+        return new Promise(function (res, reject) {
             googleSheets.spreadsheets.get({
                 spreadsheetId: '1EofwLtBCxJ66sSCkFrYQ_QkVcGyZFsirGpqMktJW8ig',
                 includeGridData: true
-            }, function(err, sht) {
+            }, function (err, sht) {
                 if (err) return reject(new Error('error'));
                 if (!sht) return reject(new Error('error'));
                 res(sht.sheets[0].data[0].rowData.map(i => i.values));
             });
-        })
+        });
     }
 
     function getPromotionsList() {
-        return new Promise(function(res, reject) {
+        return new Promise(function (res, reject) {
             googleSheets.spreadsheets.get({
                 spreadsheetId: '1hKcwLjpDcmExPrrWN_msZOfilFhiCHodWBkzLTCIuxY',
                 includeGridData: true
-            }, function(err, sht) {
+            }, function (err, sht) {
                 if (err) return reject(new Error('error'));
                 if (!sht) return reject(new Error('error'));
                 res(sht.sheets[0].data[0].rowData.map(i => i.values));
             });
-        })
+        });
     }
 
     function decimalToTime(decimalTimeString) {

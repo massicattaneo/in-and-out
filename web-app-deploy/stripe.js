@@ -1,5 +1,6 @@
 const stripeConfig = require("./private/stripe.json");
-const stripe = require("stripe")(stripeConfig.liveServerKey);
+const isDeveloping = process.env.NODE_ENV === "development";
+const stripe = require("stripe")(isDeveloping ? stripeConfig.devServerKey : stripeConfig.liveServerKey);
 
 module.exports = function() {
     const obj = {};
