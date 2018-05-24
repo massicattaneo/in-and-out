@@ -101,6 +101,7 @@ function cart({ system }) {
         parent.appendChild(view.get());
 
 
+        // const stripe = Stripe('pk_test_gPjcEmmMg0jWcuU6BA44q2Em');
         const stripe = Stripe('pk_live_2STcLq3AN81f1gSQgJ8YBpss');
         const elements = stripe.elements();
 

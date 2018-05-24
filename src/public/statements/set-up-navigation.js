@@ -18,6 +18,25 @@ export default async function({ system, wait, thread }) {
     context.focuses = [];
     context.focusIndex = 0;
 
+
+    async function createWindow(name, appBaseUrl) {
+        let title = context.locale.get(`apps.${name}.windowTitle`);
+        document.title = context.locale.get('documentWindowTitle', title);
+        const filter = context.appsManifest.filter(i => i.name == name);
+        const showCartIcon = filter.length ? filter[0].showCartIcon : false;
+        context.focuses.push(await Window({
+            thread,
+            system,
+            context,
+            parent: context.main,
+            title,
+            showCartIcon,
+            url: appBaseUrl
+        }));
+        context.focusIndex = context.focuses.length - 1;
+        await context.focuses[context.focusIndex].startApp(name);
+    }
+
     /** START an APP */
     system
         .onNavigate()
@@ -50,27 +69,25 @@ export default async function({ system, wait, thread }) {
                         const res = event.split('/')[2];
                         const aps = context.locale.get('apps');
                         const name = Object.keys(aps).filter(k => aps[k].url === res)[0];
-                        let title = context.locale.get(`apps.${name}.windowTitle`);
-                        document.title = context.locale.get('documentWindowTitle', title);
-                        const filter = context.appsManifest.filter(i => i.name == name);
-                        const showCartIcon = filter.length ? filter[0].showCartIcon : false;
-                        context.focuses.push(await Window({
-                            thread,
-                            system,
-                            context,
-                            parent: context.main,
-                            title,
-                            showCartIcon,
-                            url: appBaseUrl
-                        }));
-                        context.focusIndex = context.focuses.length - 1;
-                        await context.focuses[context.focusIndex].startApp(name);
+                        if (res && name) {
+                            await createWindow(name, appBaseUrl);
+                        } else if (appBaseUrl === '/contacto/') {
+                            await createWindow('callUs', appBaseUrl);
+                        } else if (appBaseUrl === '/novedades/') {
+                            await createWindow('news', appBaseUrl);
+                        } else if (appBaseUrl === '/tratamientos-de-belleza/') {
+                            await createWindow('treatments', appBaseUrl);
+                        } else if (appBaseUrl === '/quienes-somos/') {
+                            await createWindow('team', appBaseUrl);
+                        } else if (appBaseUrl === '/seccion/promociones/') {
+                            await createWindow('promotions', appBaseUrl);
+                        }
                     }
 
                 }
                 if (!compare(old, event, 2)) {
                     const focus = context.focuses.find(w => w.url === appBaseUrl);
-                    focus.navigateTo(event.split('/')[3]);
+                    focus && focus.navigateTo(event.split('/')[3]);
                 }
                 system.store.windowOpened = true;
             }
