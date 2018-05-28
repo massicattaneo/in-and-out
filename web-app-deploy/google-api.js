@@ -22,6 +22,7 @@ const processes = require('./processes.json');
 const sm = require('sitemap');
 const appsManifest = require('./static/localization/system/es.json');
 const shared = require('./shared');
+const striptags = require('striptags');
 
 function deleteFolder(path) {
     if (fs.existsSync(path)) {
@@ -64,6 +65,7 @@ function formatGoogleSheet({ value, format }) {
 
 function parseHref(item) {
     return item.toLowerCase().trim()
+        .replace(/&/g, ' and ')
         .replace(/[`~!@#$%^&*()´_|+=?;:'",<>\{\}\[\]\\\/]/gi, '')
         .replace(/à/g, 'a')
         .replace(/ä/g, 'a')
@@ -83,6 +85,7 @@ function parseHref(item) {
         .replace(/ú/g, 'u')
         .replace(/ñ/g, 'n')
         .replace('&', ' and ')
+        .replace(/\s\s+/g, ' ')
         .trim()
         .replace(/\s/g, '-');
 }
@@ -103,6 +106,9 @@ function parseSheet(sht) {
                     const col = cols[index];
                     if (col === 'titulo') {
                         ret['href'] = parseHref(item);
+                    }
+                    if (col === 'marca' || col === 'tipo') {
+                        ret['menuhref'] = parseHref(item);
                     }
                     ret[col] = item;
                     return ret;
@@ -242,7 +248,11 @@ module.exports = function (utils, posts) {
             centers: googleDb.centers,
             workers: googleDb.workers,
             timestamp: new Date().toISOString(),
-            processes
+            processes,
+            settings: {
+                freeChargeLimit: 60,
+                sendingCharge: 4.99,
+            }
         });
         return ret;
     };
@@ -262,7 +272,7 @@ module.exports = function (utils, posts) {
             sheets.beautyparties = modified[1] || [];
             sheets.promotions = modified[2] || [];
             sheets.news = modified[3] || [];
-            sheets.products = modified[4] || [];
+            sheets.products = (modified[4] || []).map(p => Object.assign(p, { titulo: `${p.marca}: ${p.titulo}` }));
             sheets.press = modified[5] || [];
             sheets.bonusCards = modified[6] || [];
         });
@@ -322,7 +332,7 @@ module.exports = function (utils, posts) {
         return treatments
             .map(id => {
                 const treat = sheets.treatments.filter(t => t.identificador === id)[0];
-                return treat.titulo;
+                return `${treat.tipo}: ${treat.titulo}`;
             })
             .join(' - ');
     };
@@ -489,6 +499,13 @@ module.exports = function (utils, posts) {
                 lastmodISO: getLastmodISO(item.fecha)
             };
         }));
+        urls.push(...obj.getSuggestions().map(item => {
+            return {
+                url: `/es/buscar/${item}`,
+                changefreq: 'monthly',
+                priority: 0.8
+            };
+        }));
 
         const priorityPosts = ['microblading-en-malaga', 'ventajas-microblading',
             'depilacion-al-caramelo-malaga', 'depilacion-con-hilo',
@@ -552,6 +569,105 @@ module.exports = function (utils, posts) {
         }];
         sheets.press = [];
         sheets.bonusCards = [];
+    };
+
+    obj.getSuggestions = function () {
+        return sheets.treatments.reduce((ret, i) => ret.concat(i.titulo.split(' ')), [])
+            .concat(sheets.treatments.reduce((ret, i) => ret.concat(i.tipo.split(' ')), []))
+            .concat(sheets.bonusCards.reduce((ret, i) => ret.concat(i.titulo.split(' ')), []))
+            .concat(sheets.news.reduce((ret, i) => ret.concat(i.titulo.split(' ')), []))
+            .concat(sheets.press.reduce((ret, i) => ret.concat(i.titulo.split(' ')), []))
+            .concat(sheets.beautyparties.reduce((ret, i) => ret.concat(i.titulo.split(' ')), []))
+            .concat(sheets.promotions.reduce((ret, i) => ret.concat(i.titulo.split(' ')), []))
+            .concat(sheets.products.reduce((ret, i) => ret.concat(i.titulo.split(' ')), []))
+            .concat(sheets.products.reduce((ret, i) => ret.concat(i.marca.split(' ')), []))
+            .concat(posts.filter(i => i.post_type === 'post').reduce((ret, i) => ret.concat(i.post_title.split(' ')), []))
+            .concat(['salitre'])
+            .map(i => parseHref(i))
+            .filter((i, index, a) => a.indexOf(i) === index)
+            .filter(i => i.length >= 4)
+            .sort();
+    };
+
+    obj.getSearchResult = function (search) {
+        function contains(string) {
+            return words.filter(i => string.indexOf(i) !== -1).length === words.length;
+        }
+        const words = search.map(i => parseHref(i));
+        return []
+            .concat(sheets.treatments
+                .filter(i => contains(parseHref(i.titulo)) || contains(parseHref(i.tipo)))
+                .map(i => {
+                    return {
+                        type: 'treatments',
+                        title: `${i.tipo} - ${i.titulo}`,
+                        description: i.descripcion,
+                        href: `/es/tratamientos/${parseHref(i.tipo)}/${i.href}`
+                    };
+                }))
+            .concat(sheets.bonusCards
+                .filter(i => contains(parseHref(i.titulo))).map(i => {
+                return {
+                    type: 'bonusCards',
+                    title: i.titulo,
+                    description: i.descripcion,
+                    href: `/es/tarjetas/${i.href}`
+                };
+            }))
+            .concat(sheets.products
+                .filter(i => contains(parseHref(i.titulo)) || contains(parseHref(i.marca)))
+                .map(i => {
+                    return {
+                        type: 'products',
+                        title: `${i.titulo}`,
+                        description: i.descripcion,
+                        href: `/es/productos/${parseHref(i.marca)}/${i.href}`
+                    };
+                }))
+            .concat(sheets.news.filter(i => contains(parseHref(i.titulo))).map(i => {
+                return {
+                    type: 'news',
+                    title: i.titulo,
+                    description: i.descripcion,
+                    href: `/es/novedades/${i.href}`
+                };
+            }))
+            .concat(sheets.beautyparties.filter(i => contains(parseHref(i.titulo))).map(i => {
+                return {
+                    type: 'beautyparties',
+                    title: i.titulo,
+                    description: i.descripcion,
+                    href: `/es/beauty-parties/${i.href}`
+                };
+            }))
+            .concat(sheets.promotions.filter(i => contains(parseHref(i.titulo))).map(i => {
+                return {
+                    type: 'promotions',
+                    title: i.titulo,
+                    description: i.descripcion,
+                    href: `/es/promociones/${i.href}`
+                };
+            }))
+            .concat(sheets.press.filter(i => contains(parseHref(i.titulo))).map(i => {
+                return {
+                    type: 'press',
+                    title: i.titulo,
+                    description: i.descripcion,
+                    href: `/es/en-los-medios/${i.href}`
+                };
+            }))
+            .concat(posts
+                .filter(i => i.post_type === 'post')
+                .filter(i => contains(parseHref(i.post_title)))
+                .map(i => {
+                    return {
+                        type: 'blog',
+                        title: i.post_title,
+                        description: i.post_content,
+                        href: `/es/contenido-extra/${i.post_name}`
+                    };
+                })
+            ).map(i => Object.assign(i, { description: i.description ? striptags(i.description.substr(0, 140)) : '' }));
     };
 
     function getTreatmentsList() {

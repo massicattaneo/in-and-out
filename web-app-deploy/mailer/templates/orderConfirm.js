@@ -22,7 +22,7 @@ module.exports = function ({grayColor, id, cart, googleDb, footer, amount, host}
             ${parseCart(cart, googleDb)
                 .map(item => `
                     <tr>
-                        <td width="70%">${item.title}</td>
+                        <td width="70%">${item.typeTranslated} - ${item.title}</td>
                         <td  width="30%" style="text-align: right;">
                             ${toCurrency(Number(item.price) * item.count)}
                         </td>

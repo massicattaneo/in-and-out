@@ -1,7 +1,6 @@
 import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './home.html';
 import * as styles from './home.scss';
-import { RetryRequest } from 'gml-http-request';
 
 export default async function ({ system, parent }) {
     let obj = {};

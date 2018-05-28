@@ -14,6 +14,25 @@ function filterClients(find) {
     };
 }
 
+function getBuytypeIndex(id) {
+    return ['TRT', 'TAR', 'PRD'].indexOf(id.substr(0, 3));
+}
+
+function mapReceiver(order) {
+    const isGift = ['NO', 'TODA LA COMPRA', 'SOLO PRODUCTOS'];
+    const keys = {
+        name: 'NOMBRE',
+        address: 'DIRECCION',
+        city: 'POBLACION',
+        cap: 'CODIGO POSTAL',
+        tel: 'TELEFONO',
+        isGift: 'ES UN REGALO'
+    };
+    return k => {
+        return `${keys[k]}: ${k === 'isGift' ? isGift[order.sendTo[k]] : order.sendTo[k]}`;
+    };
+}
+
 export default async function ({ locale, system, thread }) {
     const params = Object.assign({}, locale.get());
     const view = HtmlView(template, style, params);
@@ -39,12 +58,11 @@ export default async function ({ locale, system, thread }) {
                         amount: system.toCurrency(i.amount / 100),
                         id: i._id,
                         buttons: i.cart.map(({ id, used }, index) => {
-                            const item = Object.create((id.startsWith('TRT'))
-                                ? system.publicDb.treatments.find(i => i.identificador === id)
-                                : system.publicDb.bonusCards.find(i => i.id === id));
-                            item.title = item.titulo
-                                ? `<strong>TRATAMIENTO:</strong> ${item.titulo}` :
-                                `<strong>B/TR</strong>: ${item.title}`;
+                            const typeIndex = getBuytypeIndex(id);
+                            const buyTypes = ['treatments', 'bonusCards', 'products'];
+                            const type = buyTypes[typeIndex];
+                            const item = Object.assign({}, system.publicDb[type].find(i => i.identificador === id || i.id === id));
+                            item.title = `<strong>${locale.get(`sellTypes.${type}`)}:</strong> ${item.title || item.titulo}`;
                             item.price = system.toCurrency(item.precio || item.price);
                             return `<button type="button" style="width: 100%"
                                         onclick="this.form.use('${i._id}', ${index})"
@@ -66,7 +84,18 @@ export default async function ({ locale, system, thread }) {
 
     view.get('wrapper').use = async function (orderId, index) {
         const order = system.store.orders.find(o => o._id === orderId);
-        if (system.publicDb.treatments.find(i => i.identificador === order.cart[index].id)) {
+        const typeIndex = getBuytypeIndex(order.cart[index].id);
+        if (typeIndex === 2) {
+            const send = Object.keys(order.sendTo).map(mapReceiver(order)).join('\n');
+            if (confirm(`DATOS DE ENVIO:\n\n${send}\n\n HAS ENVIADO EL PRODUCTO?`)) {
+                order.cart[index].used = true;
+                await thread.execute('rest-api', {
+                    api: `orders/${orderId}`,
+                    method: 'put',
+                    cart: order.cart
+                });
+            }
+        } else if (typeIndex === 0) {
             if (confirm('ESTAS SEGURO DE UTILIZAR ESTE TRATAMIENTO?')) {
                 order.cart[index].used = true;
                 await thread.execute('rest-api', {
@@ -75,7 +104,7 @@ export default async function ({ locale, system, thread }) {
                     cart: order.cart
                 });
             }
-        } else {
+        } else if (typeIndex === 1) {
             const { modalView } = createModal(bonusTpl, { clients: system.store.clients }, async function (close) {
                 if (!this.clientId.value) system.throw('custom', { message: 'SELCIONA UN CLIENTE' });
                 const { id } = order.cart[index];

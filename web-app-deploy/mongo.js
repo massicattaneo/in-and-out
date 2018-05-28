@@ -236,10 +236,10 @@ module.exports = function (isDeveloping, utils) {
         });
     };
 
-    obj.buy = function ({ cart = [], userId, amount, email }) {
+    obj.buy = function ({ cart = [], userId, amount, email, sendTo }) {
         return new Promise(function (resolve, reject) {
             const doc = {
-                userId, cart, email, amount, payed: false
+                userId, sendTo, cart, email, amount, payed: false
             };
             db.collection('orders').insertOne(doc, function (err, res) {
                 if (err)

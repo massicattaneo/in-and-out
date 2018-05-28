@@ -1,7 +1,8 @@
 {
   "treatmentsTypes": {
     "treatments": "TRATAMIENTOS",
-    "bonusCards": "TARJETAS"
+    "bonusCards": "TARJETAS",
+    "products": "PRODUCTOS"
   },
   "creditCardLabel": "Carta de debito o credito",
   "payButton": "PAGAR",

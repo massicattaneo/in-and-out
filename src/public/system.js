@@ -49,7 +49,7 @@ if(!window.jsEnabled) {
         }
         thread.execute('create-home-page');
         thread.execute(function() {
-            return system.navigateTo(this.redirectUrl);
+            return system.navigateTo(this.redirectUrl, {}, false, true);
         });
     })();
 }

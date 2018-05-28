@@ -92,10 +92,8 @@ const shared = require('./shared');
         } else {
             req.session.destroy(function (err) {
                 if (err) {
-                    res.status(500);
                     return res.send('anonymous');
                 } else {
-                    res.status(500);
                     return res.send('anonymous');
                 }
             });
@@ -145,6 +143,16 @@ const shared = require('./shared');
                 res.status(500);
                 res.send(err.message);
             });
+    });
+
+    app.get('/api/search/suggestion', function (req, res) {
+        const word = req.query.q.toLowerCase();
+        res.send(google.suggestions.filter(i => i.indexOf(word) !== -1).sort((a,b) => a.startsWith(word) ? -1 : 1))
+    });
+
+    app.get('/api/search/result', function (req, res) {
+        const words = req.query.q.split(' ');
+        res.send(google.getSearchResult(words));
     });
 
     app.post('/api/treatments/favourite',
@@ -202,17 +210,26 @@ const shared = require('./shared');
 
     app.post('/api/stripe/pay',
         async function (req, res) {
-            const { token, email } = req.body;
+            const { token, email, sendTo } = req.body;
             const cart = req.body.cart.map(id => {
                 return { id, used: false };
             });
-            const pos = { 'TAR': 'bonusCards', 'TRT': 'treatments' };
-            const amount = cart
+            const pos = { 'TAR': 'bonusCards', 'TRT': 'treatments', 'PRD': 'products' };
+            const cartAmount = cart
                 .map(({ id }) => {
                     return google.publicDb()[pos[id.substr(0, 3)]].filter(c => c.identificador === id)[0];
                 })
-                .reduce((tot, { precio }) => tot + Number(precio), 0) * 100;
-            const { id } = await mongo.buy({ cart, userId: req.session.userId, email, amount });
+                .reduce((tot, { precio }) => tot + Number(precio), 0);
+            const productsAmount = cart
+                .filter(({ id }) => id.substr(0, 3) === 'PRD')
+                .map(({ id }) => {
+                    return google.publicDb()[pos[id.substr(0, 3)]].filter(c => c.identificador === id)[0];
+                })
+                .reduce((tot, { precio }) => tot + Number(precio), 0);
+            const freeChargeLimit = google.publicDb().settings.freeChargeLimit;
+            const sendingCharge = google.publicDb().settings.sendingCharge;
+            const amount = Math.floor((cartAmount + ((productsAmount < freeChargeLimit && productsAmount !== 0) ? sendingCharge : 0)) * 100);
+            const { id } = await mongo.buy({ cart, userId: req.session.userId, email, amount, sendTo });
             stripe.pay({ token, amount, orderId: id, cart, email })
                 .then(async function (stripeRes) {
                     const emailParams = {
@@ -271,13 +288,13 @@ const shared = require('./shared');
                 });
             let busy;
             let workerIndex;
-            for (let i = 0; i< items.length; i++) {
+            for (let i = 0; i < items.length; i++) {
                 workerIndex = items[i].workerIndex;
                 const treatDur = shared.getTreatmentsDuration(googleDb, all, treatments, workerIndex);
                 busy = await google.freeBusy({
                     timeMin: dateMin.toISOString(),
                     timeMax: (new Date(dateMin.getTime() + treatDur * 60 * 1000)).toISOString(),
-                    items: [{id: items[i].id}]
+                    items: [{ id: items[i].id }]
                 });
                 if (busy.filter(i => !i || i.length === 0).length) break;
                 workerIndex = undefined;
@@ -493,7 +510,7 @@ const shared = require('./shared');
         callback = require('../webpack/dev-server')(app, express, google, posts);
     } else {
         const textFile = fs.readFileSync(path.join(__dirname, 'static/templates/index.html'), 'utf8');
-        const htmls = createStaticHtmls(textFile, google.publicDb(), posts);
+        const htmls = createStaticHtmls(textFile, google, posts);
         app.use(express.static(__dirname + '/static', {
             maxage: 365 * 24 * 60 * 60 * 1000,
             etag: false
@@ -508,7 +525,7 @@ const shared = require('./shared');
                 if (req.isSpider()) {
                     console.log('***** CRAWLER: requesting:', req.path);
                 }
-                res.write(createStaticHtmls.addCss(htmls[req.path] || htmls[''], req.isSpider()));
+                res.write(createStaticHtmls.addCss(htmls[req.path] || htmls[''], false));
                 res.end();
             }
         };

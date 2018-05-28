@@ -1,65 +1,65 @@
-import { plugin } from 'gml-system';
-import { Node, HtmlStyle, HtmlView } from 'gml-html';
+import {plugin} from 'gml-system';
+import {Node, HtmlStyle, HtmlView} from 'gml-html';
 import template from './index.html';
+import treatmentTemplate from './products.html';
 import * as styles from './index.scss';
-import { RetryRequest } from 'gml-http-request';
+import Menu from '../../public/components/menu/Menu';
 
 function products({ system }) {
-    return async function ({ parent, db }) {
+    return async function ({ parent }) {
         let obj = {};
-        const locale = await system.locale(`/localization/static.json`);
+        const locale = await system.locale(`/localization/products/es.json`);
         await locale.load(`/localization/common/es.json`);
-        await locale.load(`/localization/team/es.json`);
         const view = HtmlView(template, styles, locale.get());
+        const menu = await Menu(view.get('menu'), { system, table: 'products', column: 'marca' });
 
-        system.store.bonusCards.forEach(item => {
-            const treatments = item.tratamientos.length ?
-                item.tratamientos.split('|')
-                    .map(i => i.trim())
-                    .map(i => {
-                        const arr = i.match(/(\d*)xID-(\d*)/);
-                        return {
-                            id: Number(arr[2]),
-                            count: Number(arr[1])
-                        };
-                    }) : [];
+        const disconnect =
+            window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
+                view.style(orientation);
+            });
 
-            view.get('products').appendChild(Node(`
-                <div class="box">
-                    <h3 class="green-color">${item.titulo}</h3>
-                    <p>${item.descripcion}</p>
-                    ${treatments.length ? '<ul>' : ''}
-                    ${treatments.map(t => `<li>${t.count} tratamientos de:<br/> 
-                            ${system.store.treatments.filter(i => i.identificador == t.id)[0].titulo.toUpperCase()}</li>`).join('')}
-                    ${treatments.length ? '</ul>' : ''}
-                    <hr/>
-                    <input type="button" class="green-bg-color white-color button clickable fa fa-cart-plus" onclick="this.form.add('${item.identificador}')" value="${item.precio_texto}" />
-                </div>
-            `));
-        });
+        parent.appendChild(view.get());
+
+        obj.destroy = function () {
+            system.setStorage({ products: system.store.products.map(i => i.identificador) });
+            system.store.notifications = Math.random();
+            disconnect()
+        };
 
         view.get('products').add = function (id) {
             system.store.cart.push(id);
         };
 
-        const disconnectResize =
-            window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
-                view.style(orientation);
-            });
-
-        const disconnectCart = window.rx.connect({ cart: () => system.store.cart }, function ({ cart }) {
-            view.get('cart').innerHTML = `TIENES ${cart.length} PRODUCTOS`;
-        });
-
-        obj.destroy = function () {
-            disconnectResize();
-            disconnectCart();
+        obj.navigateTo = async function (e) {
+            switch (e) {
+            case undefined:
+                await menu.open();
+                view.get('products').innerHTML = '';
+                break;
+            default:
+                await menu.close(decodeURI(e));
+                addProducts(menu.path(decodeURI(e)));
+                return;
+            }
         };
 
-        parent.appendChild(view.get());
+        function addProducts(type) {
+            system.store.products
+                .filter(item => item.marca === type)
+                .forEach(item => {
+                    view.appendTo('products', treatmentTemplate, [], Object.assign({
+                        percentage: system.deviceInfo().deviceType === 'mobile' ? '100%' : '40%',
+                        margin: system.deviceInfo().deviceType === 'mobile' ? '0 0 10px 0' : '0 10px 0 0',
+                        newItem: system.getStorage('products').indexOf(item.identificador) === -1 ? locale.get('newItemTemplate') : '',
+                        callDisplay: item.disponible !== 'si' ? 'inline-block' : 'none',
+                        addCartDisplay: item.disponible === 'si' ? 'inline-block' : 'none',
+                        item
+                    }, locale.get()));
+                });
+        }
 
         return obj;
-    };
+    }
 }
 
 plugin(products);

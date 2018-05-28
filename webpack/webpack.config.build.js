@@ -88,6 +88,7 @@ const config = {
             },
             version,
             isSpider: '{{isSpider}}',
+            stripeKey: 'pk_live_2STcLq3AN81f1gSQgJ8YBpss',
             body: '{{body}}',
             description: '{{description}}',
             title: '{{title}}',

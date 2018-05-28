@@ -1,7 +1,9 @@
+const cartEs = require('../static/localization/cart/es.json');
 module.exports = function parseCart(array, googleDb) {
     const stored = {
         'TRT': 'treatments',
-        'TAR': 'bonusCards'
+        'TAR': 'bonusCards',
+        'PRD': 'products'
     };
     return array
         .reduce((arr, { id }) => {
@@ -11,7 +13,15 @@ module.exports = function parseCart(array, googleDb) {
             } else {
                 const type = stored[id.substr(0, 3)];
                 const t = googleDb[type].filter(i => i.identificador == id)[0];
-                arr.push({ id, count: 1, title: t.titulo, price: t.precio, type });
+                arr.push({
+                    id,
+                    count: 1,
+                    title: t.titulo,
+                    price: t.precio,
+                    type,
+                    typeTranslated: cartEs.treatmentsTypes[type],
+                    category: type === 'treatments' ? `${t.tipo}` : type === 'bonusCards' ? 'Tarjeta' : ''
+                });
             }
             return arr;
         }, []);

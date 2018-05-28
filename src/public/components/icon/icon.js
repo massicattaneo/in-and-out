@@ -2,7 +2,7 @@ import * as styles from './icon.scss';
 import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './icon.html';
 
-export default function ({ system, context, parent, config }) {
+export default function ({ system, context, parent, config, autoDisconnect = false }) {
     let obj = {};
     const { name } = config;
     const { icon = context.appsManifest.find(i => i.name === name).icon } = config;
@@ -11,7 +11,7 @@ export default function ({ system, context, parent, config }) {
     const iconClass = view.get('icon').className;
     const notifiers = ['news', 'reviews', 'press', 'promotions', 'bonusCards', 'beautyparties', 'treatments', 'photos'];
 
-    window.rx.connect({
+    const disconnect = window.rx.connect({
         orientation: () => system.deviceInfo().orientation,
         notifications: () => system.store.notifications,
         loaded: () => system.store[`app_load_${name}`]
@@ -38,6 +38,13 @@ export default function ({ system, context, parent, config }) {
                 view.get('notify').innerHTML = innerHTML;
             });
     });
+
+    if (autoDisconnect) {
+        disconnect();
+        view.get().style.pointerEvents = 'none';
+        view.get('loader').style.display = 'none';
+        view.get('notify').style.display = 'none';
+    }
 
     parent.appendChild(view.get());
 

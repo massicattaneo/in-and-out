@@ -14,7 +14,6 @@ export default async function ({ system, wait, thread }) {
 
     publicDb.press = (publicDb.press || []).map(addDescription);
 
-
     const staticStore = {
         logged: status.logged,
         email: status.email,
@@ -62,7 +61,9 @@ export default async function ({ system, wait, thread }) {
         reviews: new Array(publicDb.reviews.count).fill(''),
         reviewsAverage: publicDb.reviews.average,
         windowOpened: false,
-        loading: false
+        loading: false,
+        settings: publicDb.settings,
+        search: ''
     };
     context.appsManifest
         .reduce((s, { name }) => {
@@ -122,16 +123,25 @@ export default async function ({ system, wait, thread }) {
 
     updateFavourites(status.favourites);
 
-    window.rx.connect({ logged: () => system.store.logged }, async function () {
-        const { bookings = [], favourites, email } = await getStatus();
-        system.store.bookings.splice(0, system.store.bookings.length);
-        system.store.bookings.push(...bookings);
-        system.store.treatments.forEach(i => i.favourite = false);
-        system.store.email = email;
-        updateFavourites(favourites);
-        const old = system.store.treatments.splice(0, system.store.treatments.length);
-        system.store.treatments.push(...old);
-    });
+    let isFirstTime = true;
+    window.rx
+        .connect
+        .partial({ logged: () => system.store.logged })
+        .filter(() => {
+            const firstTime = isFirstTime;
+            isFirstTime = !isFirstTime;
+            return !firstTime;
+        })
+        .subscribe(async function () {
+            const { bookings = [], favourites, email } = await getStatus();
+            system.store.bookings.splice(0, system.store.bookings.length);
+            system.store.bookings.push(...bookings);
+            system.store.treatments.forEach(i => i.favourite = false);
+            system.store.email = email;
+            updateFavourites(favourites);
+            const old = system.store.treatments.splice(0, system.store.treatments.length);
+            system.store.treatments.push(...old);
+        });
 
     system.addFileManifest(system.store.photos.map(function ({ url }) {
         return { type: 'image', stage: url, url, size: 1 };

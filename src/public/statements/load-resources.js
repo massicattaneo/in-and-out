@@ -7,7 +7,7 @@ export default async function ({ system, wait }) {
 
     await wait.all([
         system.loadStageFiles('system').start(),
-        system.navigateTo(`/${lang}`)
+        system.navigateTo(`/${lang}`, {}, false, true)
     ]);
 
 

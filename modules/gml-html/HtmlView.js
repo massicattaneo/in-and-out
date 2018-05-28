@@ -102,7 +102,7 @@ export function HtmlView(markup, styles, variables = {}) {
                 let item = items[name];
                 if (item) {
                     const st = HtmlStyle(Object.assign({}, styles[key](orientation), override[name] || {}));
-                    item.style.cssText = st
+                    item.style.cssText = item.style.cssText + ';' + st
                 }
             }
         })

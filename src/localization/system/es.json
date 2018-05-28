@@ -9,19 +9,19 @@
     "bookings": {
       "iconText": "CITAS",
       "windowTitle": "PIDE TU CITA",
-      "windowDescription": "Salón de belleza,  os ofrece el servicio de coger vuestra hora y día online para vuestros taratamientos faciales, corporales, masajes, uñas, maquillaje. ",
+      "windowDescription": "Beauty center, os ofrece el servicio de coger vuestra hora y día online para vuestros taratamientos faciales, depilación con hilo, microblading de cejas, tratamientos corporales, masajes, uñas, maquillaje. ",
       "url": "citas"
     },
     "treatments": {
       "iconText": "TRATAMIENTOS",
       "windowTitle": "TRATAMIENTOS",
-      "windowDescription": "Salón de belleza, ofrece servicios tales cómo tratamientos faciales, tratamientos corporales, masajes, uñas, maquillaje y organizaciones de Beauty Party. ",
+      "windowDescription": "Salón de belleza, ofrece servicios tales cómo tratamientos faciales, depilación con hilo, microblading de cejas, tratamientos corporales, masajes, uñas, maquillaje y organizaciones de Beauty Party. ",
       "url": "tratamientos"
     },
     "bonusCards": {
       "iconText": "TARJETAS",
       "windowTitle": "TARJETAS",
-      "windowDescription": "Salón de belleza, ofrece adquirir los tratamientos faciales, corporales, masajes, uñas, maquillaje... que necesite en sesiones sueltas o en un bono el que se beneficia de un precio más económico. ",
+      "windowDescription": "Salón de belleza, especializado en depilación con hilo y microblading de cejas, ofrece adquirir los tratamientos faciales, corporales, masajes, uñas, maquillaje... que necesite en sesiones sueltas o en un bono el que se beneficia de un precio más económico. ",
       "url": "tarjetas"
     },
     "products": {
@@ -33,31 +33,31 @@
     "beautyparties": {
       "iconText": "BEAUTY PARTIES",
       "windowTitle": "BEAUTY PARTIES",
-      "windowDescription": "Salón de belleza, ofrece reunirte con tus amigas, compañeras de trabajo, familiares... y organizar vuestra propia fiesta. Consejos, maquillaje, uñas, tratamientos faciales de belleza... y muchas risas! ",
+      "windowDescription": "Beauty center, ofrece reunirte con tus amigas, compañeras de trabajo, familiares... y organizar vuestra propia fiesta. Consejos, maquillaje, uñas, tratamientos faciales de belleza... y muchas risas! ",
       "url": "beauty-parties"
     },
     "inandoutgo": {
       "iconText": "IN&OUT GO",
       "windowTitle": "IN&OUT GO",
-      "windowDescription": "Salón de belleza, ofrece trasladar sus centros de estética al salón de tu casa, el tiempo ya no será excusa para mimarte y cuidarte (faciales, uñas, maquillaje, masajes...).  ",
+      "windowDescription": "Beauty center, ofrece trasladar sus centros de estética al salón de tu casa, el tiempo ya no será excusa para mimarte y cuidarte (faciales, uñas, maquillaje, masajes...).  ",
       "url": "inandout-go"
     },
     "team": {
       "iconText": "EQUIPO",
       "windowTitle": "NUESTRO EQUIPO",
-      "windowDescription": "Salón de belleza, encontrarás grandes profesionales del mundo de la estética y el cuidado de la imagen personal. Cada una de ellas es especialista en un área y entre sus manos te sentirás como en casa. ",
+      "windowDescription": "Beauty center, encontrarás grandes profesionales del mundo de la estética y el cuidado de la imagen personal. Cada una de ellas es especialista en un área y entre sus manos te sentirás como en casa. ",
       "url": "equipo"
     },
     "news": {
       "iconText": "NOVEDADES",
       "windowTitle": "NOVEDADES",
-      "windowDescription": "Salón de belleza, ofrece en este apartado estar informad@s en todo momento de las últimas novedades en tratamientos faciales, tratamientos corporales, masajes, uñas, maquillaje. ",
+      "windowDescription": "Centro de belleza, ofrece en este apartado estar informad@s en todo momento de las últimas novedades en tratamientos faciales, tratamientos corporales, masajes, uñas, maquillaje. ",
       "url": "novedades"
     },
     "promotions": {
       "iconText": "PROMOCIONES",
       "windowTitle": "PROMOCIONES",
-      "windowDescription": "Salón de belleza, mensualmente realiza promociones en tratamientos faciales, tratamientos corporales, masajes, uñas a modo de fidelización para sus clientes. ",
+      "windowDescription": "Centro de belleza, mensualmente realiza promociones en tratamientos faciales, tratamientos corporales, masajes, uñas a modo de fidelización para sus clientes. ",
       "url": "promociones"
     },
     "photos": {
@@ -75,13 +75,13 @@
     "location": {
       "iconText": "COMO LLEGAR",
       "windowTitle": "COMO LLEGAR",
-      "windowDescription": "Salones de belleza ubicados en la provincia de Málaga donde ofrecemos tratamientos faciales, tratamientos corporales, masajes, uñas, maquillaje. Uno se encuentra en Calle Salitre y otro en Calle Compañía. ",
+      "windowDescription": "Salones de belleza ubicados en la provincia de Málaga donde ofrecemos tratamientos faciales, tratamientos corporales, masajes, uñas, maquillaje. Uno se encuentra en Calle Salitre y otro en Calle Buenaventura.",
       "url": "como-llegar"
     },
     "callUs": {
       "iconText": "LLAMANOS",
       "windowTitle": "LLAMANOS",
-      "windowDescription": "Quieres cita o quieres una valoración facial, corporal, maquillaje, uñas... no dudes en ponerte en contacto con nosotros en los teléfonos 951131460 o 951387919. ",
+      "windowDescription": "Quieres cita o quieres una valoración facial, corporal, maquillaje, uñas, hacemos estudios de cejas para depilación y microblading... no dudes en ponerte en contacto con nosotros en los teléfonos 951131460 o 951387919. ",
       "url": "llmanos"
     },
     "questions": {
@@ -93,7 +93,7 @@
     "login": {
       "iconText": "",
       "windowTitle": "MI CUENTA",
-      "windowDescription": "Entra en la cuenta de In&Out Málaga para comprar y resevar citas online.",
+      "windowDescription": "Entra en la cuenta de In&Out Málaga para comprar y resevar citas online. Somos especialistas en depilación con hilo y microblading de cejas",
       "url": "cuenta"
     },
     "cart": {
@@ -131,6 +131,12 @@
       "windowTitle": "CONTENIDO EXTRA",
       "windowDescription": "",
       "url": "contenido-extra"
+    },
+    "search": {
+      "iconText": "BUSCAR",
+      "windowTitle": "BUSCAR EN EL SITIO",
+      "windowDescription": "Encuentre fácilmente el tratamiento o el producto de belleza adecuado para usted y, sobre todo, descubra que somos pioneros en la depilación con hilo y microblading de cejas",
+      "url": "buscar"
     }
   },
   "treatmentsTypes": [
@@ -150,6 +156,9 @@
     "inactiveUser": "AUN NO HAS ACTIVADO TU CUENTA. SI NO TE HA LLEGADO EL CORREO PULSA AQUI PARA RECIBIRNE OTRO",
     "missingEmail": "añade tu correo",
     "missingName": "añade tu nombre",
+    "missingAddress": "añade tu direccion",
+    "missingCity": "añade tu poblacíon",
+    "missingCap": "añade tu codigo postal",
     "missingTel": "añade tu telefono",
     "missingPassword": "añade una contraseña",
     "malformedEmail": "tu correo no esta en un forma valida",

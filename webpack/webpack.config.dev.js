@@ -76,6 +76,7 @@ const config = {
             filename: './templates/index.html',
             version: pkg.version,
             isSpider: '{{isSpider}}',
+            stripeKey: 'pk_test_gPjcEmmMg0jWcuU6BA44q2Em',
             body: '{{body}}',
             description: '{{description}}',
             title: '{{title}}',

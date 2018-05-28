@@ -191,9 +191,9 @@ function System({ ua, config = {} }) {
      * @param {boolean} [doNotEmit] - if only to push in browser history without emitting to the stream;
      * @returns {Promise} of the event.
      * */
-    system.navigateTo = (url, params, doNotEmit = false) => {
+    system.navigateTo = (url, params, doNotEmit = false, doNotPushHistory = false) => {
         if (url.indexOf('/') === -1) url = location.pathname + '/' + url;
-        history.pushState(params, null, url);
+        if (!doNotPushHistory) history.pushState(params, null, url);
         if (doNotEmit) return Promise.resolve();
         return navigator.emit(url, params);
     };

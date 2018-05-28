@@ -9,6 +9,25 @@
                     <hr/>
                 </td>
             </tr>
+            <tr style="display: {{hasProducts}}">
+                <td colspan="2" style="text-align: right">
+                    ENVIO (gratis a partir de {{freeChargeLimit}}):
+                </td>
+                <td style="text-align: right">
+                    {{costs}}
+                </td>
+            </tr>
+            <tr style="display: {{hasProducts}}; font-size: 12px; text-align: right">
+                <td colspan="2">
+                    Los gastos de envio se calculan a partir del total ({{totalProducts}}) de los productos.
+                </td>
+                <td>&nbsp;</td>
+            </tr>
+            <tr style="display: {{hasProducts}}; font-size: 12px; text-align: right">
+                <td colspan="3">
+                    <hr/>
+                </td>
+            </tr>
             <tr>
                 <td style="text-align: right">TOTAL A PAGAR:</td>
                 <td colspan="2" style="text-align: right">
@@ -18,7 +37,38 @@
         </table>
     </div>
     <div class="box">
+        <em class="green-color">En el correo te enviaremo un resumen de los gastos y un PDF que podras utilizar como regalo</em><br/>
         <label>ENVIA LA CONFIRMACION A ESTE CORREO:</label>
-        <input #email name="email" value="{{userEmail}}" type="text"/>
+        <input #email name="email" value="{{userEmail}}" type="email"/>
+    </div>
+    <div class="box" style="display: {{hasProducts}}">
+        <em class="green-color">Se hacen envios solo en España</em><br/>
+        <em style="font-size: 12px">Los productos se entregaran en un <strong>maximo de 5 dias laborables</strong></em><br/>
+        <h4>ENVIAME LOS PRODUCTOS AQUÍ:</h4>
+        <label for="name">NOMBRE Y APPELIDO:</label>
+        <input #name id="name" name="name" type="text"/><br/>
+        <label for="address">DIRECCIÓN:</label>
+        <input #address id="address" name="address" type="text"/><br/>
+        <label for="city">POBLACION:</label>
+        <input #city id="city" name="city" type="text"/><br/>
+        <label for="cap">CODIGO POSTAL:</label>
+        <input #cap id="cap" name="cap" type="text"/>
+        <br/>
+        <label for="cap">TELEFONO:</label>
+        <input #tel id="tel" name="tel" type="tel"/>
+        <br/>
+        <h4>ES UN REGALO?</h4>
+        <div class="text-checkbox">
+            <input id="noGift" name="gift" type="radio" value="0" checked/>
+            <label for="noGift">NO</label>
+        </div>
+        <div class="text-checkbox">
+            <input id="totalGift" name="gift" type="radio" value="1"/>
+            <label for="totalGift">SI</label>
+        </div>
+        <div class="text-checkbox" style="display: {{showPartialGift}};">
+            <input id="partialGift" name="gift" type="radio" value="2"/>
+            <label for="partialGift">SOLO LOS PRODUCTOS</label>
+        </div>
     </div>
 </div>

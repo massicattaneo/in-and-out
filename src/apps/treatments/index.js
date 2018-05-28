@@ -3,7 +3,7 @@ import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './index.html';
 import treatmentTemplate from './treatment.html';
 import * as styles from './index.scss';
-import Menu from './Menu';
+import Menu from '../../public/components/menu/Menu';
 
 function treatments({ system }) {
     return async function ({ parent, thread }) {
@@ -11,7 +11,7 @@ function treatments({ system }) {
         const locale = await system.locale(`/localization/treatments/es.json`);
         await locale.load(`/localization/common/es.json`);
         const view = HtmlView(template, styles, locale.get());
-        const menu = await Menu(view.get('menu'), { system });
+        const menu = await Menu(view.get('menu'), { system, table: 'treatments', column: 'tipo' });
 
         const disconnect =
             window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
@@ -40,9 +40,11 @@ function treatments({ system }) {
         };
 
         view.get('treatments').book = async function (id) {
-            await changeFavourite(id, true);
-            system.book.treatments.splice(0, system.book.treatments.length);
-            system.book.treatments.push(id);
+            if (system.store.logged) {
+                await changeFavourite(id, true);
+                system.book.treatments.splice(0, system.book.treatments.length);
+                system.book.treatments.push(id);
+            }
             system.navigateTo(locale.get('urls.bookings'));
         };
 
@@ -70,11 +72,12 @@ function treatments({ system }) {
                         .filter(k => Number(item[k]) !== 0).length > 0;
                     const newItem = system.getStorage('treatments').indexOf(item.identificador) === -1
                         ? locale.get('newItemTemplate') : '';
-                    const bookDisplay = item.online === 'si' ? 'block' : 'none';
+                    const bookDisplay = item.online === 'si' && isBookable ? 'block' : 'none';
                     const callDisplay = item.online !== 'si' ? 'block' : 'none';
+                    const addToCartDisplay = item.online === 'si' ? 'block' : 'none';
                     const favouriteDisplay = (system.store.logged && isBookable) ? 'block' : 'none';
                     const checked = item.favourite ? 'checked' : '';
-                    const variables = { newItem, bookDisplay, callDisplay, favouriteDisplay, checked, item };
+                    const variables = { newItem, bookDisplay, addToCartDisplay, callDisplay, favouriteDisplay, checked, item };
                     view.appendTo('treatments', treatmentTemplate, [], Object.assign({}, variables, locale.get()));
                 });
         }

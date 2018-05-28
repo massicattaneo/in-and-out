@@ -4,12 +4,12 @@ function compare(a, b, position) {
     return a.split('/')[position + 1] === b.split('/')[position + 1];
 }
 
-export default async function({ system, wait, thread }) {
+export default async function ({ system, wait, thread }) {
     const context = this;
     let activeUrl = '';
 
     context.window = {
-        x: 100,
+        x: 50,
         y: 100,
         height: system.deviceInfo().height - 200,
         width: Math.min(system.deviceInfo().width - 200, 600)
@@ -50,9 +50,6 @@ export default async function({ system, wait, thread }) {
                 const appBaseUrl = event.split('/').splice(0, 3).join('/');
                 if (!compare(old, event, 1)) {
                     if (context.focuses.filter(w => w.url === appBaseUrl).length) {
-                        context.focuses.forEach(w => {
-                            w.get().style.zIndex = w.url === appBaseUrl ? 2 : 1;
-                        });
                         context.focusIndex = context.focuses.indexOf(context.focuses.find(w => w.url === appBaseUrl));
                         context.focuses[context.focusIndex].navigateTo();
                     } else {
@@ -92,9 +89,16 @@ export default async function({ system, wait, thread }) {
                             await createWindow('promotions', appBaseUrl);
                         } else if (event === '/es/seccion/depilacion-con-hilo/') {
                             await createWindow('treatments', appBaseUrl);
+                        } else if (res === 'tag') {
+                            await createWindow('search', appBaseUrl);
                         } else if (res) {
                             await createWindow('blog', appBaseUrl);
                         }
+                    }
+                    if (context.focuses.filter(w => w.url === appBaseUrl).length) {
+                        context.focuses.forEach(w => {
+                            w.get().style.zIndex = w.url === appBaseUrl ? 21 : 20;
+                        });
                     }
 
                 }
@@ -112,7 +116,7 @@ export default async function({ system, wait, thread }) {
         .subscribe(() => {
             const url = context.redirectUrl;
             if (!(url === '' || url === '/es' || url === '/' || url.startsWith('/api') || url.startsWith('/es/'))) {
-                context.redirectUrl = '/es' + url
+                context.redirectUrl = '/es' + url;
             }
             activeUrl = '/es';
             if (context.focuses.length) {

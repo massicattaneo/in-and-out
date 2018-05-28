@@ -4,11 +4,11 @@ import admin0Tpl from './admin-0.html';
 import * as style from './style.scss';
 
 export default async function ({ system, thread, locale }) {
-    const htmlView = HtmlView('<div/>', []);
+    const htmlView = HtmlView('<div><div #level1></div><div #level2></div></div>', []);
     const model = window.rx.create({ cash: [], bonus: [] });
 
     htmlView.refresh = async function () {
-        htmlView.clear();
+        htmlView.clear('level1').clear('level2');
         model.bonus.splice(0, 100000000);
         model.cash.splice(0, 100000000);
         if (system.store.adminLevel === 2) {
@@ -34,7 +34,6 @@ export default async function ({ system, thread, locale }) {
     };
 
     window.rx.connect({ adminLevel: () => system.store.adminLevel }, async function ({ adminLevel }) {
-        htmlView.clear();
         htmlView.refresh();
     });
 
@@ -89,7 +88,7 @@ export default async function ({ system, thread, locale }) {
                     return acc;
                 }, result);
 
-            const view = htmlView.clear().appendTo('', admin2Tpl, style, {
+            const view = htmlView.clear('level2').appendTo('level2', admin2Tpl, style, {
                 users: Object.keys(result)
                     .reduce((arr, key) => arr.concat({
                         name: key.toUpperCase(),
@@ -137,18 +136,9 @@ export default async function ({ system, thread, locale }) {
 
     window.rx.connect({ cash: () => model.cash, bonus: () => model.bonus, adminLevel: () => system.store.adminLevel },
         ({ cash, bonus, adminLevel }) => {
-            if (adminLevel === 0 || adminLevel === 1) {
+            if (adminLevel === 1 || adminLevel === 2) {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
-
-                const month = new Date();
-                month.setDate(1);
-                month.setHours(0, 0, 0, 0);
-
-                const trimonth = new Date();
-                trimonth.setMonth(Math.floor(trimonth.getMonth() / 3) * 3);
-                trimonth.setDate(1);
-                trimonth.setHours(0, 0, 0, 0);
 
                 const dm = { cash: 0, creditCards: 0 };
 
@@ -172,7 +162,7 @@ export default async function ({ system, thread, locale }) {
                         return acc;
                     }, result);
 
-                const view = htmlView.clear().appendTo('', admin0Tpl, style, {
+                const view = htmlView.clear('level1').appendTo('level1', admin0Tpl, style, {
                     bonus: bonus.map(b => {
                         const client = system.store.clients.find(i => i._id === b.clientId);
                         return {

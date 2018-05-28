@@ -415,6 +415,11 @@ input[disabled].button {
     color: white;
 }
 
+.text-checkbox.green > input:checked ~ label {
+    background-color: #56ab2a;
+    color: white;
+}
+
 .text-checkbox.disabled > input + label {
     background-color: #626262;
     color: #848484;

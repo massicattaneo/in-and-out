@@ -126,13 +126,13 @@ module.exports = function ({
                 req.session.userId = 'carmen_v';
                 req.session.isAdmin = true;
                 req.session.adminLevel = 1;
-                res.cookie('users', 'salitre|compania', { expires: new Date(253402300000000) });
+                res.cookie('users', 'salitre|compania|buenaventura', { expires: new Date(253402300000000) });
                 res.send('ok');
             }else if (req.body.password === adminKeys.carmen) {
                 req.session.userId = 'carmen';
                 req.session.isAdmin = true;
                 req.session.adminLevel = 2;
-                res.cookie('users', 'salitre|compania', { expires: new Date(253402300000000) });
+                res.cookie('users', 'salitre|compania|buenaventura', { expires: new Date(253402300000000) });
                 res.send('ok');
             } else {
                 req.session.isAdmin = false;

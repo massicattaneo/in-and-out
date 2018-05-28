@@ -10,7 +10,14 @@ function hours({ system }) {
         await locale.load(`/localization/globalize/es.json`);
         await locale.load(`/localization/hours/es.json`);
 
-        const view = HtmlView(template, styles, locale.get());
+        const params = Object.assign({
+            centers: Object.keys(system.store.centers).map(key => {
+                return {
+                    location: system.store.centers[key].address
+                }
+            })
+        }, locale.get());
+        const view = HtmlView(template, styles, params);
 
         const disconnect =
             window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {

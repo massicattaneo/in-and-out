@@ -83,6 +83,11 @@
   "templates": {
     "loading": "<div style=\"text-align: center; width: 100%; margin: 10px 0\"><img src=\"/assets/images/loading.gif\" style=\"width: 36px\"/></div>"
   },
+  "sellTypes": {
+    "treatments": "TRATAMIENTOS",
+    "bonusCards": "BONOS",
+    "products": "PRODUCTOS"
+  },
   "errors": {
     "wrongEmail": "El correo no corresponde a ninguna cuenta.",
     "generic": "Algo no salió bien. Inténtalo de nuevo en breve.",

@@ -1,0 +1,17 @@
+<div class="box">
+    <h2 class="green-color">{{item.titulo}}</h2>
+    {{newItem}}
+    <img src="/google/drive/productos/{{system.deviceType}}.{{item.foto}}"
+         style="float: left; width: {{percentage}}; margin: {{margin}};"/>
+    <p>CANTIDAD: {{item.cantidad}}</p>
+    <p style=" display: {{addCartDisplay}};">PRECIO: {{item.precio_texto}}</p>
+    <input onclick="this.form.add('{{item.identificador}}');"
+            style="display:{{addCartDisplay}};"
+            class="clickable button green-bg-color white-color"
+            type="button" value="{{addToCartButton}}" />
+    <a style="display: {{callDisplay}};width: 150px;"
+       href="tel:{{location1Phone}}"
+            class="clickable button green-bg-color white-color">{{callUsButton}}</a>
+    <div style="clear: both"></div>
+    <p style="text-align: justify;">{{item.descripcion}}</p>
+</div>

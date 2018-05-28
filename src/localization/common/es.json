@@ -17,9 +17,11 @@
     "home": "/es",
     "cart": "/es/cesta",
     "bookings": "/es/citas",
+    "products": "/es/productos",
     "promotions": "/es/promociones"
   },
   "signature": "Tu equipo de In<span class=\"green-color\">&</span>Out.",
   "newItemTemplate": "<div class=\"new\">NEW</div>",
-  "addToCartButton": "AÑADE AL CARRITO"
+  "addToCartButton": "AÑADE AL CARRITO",
+  "callUsButton": "LLAMANOS"
 }

@@ -27,10 +27,13 @@ module.exports = function (app, express, google, posts) {
 
     app.use(express.static(__dirname));
 
+    let textFile;
+    let htmls;
     return function response(req, res) {
-        const textFile = middleware.fileSystem.readFileSync(path.join(__dirname, 'dist/templates/index.html'), 'utf8');
-        const htmls = createStaticHtmls(textFile, google.publicDb(), posts);
-
+        if (!htmls) {
+            textFile = middleware.fileSystem.readFileSync(path.join(__dirname, 'dist/templates/index.html'), 'utf8');
+            htmls = createStaticHtmls(textFile, google, posts);
+        }
         const isAdmin = req.path.substr(0, 6) === '/admin';
         if (isAdmin) {
             const file = middleware.fileSystem.readFileSync(path.join(__dirname, 'dist/templates/admin.html'));
