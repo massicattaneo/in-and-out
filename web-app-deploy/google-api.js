@@ -76,7 +76,7 @@ function parseSheet(sht) {
                 .reduce((ret, item, index) => {
                     const col = cols[index];
                     if (col === 'titulo') {
-                        ret['href'] = item.toLowerCase()
+                        ret['href'] = item.toLowerCase().trim()
                             .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
                             .replace(/à/g, 'a')
                             .replace(/ä/g, 'a')

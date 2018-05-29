@@ -25,6 +25,7 @@
     "ws": "^5.1.1",
     "sharp": "^0.18.4",
     "stripe": "^5.4.0",
-    "sitemap": "^1.13.0"
+    "sitemap": "^1.13.0",
+    "spider-detector": "^1.0.18"
   }
 }

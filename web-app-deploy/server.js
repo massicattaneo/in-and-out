@@ -1,5 +1,5 @@
 const { firebaseBonuses, firebaseClients, firebaseTransactions } = require('./firebaseImporter');
-
+const detector = require('spider-detector');
 const path = require('path');
 const utils = {};
 const express = require('express');
@@ -31,11 +31,13 @@ const httpsOptions = {
     cert: fs.readFileSync(path.resolve(__dirname + '/private/cert.pem'))
 };
 const adminKeys = require('./private/adminKeys');
+const createStaticHtmls = require('./seo/createDynamicHtmls');
 
 (async function () {
     const { store, db } = await mongo.connect();
     const bruteforce = new ExpressBrute(store);
 
+    app.use(detector.middleware());
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({
         extended: true
@@ -407,8 +409,14 @@ const adminKeys = require('./private/adminKeys');
         }));
         callback = function response(req, res) {
             const isAdmin = urlParse.parse(req.url).pathname.substr(0, 6) === '/admin';
-
-            res.sendFile(path.join(__dirname, `static/${isAdmin ? 'admin' : 'index'}.html`));
+            if (req.isSpider()) {
+                /** respond with static html */
+                const htmls = createStaticHtmls(google.publicDb());
+                res.write(htmls);
+                res.end(urlParse.parse(req.url).pathname);
+            } else {
+                res.sendFile(path.join(__dirname, `static/${isAdmin ? 'admin' : 'index'}.html`));
+            }
         };
     }
     app.get('*', callback);
