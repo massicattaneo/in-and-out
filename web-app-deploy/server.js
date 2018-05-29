@@ -206,6 +206,10 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
     app.get('/api/pdf/*',
         async function (req, res) {
             const orderId = req.url.substr(req.url.lastIndexOf('/') + 1);
+            const filePath = `${__dirname}/order-qr-codes/${orderId}.png`;
+            if (!fs.existsSync(filePath)) {
+                await QRCode.toFile(filePath, `${orderId}`);
+            }
             const { cart } = await mongo.getOrderInfo(orderId);
             createPdfOrder(res, google.publicDb(), orderId, cart);
         });
@@ -412,8 +416,8 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
             if (req.isSpider()) {
                 /** respond with static html */
                 const htmls = createStaticHtmls(google.publicDb());
-                res.write(htmls);
-                res.end(urlParse.parse(req.url).pathname);
+                res.write(htmls[urlParse.parse(req.url).pathname]);
+                res.end();
             } else {
                 res.sendFile(path.join(__dirname, `static/${isAdmin ? 'admin' : 'index'}.html`));
             }
