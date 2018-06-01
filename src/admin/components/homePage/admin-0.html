@@ -37,7 +37,7 @@
         <table width="100%" style="padding: 10px">
         {{#each bonus}}
             <tr>
-                <td><a href="{{this.href}}" onclick="window.navigate(this)">{{this.client}}</a></td>
+                <td><a href="{{this.href}}" onclick="window.navigate(this, event)">{{this.client}}</a></td>
                 <td>{{this.title}}</td>
                 <td style="text-align: right">{{this.price}}</td>
             </tr>

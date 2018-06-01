@@ -21,7 +21,6 @@ google.options({ auth: jwtClient });
 const processes = require('./processes.json');
 const sm = require('sitemap');
 const appsManifest = require('./static/localization/system/es.json');
-
 function deleteFolder(path) {
     if (fs.existsSync(path)) {
         fs.readdirSync(path).forEach(function (file) {
@@ -105,7 +104,7 @@ function getLastmodISO(string) {
     return new Date(string.split('/').reverse().join('-')).toISOString();
 }
 
-module.exports = function (utils) {
+module.exports = function (utils, posts) {
     const obj = {};
     const calendars = {};
 
@@ -477,7 +476,15 @@ module.exports = function (utils) {
                 lastmodISO: getLastmodISO(item.fecha)
             };
         }));
-
+        posts
+            .filter(p => p.post_mime_type === '')
+            .forEach(function (post) {
+            urls.push({
+                url: `/${post.post_name}`,
+                priority: 0.8,
+                lastmodISO: getLastmodISO(post.post_date)
+            })
+        });
         return sm.createSitemap({
             hostname: 'https://inandoutbelleza.eu-4.evennode.com/',
             cacheTime: 600000,

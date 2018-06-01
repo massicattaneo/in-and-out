@@ -8,8 +8,9 @@ import noTreatmentsTemplate from './no-treatments.html';
 import * as styles from './index.scss';
 
 function bookings({ system }) {
-    return async function({ parent, thread, wait }) {
+    return async function ({ parent, thread, wait }) {
         const obj = {};
+        const maximumDays = 10;
         const centers = system.store.centers;
         const locale = await system.locale(`/localization/static.json`);
         await locale.load(`/localization/globalize/es.json`);
@@ -22,8 +23,6 @@ function bookings({ system }) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const oneDayMs = 1000 * 60 * 60 * 24;
-        const maximum = new Date(Date.now() + oneDayMs * 7);
-        maximum.setHours(23, 59, 59);
         const now = Date.now();
         const model = ({
             center: 0,
@@ -33,9 +32,9 @@ function bookings({ system }) {
         }).reactive();
 
         const days = [locale.get('day_today'), locale.get('day_tomorrow')]
-            .concat(new Array(6).fill(0).map((v, i) => {
+            .concat(new Array(maximumDays - 2).fill(0).map((v, i) => {
                 const dt = new Date(now + oneDayMs * (i + 2));
-                return `${locale.get('day_' + dt.getDay())} ${dt.getDate()}`;
+                return `${locale.get('day_' + dt.getDay())} ${dt.formatDay('dd/mm')}`;
             }));
         let availableDays = getAvailableDays(centers.salitre.opening);
         model.date = availableDays[0].timestamp;
@@ -52,7 +51,7 @@ function bookings({ system }) {
             } else {
                 view = parentView.appendTo('', template, styles, locale.get());
 
-                view.get('booking').go = function(id, checked) {
+                view.get('booking').go = function (id, checked) {
                     if (checked && model.treatments.indexOf(id) === -1) {
                         model.treatments.push(id);
                     } else if (!checked && model.treatments.indexOf(id) !== -1) {
@@ -74,7 +73,7 @@ function bookings({ system }) {
                         model.date = prev.timestamp;
                     }
                 };
-                view.get('booking').book = async function() {
+                view.get('booking').book = async function () {
                     if (this.hour && this.hour.value !== '') {
                         const hour = (this.hour.length
                             ? Array.prototype.slice.call(this.hour).filter(i => i.checked)[0].value
@@ -112,7 +111,7 @@ function bookings({ system }) {
             trt: () => system.store.treatments
         })
             .reactive()
-            .connect(async function({ width, orientation, date, trt, logged }, changedKey) {
+            .connect(async function ({ width, orientation, date, trt, logged }, changedKey) {
                 if (logged && trt.filter(t => t.favourite).length) {
                     view.style(orientation);
                     const filter = availableDays.filter(i => i.timestamp === date);
@@ -124,13 +123,13 @@ function bookings({ system }) {
                 }
             });
 
-        obj.destroy = function() {
+        obj.destroy = function () {
             disconnect();
             disc1();
         };
 
         function getAvailableDays(opening) {
-            return new Array(8).fill(0).map((v, i) => i)
+            return new Array(maximumDays).fill(0).map((v, i) => i)
                 .filter(i => opening.indexOf(new Date(now + oneDayMs * i).getDay()) !== -1)
                 .map((i, index) => {
                     return {
@@ -201,7 +200,7 @@ function bookings({ system }) {
 
         function getHours(centerName, minutes, dateToEval) {
             return centers[centerName].workers
-                .map(function(w) {
+                .map(function (w) {
                     const duration = getDuration(w);
                     return duration > 0
                         ? getHoursNested(w, dateToEval, Math.ceil(duration / minutes) * minutes, minutes) : [];

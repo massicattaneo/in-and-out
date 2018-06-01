@@ -5,7 +5,7 @@ function getTitle(string) {
     return es.documentWindowTitle.replace('{0}', string);
 }
 
-function map(sheets) {
+function map(sheets, posts) {
     const urls = [];
     const template = fs.readFileSync(__dirname + '/index.html', 'utf8');
     const homeHtml = template
@@ -63,6 +63,17 @@ function map(sheets) {
             .replace('{{body}}', 'LA FOTOS DE IN&OUT')
             .replace('{{title}}', getTitle(es.apps.photos.windowTitle))
     });
+
+    posts
+        .filter(p => p.post_mime_type === '')
+        .forEach(function (post) {
+            urls.push({
+                url: `/${post.post_name}`,
+                html: template
+                    .replace('{{body}}', `<h1>${post.post_title}</h1><p>${post.post_content}</p>`)
+                    .replace('{{title}}', getTitle(${post.post_title}))
+            })
+        });
 
     return urls;
 }

@@ -35,7 +35,7 @@
   },
   "confirm": {
     "title": "AHORA PUEDES UTILIZAR TU CUENTA",
-    "message": "Tu cuenta ya esta activada. Pulsa <a href=\"/es/cuenta/entrar\" onclick=\"window.navigate(this)\">aquí</a> para entrar en tu cuenta."
+    "message": "Tu cuenta ya esta activada. Pulsa <a href=\"/es/cuenta/entrar\" onclick=\"window.navigate(this, event)\">aquí</a> para entrar en tu cuenta."
   },
   "home": {
     "title": "DISFRUTA DE TODOS LOS PRIVIGLEGIOS DE TENER UNA CUENTA:",
@@ -64,6 +64,6 @@
   },
   "resetDone": {
     "title": "Ahora puedes utilizar tu cuenta in and out:",
-    "text": "Ya hemos guardado tu nueva contraseña. Pulsa <a href=\"/es/cuenta/entrar\" onclick=\"window.navigate(this)\">aquí</a> para entrar en tu cuenta."
+    "text": "Ya hemos guardado tu nueva contraseña. Pulsa <a href=\"/es/cuenta/entrar\" onclick=\"window.navigate(this, event)\">aquí</a> para entrar en tu cuenta."
   }
 }

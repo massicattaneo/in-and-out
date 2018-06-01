@@ -3,7 +3,6 @@ const webpackMiddleware = require("webpack-dev-middleware");
 const webpackHotMiddleware = require("webpack-hot-middleware");
 const config = require("./webpack.config.dev.js");
 const path = require('path');
-const urlParse = require('url');
 
 module.exports = function (app, express) {
 
@@ -27,7 +26,7 @@ module.exports = function (app, express) {
     app.use(express.static(__dirname));
 
     return function response(req, res) {
-        const isAdmin = urlParse.parse(req.url).pathname.substr(0, 6) === '/admin';
+        const isAdmin = req.path.substr(0, 6) === '/admin';
         const file = (isAdmin) ?
             middleware.fileSystem.readFileSync(
                 path.join(__dirname, "dist/admin.html"))

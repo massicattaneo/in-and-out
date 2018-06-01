@@ -48,7 +48,7 @@ export default async function({ system, wait, thread }) {
                 if (!compare(old, event, 0)) {
                     /** change language */
                 }
-                const appBaseUrl = event.split('/').splice(0,3).join('/');
+                const appBaseUrl = event.split('/').splice(0, 3).join('/');
                 if (!compare(old, event, 1)) {
                     if (context.focuses.filter(w => w.url === appBaseUrl).length) {
                         context.focuses.forEach(w => {
@@ -81,6 +81,11 @@ export default async function({ system, wait, thread }) {
                             await createWindow('team', appBaseUrl);
                         } else if (appBaseUrl === '/seccion/promociones/') {
                             await createWindow('promotions', appBaseUrl);
+                        } else if (appBaseUrl === '/seccion/depilacion-con-hilo/') {
+                            await createWindow('treatments', appBaseUrl);
+                        }
+                        else {
+                            await createWindow('extras', appBaseUrl);
                         }
                     }
 
@@ -97,6 +102,10 @@ export default async function({ system, wait, thread }) {
         .onNavigate()
         .filter(e => e === '/es')
         .subscribe(() => {
+            const url = context.redirectUrl;
+            if (!(url === '' || url === '/es' || url === '/' || url.startsWith('/api') || url.startsWith('/es/'))) {
+                context.redirectUrl = '/es' + url
+            }
             activeUrl = '/es';
             if (context.focuses.length) {
                 context.focuses[context.focusIndex].destroy();
@@ -109,7 +118,7 @@ export default async function({ system, wait, thread }) {
             system.store.windowOpened = false;
             if (system.info().lang === 'es') return;
             system.info().lang = 'es';
-            return system.locale(`/localization/system/es.json`).then(async function(locale) {
+            return system.locale(`/localization/system/es.json`).then(async function (locale) {
                 await locale.load(`/localization/static.json`);
                 context.locale = locale;
             });
@@ -124,9 +133,11 @@ export default async function({ system, wait, thread }) {
             system.navigateTo(url);
         });
 
-    window.navigate = function(el) {
-        this.event.preventDefault();
+    window.navigate = function (el, e) {
+        const event = e || this.event;
+        event.preventDefault();
         system.navigateTo(el.pathname);
+        return false;
     };
 
     system
@@ -136,6 +147,6 @@ export default async function({ system, wait, thread }) {
                 ga('send', 'pageview', url);
             }
             this.lastUrlVisited = url;
-        })
+        });
 
 }

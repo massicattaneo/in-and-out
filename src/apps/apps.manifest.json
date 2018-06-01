@@ -18,5 +18,6 @@
   { "color":"#b77100", "showCartIcon": false, "icon": "flaticon-phone-call", "name": "callUs", "url": "/callUs.bundle.js", "stage": ["callUs"], "type": "application", "desktop": true, "size": 200000  },
   { "color":"#717171", "showCartIcon": false, "icon": "flaticon-chat" , "name": "reviews", "url": "/reviews.bundle.js", "stage": ["reviews"], "type": "application", "desktop": true, "size": 200000  },
   { "color":"#000000", "showCartIcon": false, "icon": "flaticon-question" , "name": "questions", "url": "/questions.bundle.js", "stage": ["questions"], "type": "application", "desktop": true, "size": 200000  },
-  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-antenna" , "name": "press", "url": "/press.bundle.js", "stage": ["press"], "type": "application", "desktop": true, "size": 200000  }
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-antenna" , "name": "press", "url": "/press.bundle.js", "stage": ["press"], "type": "application", "desktop": true, "size": 200000  },
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-antenna" , "name": "extras", "url": "/extras.bundle.js", "stage": ["extras"], "type": "application", "desktop": false, "size": 200000  }
 ]

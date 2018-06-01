@@ -105,6 +105,11 @@
       "iconText": "MEDIDOR",
       "windowTitle": "MIDE TU CEJAS",
       "url": "medidor"
+    },
+    "extras": {
+      "iconText": "CONTENIDO EXTRA",
+      "windowTitle": "CONTENIDO EXTRA",
+      "url": "contenido-extra"
     }
   },
   "treatmentsTypes": [

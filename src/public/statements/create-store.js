@@ -1,9 +1,5 @@
-function sortByDate(field) {
-    return function (a,b) {
-        return (new Date(b[field].split('/').reverse().join('-'))).getTime() -
-            (new Date(a[field].split('/').reverse().join('-'))).getTime();
-    }
-}
+import {sortByDate} from '../utils';
+
 function addDescription(i) {
     return Object.assign(i, {descripcion: i.descripcion || ''});
 }
@@ -44,7 +40,6 @@ export default async function ({ system, wait, thread }) {
                     to.setHours(23,59,59,59);
                     return date >= from.getTime() && date <= to.getTime()
                 })
-                .sort(sortByDate('desde'))
             : [],
         beautyparties: publicDb.beautyparties || [],
         centers: publicDb.centers,

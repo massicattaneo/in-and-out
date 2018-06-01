@@ -1,11 +1,12 @@
 const { firebaseBonuses, firebaseClients, firebaseTransactions } = require('./firebaseImporter');
+const posts = require('./extras/posts.json');
 const detector = require('spider-detector');
 const path = require('path');
 const utils = {};
 const express = require('express');
 const port = process.env.PORT || 8090;
 const app = express();
-const google = require('./google-api')(utils);
+const google = require('./google-api')(utils, posts);
 const mailer = require('./mailer/mailer')();
 const isDeveloping = process.env.NODE_ENV === 'development';
 const mongo = require('./mongo')(isDeveloping, utils);
@@ -91,6 +92,12 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
     await google.initCalendar();
     await google.initDrivePhotos();
     await google.initDriveSheets();
+
+    app.get('/api/extras/*', function (req, res) {
+        const post_name = req.path.replace('/api/extras/', '');
+        const find = posts.find(i => i.post_name === post_name);
+        res.send(JSON.stringify(find || {}));
+    });
 
     app.get('/google/drive/*', function (req, res) {
         const file = __dirname + decodeURI(urlParse.parse(req.url).pathname);
@@ -412,11 +419,12 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
             etag: false
         }));
         callback = function response(req, res) {
-            const isAdmin = urlParse.parse(req.url).pathname.substr(0, 6) === '/admin';
+            const isAdmin = req.path.substr(0, 6) === '/admin';
             if (req.isSpider()) {
                 /** respond with static html */
-                const htmls = createStaticHtmls(google.publicDb());
-                res.write(htmls[urlParse.parse(req.url).pathname]);
+                const htmls = createStaticHtmls(google.publicDb(), posts);
+                console.log('***** CRAWLER: requesting:', req.path);
+                res.write(htmls[req.path] || htmls['']);
                 res.end();
             } else {
                 res.sendFile(path.join(__dirname, `static/${isAdmin ? 'admin' : 'index'}.html`));
