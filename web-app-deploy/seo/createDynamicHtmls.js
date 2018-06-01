@@ -71,15 +71,15 @@ function map(sheets, posts) {
                 url: `/${post.post_name}`,
                 html: template
                     .replace('{{body}}', `<h1>${post.post_title}</h1><p>${post.post_content}</p>`)
-                    .replace('{{title}}', getTitle(${post.post_title}))
+                    .replace('{{title}}', getTitle(post.post_title))
             })
         });
 
     return urls;
 }
 
-module.exports = function (google) {
-    return map(google).reduce((ret, item) => {
+module.exports = function (google, posts) {
+    return map(google, posts).reduce((ret, item) => {
         ret[item.url] = item.html;
         return ret;
     }, {});

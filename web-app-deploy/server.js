@@ -186,12 +186,6 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
             const { id } = await mongo.buy({ cart, userId: req.session.userId, email, amount });
             stripe.pay({ token, amount, orderId: id, cart, email })
                 .then(async function (stripeRes) {
-                    await mongo.confirmBuy({
-                        id,
-                        stripeId: stripeRes.id,
-                        amount: stripeRes.amount,
-                        last4: stripeRes.source.last4
-                    });
                     const emailParams = {
                         id,
                         email,
@@ -199,9 +193,20 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
                         cart,
                         googleDb: google.publicDb()
                     };
-                    mailer.send(createTemplate('orderConfirmedEmail', emailParams));
-                    delete emailParams.googleDb;
-                    await res.send(emailParams);
+                    try {
+                        await mongo.confirmBuy({
+                            id,
+                            stripeId: stripeRes.id,
+                            amount: stripeRes.amount,
+                            last4: stripeRes.source.last4
+                        });
+                        mailer.send(createTemplate('orderConfirmedEmail', emailParams));
+                    } catch (e) {
+                        console.log('ERROR ON CONFIRM BUY:', emailParams)
+                    } finally {
+                        delete emailParams.googleDb;
+                        await res.send(emailParams);
+                    }
                 })
                 .catch(function (err) {
                     console.log(err);
