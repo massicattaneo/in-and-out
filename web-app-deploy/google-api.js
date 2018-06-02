@@ -486,7 +486,7 @@ module.exports = function (utils, posts) {
             })
         });
         return sm.createSitemap({
-            hostname: 'https://inandoutbelleza.eu-4.evennode.com/',
+            hostname: 'https://www.inandoutbelleza.es/',
             cacheTime: 600000,
             urls
         });

@@ -1,5 +1,5 @@
 {
-  "host": "https://inandoutbelleza.eu-4.evennode.com",
+  "host": "https://www.inandoutbelleza.es",
   "confirmRegistrationUrl": "/api/login/confirm",
   "registerUrl": "/api/login/register",
   "loginUrl": "/api/login/login",
