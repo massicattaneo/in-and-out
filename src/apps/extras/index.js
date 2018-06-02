@@ -10,11 +10,16 @@ function extras({ system }) {
         const arr = context.lastUrlVisited.split('/').filter(i => i);
         const post = await thread.execute('utils/retrieve-extras', { post: arr[arr.length - 1] });
 
-        const params = post ? {
-            title: post.post_title,
-            date: new Date(post.post_date).formatDay('dd/mm/yyyy'),
-            content: post.post_content
-        } : {};
+        const params = {
+            title: post.post_title || 'IN&OUT - CENTRO DE BELLEZA EN MALAGA',
+            date: new Date(post.post_date|| Date.now()).formatDay('dd/mm/yyyy'),
+            content: post.post_content || `No hemos encontrado ningun contenido que corresponda a tu busqueda: 
+                <strong>
+                ${decodeURI(location.pathname.replace('/es/', '').replace(/-/g, ' '))}
+                </strong>.
+                Visita nuestro sitio
+                y podras econtrar mas informaciones sobre nuestros tratamientos y productos.`
+        };
         const view = HtmlView(template, styles, params);
 
 
