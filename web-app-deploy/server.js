@@ -432,7 +432,7 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
                 res.write(htmls[req.path] || htmls['']);
                 res.end();
             } else {
-                if(req.headers["x-forwarded-proto"] === "http") {
+                if(req.headers["x-forwarded-proto"] === "http" && !isAdmin) {
                     res.redirect(`https://${req.headers.host}${req.url}`)
                 }
                 res.sendFile(path.join(__dirname, `static/${isAdmin ? 'admin' : 'index'}.html`));
