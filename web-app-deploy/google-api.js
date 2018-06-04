@@ -433,12 +433,9 @@ module.exports = function (utils, posts) {
                 lastmodISO: getLastmodISO(item.creacion)
             };
         }));
-        urls.push(...sheets.treatments.reduce((arr, item) => {
-            if (arr.indexOf(item.tipo) === -1) arr.push(item.tipo);
-            return arr;
-        }, []).map(item => {
+        urls.push(...sheets.treatments.map(item => {
             return {
-                url: `/es/tratamientos/${item}`,
+                url: `/es/tratamientos/${item.tipo.toLowerCase()}/${item.href}`,
                 changefreq: 'monthly',
                 priority: 0.8,
                 lastmodISO: getLastmodISO('01/05/2018')

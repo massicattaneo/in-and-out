@@ -44,7 +44,7 @@ function map(sheets, posts) {
             });
         });
 
-    ['promotions', 'treatments', 'bonusCards', 'news', 'press'].forEach(function (name) {
+    ['promotions', 'bonusCards', 'news', 'press'].forEach(function (name) {
         urls.push({
             url: `/es/${es.apps[name].url}`,
             html: template
@@ -55,6 +55,28 @@ function map(sheets, posts) {
         urls.push(...sheets[name].map(item => {
             return {
                 url: `/es/${es.apps[name].url}/${item.href}`,
+                html: template
+                    .replace('{{body}}', `
+                            <h1>${item.titulo}</h1>
+                            <img src="/google/drive/${es.apps[name].url}/desktop.${item.foto}"/>
+                            <p>${item.descripcion}</p>`)
+                    .replace(/{{title}}/g, `${getTitle(es.apps[name].windowTitle)} - ${item.titulo}`)
+                    .replace(/{{description}}/g, item.descripcion)
+            };
+        }));
+    });
+
+    ['treatments'].forEach(function (name) {
+        urls.push({
+            url: `/es/${es.apps[name].url}`,
+            html: template
+                .replace('{{body}}', createHtmlList(name))
+                .replace(/{{title}}/g, getTitle(es.apps[name].windowTitle))
+                .replace(/{{description}}/g, es.apps[name].windowDescription)
+        });
+        urls.push(...sheets[name].map(item => {
+            return {
+                url: `/es/${es.apps[name].url}/${item.tipo.toLowerCase()}/${item.href}`,
                 html: template
                     .replace('{{body}}', `
                             <h1>${item.titulo}</h1>
