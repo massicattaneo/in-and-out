@@ -434,8 +434,9 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
             } else {
                 if(req.headers["x-forwarded-proto"] === "http" && !isAdmin) {
                     res.redirect(`https://${req.headers.host}${req.url}`)
+                } else {
+                    res.sendFile(path.join(__dirname, `static/${isAdmin ? 'admin' : 'index'}.html`));
                 }
-                res.sendFile(path.join(__dirname, `static/${isAdmin ? 'admin' : 'index'}.html`));
             }
         };
     }

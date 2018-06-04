@@ -21,6 +21,12 @@ export default async function({ system, wait, thread }) {
 
     async function createWindow(name, appBaseUrl) {
         let title = context.locale.get(`apps.${name}.windowTitle`);
+        let description = context.locale.get(`apps.${name}.windowDescription`);
+        document.getElementById('og-meta-title').setAttribute('content', title);
+        document.getElementById('twitter-meta-title').setAttribute('content', title);
+        document.getElementById('meta-description').setAttribute('content', description);
+        document.getElementById('og-meta-description').setAttribute('content', description);
+        document.getElementById('twitter-meta-description').setAttribute('content', description);
         document.title = context.locale.get('documentWindowTitle', title);
         const filter = context.appsManifest.filter(i => i.name == name);
         const showCartIcon = filter.length ? filter[0].showCartIcon : false;
@@ -71,20 +77,29 @@ export default async function({ system, wait, thread }) {
                         const name = Object.keys(aps).filter(k => aps[k].url === res)[0];
                         if (res && name) {
                             await createWindow(name, appBaseUrl);
-                        } else if (appBaseUrl === '/contacto/') {
+                        } else if (event === '/es/contacto/') {
                             await createWindow('callUs', appBaseUrl);
-                        } else if (appBaseUrl === '/novedades/') {
+                        } else if (event === '/es/novedades/') {
                             await createWindow('news', appBaseUrl);
-                        } else if (appBaseUrl === '/tratamientos-de-belleza/') {
+                        } else if (event === '/es/tratamientos-de-belleza/') {
                             await createWindow('treatments', appBaseUrl);
-                        } else if (appBaseUrl === '/quienes-somos/') {
+                        } else if (event === '/es/beauty-parties/') {
+                            await createWindow('beautyparties', appBaseUrl);
+                        } else if (event === '/es/in-out-go/') {
+                            await createWindow('inandoutgo', appBaseUrl);
+                        } else if (event === '/es/beauty-corner/') {
+                            await createWindow('beautycorner', appBaseUrl);
+                        } else if (event === '/es/inout-los-medios/') {
+                            await createWindow('press', appBaseUrl);
+                        } else if (event === '/es/inout-los-medios/') {
+                            await createWindow('beautycorner', appBaseUrl);
+                        } else if (event === '/es/quienes-somos/') {
                             await createWindow('team', appBaseUrl);
-                        } else if (appBaseUrl === '/seccion/promociones/') {
+                        } else if (event === '/es/seccion/promociones/') {
                             await createWindow('promotions', appBaseUrl);
-                        } else if (appBaseUrl === '/seccion/depilacion-con-hilo/') {
+                        } else if (event === '/es/seccion/depilacion-con-hilo/') {
                             await createWindow('treatments', appBaseUrl);
-                        }
-                        else {
+                        } else {
                             await createWindow('extras', appBaseUrl);
                         }
                     }

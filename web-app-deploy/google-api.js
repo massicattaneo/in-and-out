@@ -477,7 +477,7 @@ module.exports = function (utils, posts) {
             };
         }));
         posts
-            .filter(p => p.post_mime_type === '')
+            .filter(p => p.post_type === 'post')
             .forEach(function (post) {
             urls.push({
                 url: `/${post.post_name}`,

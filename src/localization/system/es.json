@@ -1,6 +1,6 @@
 {
   "documentTitle": "In&Out - centro de belleza",
-  "documentWindowTitle": "{0} - In&Out",
+  "documentWindowTitle": "{0} - In&Out Málaga",
   "homePage": {
     "pdfPrices": "TARIFARIO",
     "onEvidence": "DESTACADO"
@@ -9,106 +9,127 @@
     "bookings": {
       "iconText": "CITAS",
       "windowTitle": "PIDE TU CITA",
+      "windowDescription": "Pide cita en nuestros centros de Málaga, somos especialistas en depilación con hilo y microblading de cejas",
       "url": "citas"
     },
     "treatments": {
       "iconText": "TRATAMIENTOS",
       "windowTitle": "TRATAMIENTOS",
+      "windowDescription": "Todos los tratamientos de belleza para tus cejas, tus manos, tus piés y tu cuerpo. Llama a nuestros centros en Málaga",
       "url": "tratamientos"
     },
     "bonusCards": {
       "iconText": "TARJETAS",
       "windowTitle": "TARJETAS",
+      "windowDescription": "Compra nuestros tratamientos online, aquí puedes encontrar todos lo que necessita para ponerte guapa en Málaga",
       "url": "tarjetas"
     },
     "products": {
       "iconText": "PRODUCTOS",
       "windowTitle": "PRODUCTOS",
+      "windowDescription": "",
       "url": "productos"
     },
     "beautyparties": {
       "iconText": "BEAUTY PARTIES",
       "windowTitle": "BEAUTY PARTIES",
+      "windowDescription": "Para organizar una Beauty Party en Málaga sólo debes ponerte en contacto con In&Out, indicarnos la fecha en la que estáis interesadas",
       "url": "beauty-parties"
     },
     "inandoutgo": {
       "iconText": "IN&OUT GO",
       "windowTitle": "IN&OUT GO",
+      "windowDescription": "Para tener tu propio servicio estético a domicilio en Málaga y Marbella",
       "url": "inandout-go"
     },
     "team": {
       "iconText": "EQUIPO",
       "windowTitle": "NUESTRO EQUIPO",
+      "windowDescription": "Discubre las profesionales que trabajan en nuestros centros",
       "url": "equipo"
     },
     "news": {
       "iconText": "NOVEDADES",
       "windowTitle": "NOVEDADES",
+      "windowDescription": "Todas as novedades para el mondo della belleza en Málaga",
       "url": "novedades"
     },
     "promotions": {
       "iconText": "PROMOCIONES",
       "windowTitle": "PROMOCIONES",
+      "windowDescription": "Discubre las promociones que In&Out Málaga te ofrece. Cada mes llevate un descuento diferente.",
       "url": "promociones"
     },
     "photos": {
       "iconText": "FOTOS",
       "windowTitle": "LAS FOTOS DE NUESTROS CENTROS",
+      "windowDescription": "Todas nuestra fotos. Productos y tratamientos de belleza en Málaga",
       "url": "fotos"
     },
     "hours": {
       "iconText": "HORARIOS",
       "windowTitle": "NUESTRO HORARIO",
+      "windowDescription": "Discubre los horarios de nuestros centros. Málaga - Calle Salitre, 11 | Calle Compania, 42",
       "url": "horario"
     },
     "location": {
       "iconText": "COMO LLEGAR",
       "windowTitle": "COMO LLEGAR",
+      "windowDescription": "Nuestros centros y como llegar: Málaga - Calle Salitre, 11 | Calle Compania, 42",
       "url": "como-llegar"
     },
     "callUs": {
       "iconText": "LLAMANOS",
       "windowTitle": "LLAMANOS",
+      "windowDescription": "Málaga - Calle Salitre, 11 - Movil: 633 90 91 03 | Calle Compania, 42 - Movil: 695 685 291",
       "url": "llmanos"
     },
     "questions": {
       "iconText": "PREGUNTAS",
       "windowTitle": "COOKIES, PRIVACIDAD Y MAS ...",
+      "windowDescription": "Todo sobres los cookies y tu privacidad",
       "url": "preguntas"
     },
     "login": {
       "iconText": "",
       "windowTitle": "MI CUENTA",
+      "windowDescription": "Entra en la cuenta de In&Out Málaga para comprar y resevar citas online.",
       "url": "cuenta"
     },
     "cart": {
       "iconText": "",
       "windowTitle": "MI CESTA",
+      "windowDescription": "Tu cesta donde comprar tratamientos y productos en In&Out Málaga",
       "url": "cesta"
     },
     "beautycorner": {
       "iconText": "BEAUTY CORNER",
       "windowTitle": "BEAUTY CORNER",
+      "windowDescription": "Con Beauty Corner te ofrecemos la posibilidad de que puedas regalarle a tus invitadas un retoque de maquillaje para el día de tu boda. Málaga, Marbella y alrededor",
       "url": "beauty-corner"
     },
     "press": {
       "iconText": "EN LOS MEDIOS",
       "windowTitle": "EN LOS MEDIOS",
+      "windowDescription": "Los medios de Málaga y Espanoles hablan de nuestros centros de belleza en Málaga",
       "url": "en-los-medios"
     },
     "reviews": {
       "iconText": "COMENTARIOS",
       "windowTitle": "COMENTARIOS",
+      "windowDescription": "La reseñas de lo que visitan y utilizan nuestra pagna web. Discubre que dice la gente sobre In&Out belleza en Málaga.",
       "url": "comentarios"
     },
     "photoMeasure": {
       "iconText": "MEDIDOR",
       "windowTitle": "MIDE TU CEJAS",
+      "windowDescription": "Quieres medir tu cejas ante de pasar en nuestros centros de Málaga? Hatze una foto y luego llamanos ",
       "url": "medidor"
     },
     "extras": {
       "iconText": "CONTENIDO EXTRA",
       "windowTitle": "CONTENIDO EXTRA",
+      "windowDescription": "",
       "url": "contenido-extra"
     }
   },
