@@ -44,8 +44,8 @@ function map(sheets, posts) {
             const url = `/es/${app.url}`;
             urls.push({ url: url, html: html });
             if (oldUrls[index])
-                urls.push({ url: `/oldUrls[index]/`, html: html });
-                urls.push({ url: `/oldUrls[index]`, html: html });
+                urls.push({ url: `/${oldUrls[index]}/`, html: html });
+                urls.push({ url: `/${oldUrls[index]}`, html: html });
         });
 
     ['promotions', 'bonusCards', 'news', 'press'].forEach(function (name) {
