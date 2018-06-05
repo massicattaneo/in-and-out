@@ -83,7 +83,7 @@ function map(sheets, posts) {
 
     ['treatments'].forEach(function (name) {
         const html = template
-            .replace('{{body}}', createHtmlList(name, item => `/${item.tipo.toLowerCase()}`))
+            .replace('{{body}}', createHtmlList(name, item => `/${item.tipo.trim().toLowerCase().split(' ').join('-')}`))
             .replace(/{{title}}/g, getTitle(es.apps[name].windowTitle))
             .replace(/{{description}}/g, es.apps[name].windowDescription);
         urls.push({
@@ -100,7 +100,7 @@ function map(sheets, posts) {
         });
         urls.push(...sheets[name].map(item => {
             return {
-                url: `/es/${es.apps[name].url}/${item.tipo.toLowerCase()}/${item.href}`,
+                url: `/es/${es.apps[name].url}/${item.tipo.trim().toLowerCase().split(' ').join('-')}/${item.href}`,
                 html: template
                     .replace('{{body}}', `
                             <h1>${item.titulo}</h1>

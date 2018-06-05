@@ -435,7 +435,7 @@ module.exports = function (utils, posts) {
         }));
         urls.push(...sheets.treatments.map(item => {
             return {
-                url: `/es/tratamientos/${item.tipo.toLowerCase()}/${item.href}`,
+                url: `/es/tratamientos/${item.tipo.trim().toLowerCase().split(' ').join('-')}/${item.href}`,
                 changefreq: 'monthly',
                 priority: 0.8,
                 lastmodISO: getLastmodISO('01/05/2018')
