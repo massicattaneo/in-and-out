@@ -73,13 +73,20 @@ const config = {
             chunks: ['public'],
             template: 'src/index.hbs',
             inject: false,
-            version: pkg.version
+            filename: './templates/index.html',
+            version: pkg.version,
+            isSpider: '{{isSpider}}',
+            body: '{{body}}',
+            description: '{{description}}',
+            title: '{{title}}',
+            breadcrumb: '{{breadcrumb}}',
+            style: '{{style}}'
         }),
         new HtmlWebpackPlugin({
             chunks: ['admin'],
             template: 'src/admin.hbs',
             inject: false,
-            filename: 'admin.html',
+            filename: './templates/admin.html',
             version: pkg.version
         }),
         new CopyWebpackPlugin([

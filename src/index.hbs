@@ -16,20 +16,20 @@
     <link href="https://www.inandoutbelleza.es/assets/images/apple-touch-icon-144x144.png"
           sizes="144x144" rel="apple-touch-icon-precomposed">
     <meta id="meta-description" name="description"
-          content="In&amp;Out es tu centro de belleza en Málaga por excelencia, pioneros en la técnica de la depilación con hilo en Málaga y en tratamientos de belleza.">
+          content="{{htmlWebpackPlugin.options.description}}">
     <meta name="robots" content="noodp">
     <link rel="canonical" href="https://www.inandoutbelleza.es/">
     <meta property="og:locale" content="es_ES">
     <meta property="og:type" content="website">
-    <meta id="og-meta-title" property="og:title" content="Inicio - In&amp;Out Centro de Belleza en Málaga">
+    <meta id="og-meta-title" property="og:title" content="{{htmlWebpackPlugin.options.title}}">
     <meta id="og-meta-description" property="og:description"
-          content="In&amp;Out es tu centro de belleza en Málaga por excelencia, pioneros en la técnica de la depilación con hilo en Málaga y en tratamientos de belleza.">
+          content="{{htmlWebpackPlugin.options.description}}">
     <meta property="og:url" content="https://www.inandoutbelleza.es/">
     <meta property="og:site_name" content="In&amp;Out Centro de Belleza en Málaga">
     <meta name="twitter:card" content="summary">
     <meta id="twitter-meta-description" name="twitter:description"
-          content="In&amp;Out es tu centro de belleza en Málaga por excelencia, pioneros en la técnica de la depilación con hilo en Málaga y en tratamientos de belleza.">
-    <meta id="twitter-meta-title" name="twitter:title" content="Inicio - In&amp;Out Centro de Belleza en Málaga">
+          content="{{htmlWebpackPlugin.options.description}}">
+    <meta id="twitter-meta-title" name="twitter:title" content="{{htmlWebpackPlugin.options.title}}">
     <meta name="twitter:site" content="@bellezainandout">
     <meta name="twitter:image" content="https://www.inandoutbelleza.es/assets/images/apple-touch-icon-144x144.png">
     <meta name="twitter:creator" content="@bellezainandout">
@@ -37,13 +37,14 @@
 
     <!-- Google Analytics -->
     <script>
-        window.ga = window.ga || function() {
+        window.ga = window.ga || function () {
             (ga.q = ga.q || []).push(arguments);
         };
         ga.l = +new Date;
         ga('create', 'UA-119607581-1', 'auto');
         ga('send', 'pageview');
     </script>
+    <script>window.jsEnabled = {{htmlWebpackPlugin.options.isSpider}}</script>
     <script async src='https://www.google-analytics.com/analytics.js'></script>
     <!-- End Google Analytics -->
     <link href="/css/style.css?v={{htmlWebpackPlugin.options.version}}" rel="stylesheet"/>
@@ -62,6 +63,7 @@
             text-align: center;
             font-family: Arial;
             height: 110px;
+            display: none;
         }
 
         #boot svg {
@@ -80,8 +82,39 @@
                 transform: rotateY(360deg)
             }
         }
+
+        #boot {
+        }
+
+        #welcome {
+            display: none;
+        }
     </style>
-    <title>In&Out - centro de belleza</title>
+    {{htmlWebpackPlugin.options.style}}
+    <noscript>
+        <style>
+            body {
+                overflow: auto !important;
+            }
+
+            img {
+                width: auto !important;
+            }
+
+            #static {
+                display: block;
+            }
+
+            #boot {
+                display: none;
+            }
+
+            #welcome {
+                display: none;
+            }
+        </style>
+    </noscript>
+    <title>{{htmlWebpackPlugin.options.title}}</title>
 </head>
 <body>
 <div id="boot">
@@ -102,55 +135,36 @@
 
 <div id="system"></div>
 <div id="welcome">
-    <h1>In&Out centro de belleza en Malaga</h1>
-    <p>
-        In&Out es tu centro de belleza en Málaga por excelencia, pioneros en la técnica de la depilación con hilo en
-        Málaga y con una larga trayectoria que nos avalan en tratamientos faciales, tratamientos corporales, masajes y
-        organizadores de beauty parties.
-    </p>
-    <p>
-    <h3>Faciales</h3>
-    ¿Has dicho tratamientos faciales? En In&Out te estamos esperando con un amplio abanico de posibilidades para tratar
-    tu piel en la medida de tus necesidades.
-    </p>
-    <p>
-    <h3>Beauty</h3>
-    Siéntete guapa por dentro y por fuera con In&Out, dedícate el tiempo que te mereces y arrasa allí por donde pases.
-    </p>
-    <p>
-    <h3>Depilacíon con hilo</h3>
-    ¿Sabías que In&Out es pionera en Málaga en la depilación con hilo? ¿Que aun no lo has probado? Y, ¿a qué esperas?,
-    ponte en manos de las mejores profesionales en la técnica de la depilación con hilo.
-    </p>
-    <p>
-    <h3>Corporales</h3>
-    Desde la presoterapia pasando por las velas smooth hasta llegar a la radiofrecuencia, son solo algunas muestras de
-    lo que puedes encontrar en tu centro de belleza de Málaga In&Out
-    </p>
-    <nav>
-        <a href="/es/tratamientos">TRATAMIENTOS</a>
-        <a href="/es/tarjetas">TARJETAS</a>
-        <a href="/es/promociones">PROMOCIONES</a>
-        <a href="/es/citas">CITAS</a>
-        <a href="/es/beauty-parties">BEAUTY PARTIES</a>
-        <a href="/es/beauty-corner">BEAUTY CORNER</a>
-        <a href="/es/inandout-go">IN AND OUT GO</a>
-        <a href="/es/novedades">NOVEDADES</a>
-        <a href="/es/fotos">FOTOS</a>
-        <a href="/es/medidor">MEDIDOR</a>
-        <a href="/es/equipo">EQUIPO</a>
-        <a href="/es/horario">HORARIO</a>
-        <a href="/es/como-llegar">COMO LLEGAR</a>
-        <a href="/es/llmanos">LLAMANOS</a>
-        <a href="/es/comentarios">COMENTARIOS</a>
-        <a href="/es/preguntas">PREGUNTAS</a>
-        <a href="/es/en-los-medios">EN LOS MEDIOS</a>
-    </nav>
-    <ul>
-        <li><i class="fa fa-phone"></i>C/ Salitre, 11:<span> T. 951 131 460  ·  M. 633 90 91 03</span></li>
-        <li><i class="fa fa-phone"></i>C/ Compañia, 42:<span> T. 951 387 919  ·  M. 695 685 291 </span></li>
-    </ul>
 </div>
+<div id="static">
+    <header>
+        <div style="position: relative; background-repeat: no-repeat; margin: 3px; height: 50px; width: 160px; display: inline-block; background-size: contain; vertical-align: top; background-image: url(&quot;/assets/images/manzana.svg?v=1.2.8&quot;);">
+            <div style="position: absolute; top: 5px; left: 60px; font-size: 34px;">in<span
+                    class="green-color">&amp;</span>out
+            </div>
+            <div style="position: absolute; top: 36px; left: 60px; font-size: 13px;">centro de belleza</div>
+        </div>
+    </header>
+    <hr/>
+    {{htmlWebpackPlugin.options.breadcrumb}}
+    {{htmlWebpackPlugin.options.body}}
+    <hr/>
+    <footer>
+        <address>
+            Málaga C/ Salitre, 11:<span> T. 951 131 460  ·  M. 633 90 91 03</span>
+        </address>
+        <address>
+            Málaga C/ Compañia, 42:<span> T. 951 387 919  ·  M. 695 685 291 </span>
+        </address>
+    </footer>
+</div>
+<script>
+    if (window.jsEnabled) {
+        document.querySelectorAll('img[data-src]').forEach(function (img) {
+            img.src = img.getAttribute('data-src');
+        });
+    }
+</script>
 <script src="/public.bundle.js?v={{htmlWebpackPlugin.options.version}}"></script>
 </body>
 </html>

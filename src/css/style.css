@@ -425,3 +425,14 @@ label {
     opacity: 0;
 }
 
+#static {
+    margin: 10px;
+}
+
+.breadcrumb ul {
+    list-style: none;
+}
+.breadcrumb li {
+    display: inline-block;
+}
+

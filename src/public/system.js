@@ -10,8 +10,6 @@ const system = System({
     config: { appName, version }
 });
 
-window.system = system;
-
 const statements = {};
 const folders = require.context('./statements/', true, /.*/);
 folders.keys().forEach((filename) => {
@@ -19,38 +17,40 @@ folders.keys().forEach((filename) => {
         statements[filename.replace('./', '').replace('.js', '')] = folders(filename).default;
     }
 });
+if(!window.jsEnabled) {
+    (async function() {
+        const thread = system.createThread(() => {
+            return { statements };
+        });
+        thread.execute('set-up-environment');
+        await thread.execute('create-store');
+        thread.execute('set-up-navigation');
+        await thread.execute('load-resources');
+        const welcomeEl = document.getElementById('welcome');
 
-(async function() {
-    const thread = system.createThread(() => {
-        return { statements };
-    });
-    thread.execute('set-up-environment');
-    await thread.execute('create-store');
-    thread.execute('set-up-navigation');
-    await thread.execute('load-resources');
-    const welcomeEl = document.getElementById('welcome');
+        function click() {
+            const view = HtmlView(cookiesTpl, [], {});
+            view.get().cookieAccept = function() {
+                system.setStorage({ 'in-and-out-accepted-cookies': true });
+                welcomeEl.style.display = 'none';
+            };
+            welcomeEl.removeEventListener('click', click);
+            welcomeEl.removeEventListener('touchstart', click);
+            welcomeEl.appendChild(view.get());
+            welcomeEl.style.opacity = 1;
+        }
 
-    function click() {
-        const view = HtmlView(cookiesTpl, [], {});
-        view.get().cookieAccept = function() {
-            system.setStorage({ 'in-and-out-accepted-cookies': true });
+        if (!system.getStorage('in-and-out-accepted-cookies')) {
+            welcomeEl.innerHTML = '';
+            welcomeEl.addEventListener('click', click);
+            welcomeEl.addEventListener('touchstart', click);
+        } else {
             welcomeEl.style.display = 'none';
-        };
-        welcomeEl.removeEventListener('click', click);
-        welcomeEl.removeEventListener('touchstart', click);
-        welcomeEl.appendChild(view.get());
-        welcomeEl.style.opacity = 1;
-    }
+        }
+        thread.execute('create-home-page');
+        thread.execute(function() {
+            return system.navigateTo(this.redirectUrl);
+        });
+    })();
+}
 
-    if (!system.getStorage('in-and-out-accepted-cookies')) {
-        welcomeEl.innerHTML = '';
-        welcomeEl.addEventListener('click', click);
-        welcomeEl.addEventListener('touchstart', click);
-    } else {
-        welcomeEl.style.display = 'none';
-    }
-    thread.execute('create-home-page');
-    thread.execute(function() {
-        return system.navigateTo(this.redirectUrl);
-    });
-})();

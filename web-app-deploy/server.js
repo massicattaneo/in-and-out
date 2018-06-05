@@ -32,7 +32,7 @@ const httpsOptions = {
     cert: fs.readFileSync(path.resolve(__dirname + '/private/cert.pem'))
 };
 const adminKeys = require('./private/adminKeys');
-const createStaticHtmls = require('./seo/createDynamicHtmls');
+const createStaticHtmls = require('./seo/createStaticHtmls');
 
 (async function () {
     const { store, db } = await mongo.connect();
@@ -53,6 +53,20 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
         })
     }));
     app.use(compression());
+    app.use(function (req, res, next) {
+        if (req.url === '/robots.txt') {
+            res.type('text/plain');
+            res.send(`User-agent: *\n
+                    Disallow: /api/\n
+                    Disallow: /google/calendar/\n
+                    Disallow: /wp-content/\n
+                    User-agent: *\n
+                    Allow: /\n
+                    Sitemap: https://www.inandoutbelleza.es/sitemap.xml`);
+        } else {
+            next();
+        }
+    });
 
     function requiresAdmin(req, res, next) {
         if (req.session && req.session.isAdmin) {
@@ -92,11 +106,15 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
     await google.initCalendar();
     await google.initDrivePhotos();
     await google.initDriveSheets();
+    // google.stubData();
 
-    app.get('/api/extras/*', function (req, res) {
-        const post_name = req.path.replace('/api/extras/', '');
-        const find = posts.find(i => i.post_name === post_name);
-        res.send(JSON.stringify(find || {}));
+    app.get('/api/posts/*', function (req, res) {
+        const post_name = req.path.replace('/api/posts/', '');
+        const post = posts.find(i => i.post_name === post_name);
+        const images = posts
+            .filter(p => p.post_parent === post.ID)
+            .filter(p => p.post_type === 'attachment');
+        res.send(JSON.stringify(Object.assign({ images }, post || {})));
     });
 
     app.get('/google/drive/*', function (req, res) {
@@ -106,7 +124,7 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
             res.set('Content-Type', 'image/jpg');
             s.pipe(res);
         } else {
-            // res.status(404);
+            res.status(404);
             res.send('');
         }
     });
@@ -202,7 +220,7 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
                         });
                         mailer.send(createTemplate('orderConfirmedEmail', emailParams));
                     } catch (e) {
-                        console.log('ERROR ON CONFIRM BUY:', emailParams)
+                        console.log('ERROR ON CONFIRM BUY:', emailParams);
                     } finally {
                         delete emailParams.googleDb;
                         await res.send(emailParams);
@@ -417,26 +435,26 @@ const createStaticHtmls = require('./seo/createDynamicHtmls');
 
     let callback;
     if (isDeveloping) {
-        callback = require('../webpack/dev-server')(app, express);
+        callback = require('../webpack/dev-server')(app, express, google, posts);
     } else {
+        const textFile = fs.readFileSync(path.join(__dirname, 'static/templates/index.html'), 'utf8');
+        const htmls = createStaticHtmls(textFile, google.publicDb(), posts);
         app.use(express.static(__dirname + '/static', {
             maxage: 365 * 24 * 60 * 60 * 1000,
             etag: false
         }));
         callback = function response(req, res) {
             const isAdmin = req.path.substr(0, 6) === '/admin';
-            if (req.isSpider()) {
-                /** respond with static html */
-                const htmls = createStaticHtmls(google.publicDb(), posts);
-                console.log('***** CRAWLER: requesting:', req.path);
-                res.write(htmls[req.path] || htmls['']);
-                res.end();
+            if (req.headers['x-forwarded-proto'] === 'http' && !isAdmin && !req.isSpider()) {
+                res.redirect(`https://${req.headers.host}${req.url}`);
+            } else if (isAdmin) {
+                res.sendFile(path.join(__dirname, 'static/templates/admin.html'));
             } else {
-                if(req.headers["x-forwarded-proto"] === "http" && !isAdmin) {
-                    res.redirect(`https://${req.headers.host}${req.url}`)
-                } else {
-                    res.sendFile(path.join(__dirname, `static/${isAdmin ? 'admin' : 'index'}.html`));
+                if (req.isSpider()) {
+                    console.log('***** CRAWLER: requesting:', req.path);
                 }
+                res.write(createStaticHtmls.addCss(htmls[req.path] || htmls[''], req.isSpider()));
+                res.end();
             }
         };
     }

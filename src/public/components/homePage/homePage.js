@@ -59,7 +59,7 @@ export default async function ({ system, parent, context, thread }) {
     })[0];
     const item3 = system.store.press.map(i => {
         return {
-            title: i.titulo, src: `/google/drive/press/${system.deviceInfo().deviceType}.${i.foto}`,
+            title: i.titulo, src: `/google/drive/en-los-medios/${system.deviceInfo().deviceType}.${i.foto}`,
             info: i.descripcion.substr(0, 150) + `... <br/><a onclick="window.navigate(this, event)" href="/es/en-los-medios/${i.href}">LEER MAS</a>`,
         }
     })[0];

@@ -1,15 +1,17 @@
-const webpack = require("webpack");
-const webpackMiddleware = require("webpack-dev-middleware");
-const webpackHotMiddleware = require("webpack-hot-middleware");
-const config = require("./webpack.config.dev.js");
+const webpack = require('webpack');
+const webpackMiddleware = require('webpack-dev-middleware');
+const webpackHotMiddleware = require('webpack-hot-middleware');
+const config = require('./webpack.config.dev.js');
 const path = require('path');
+const createStaticHtmls = require('../web-app-deploy/seo/createStaticHtmls');
+const fs = require('fs');
 
-module.exports = function (app, express) {
+module.exports = function (app, express, google, posts) {
 
     const compiler = webpack(config);
     const middleware = webpackMiddleware(compiler, {
         publicPath: config.output.publicPath,
-        contentBase: "../src",
+        contentBase: '../src',
         stats: {
             colors: true,
             hash: false,
@@ -26,13 +28,19 @@ module.exports = function (app, express) {
     app.use(express.static(__dirname));
 
     return function response(req, res) {
+        const textFile = middleware.fileSystem.readFileSync(path.join(__dirname, 'dist/templates/index.html'), 'utf8');
+        const htmls = createStaticHtmls(textFile, google.publicDb(), posts);
+
         const isAdmin = req.path.substr(0, 6) === '/admin';
-        const file = (isAdmin) ?
-            middleware.fileSystem.readFileSync(
-                path.join(__dirname, "dist/admin.html"))
-            : middleware.fileSystem.readFileSync(
-                path.join(__dirname, "dist/index.html"));
-        res.write(file);
-        res.end();
-    }
+        if (isAdmin) {
+            const file = middleware.fileSystem.readFileSync(path.join(__dirname, 'dist/templates/admin.html'));
+            res.write(file);
+            res.end();
+        } else {
+            res.write(createStaticHtmls.addCss(htmls[req.path] || htmls[''], false));
+            res.end();
+        }
+
+    };
+
 };

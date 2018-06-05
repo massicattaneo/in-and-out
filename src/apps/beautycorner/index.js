@@ -14,7 +14,12 @@ function beautycorner({ system }) {
             .filter(i => i.folder === 'beautycorner')
             .filter(p => p.url.indexOf(`${deviceType}.`) !== -1)
             .filter((a, i) => i < 3)
-            .forEach((item, index) => view.get(`image${index}`).src = item.url);
+            .forEach((item, index) => {
+                const image = view.get(`image${index}`);
+                image.src = item.url;
+                image.alt = item.name;
+                image.title = item.name;
+            });
 
         const disconnect = ({ orientation: () => system.deviceInfo().orientation })
             .reactive()

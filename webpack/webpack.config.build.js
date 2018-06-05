@@ -77,6 +77,7 @@ const config = {
         new HtmlWebpackPlugin({
             chunks: ['public'],
             template: 'src/index.hbs',
+            filename: './templates/index.html',
             inject: false,
             minify: {
                 collapseWhitespace: true,
@@ -85,12 +86,18 @@ const config = {
                 removeAttributeQuotes: true,
                 removeComments: true
             },
-            version
+            version,
+            isSpider: '{{isSpider}}',
+            body: '{{body}}',
+            description: '{{description}}',
+            title: '{{title}}',
+            breadcrumb: '{{breadcrumb}}',
+            style: '{{style}}'
         }),
         new HtmlWebpackPlugin({
             chunks: ['admin'],
             template: 'src/admin.hbs',
-            filename: 'admin.html',
+            filename: './templates/admin.html',
             inject: false,
             minify: {
                 collapseWhitespace: true,

@@ -22,11 +22,13 @@ export default async function({ system, wait, thread }) {
     async function createWindow(name, appBaseUrl) {
         let title = context.locale.get(`apps.${name}.windowTitle`);
         let description = context.locale.get(`apps.${name}.windowDescription`);
-        document.getElementById('og-meta-title').setAttribute('content', title);
-        document.getElementById('twitter-meta-title').setAttribute('content', title);
-        document.getElementById('meta-description').setAttribute('content', description);
-        document.getElementById('og-meta-description').setAttribute('content', description);
-        document.getElementById('twitter-meta-description').setAttribute('content', description);
+        if (name !== 'blog') {
+            document.getElementById('og-meta-title').setAttribute('content', title);
+            document.getElementById('twitter-meta-title').setAttribute('content', title);
+            document.getElementById('meta-description').setAttribute('content', description);
+            document.getElementById('og-meta-description').setAttribute('content', description);
+            document.getElementById('twitter-meta-description').setAttribute('content', description);
+        }
         document.title = context.locale.get('documentWindowTitle', title);
         const filter = context.appsManifest.filter(i => i.name == name);
         const showCartIcon = filter.length ? filter[0].showCartIcon : false;
@@ -99,8 +101,8 @@ export default async function({ system, wait, thread }) {
                             await createWindow('promotions', appBaseUrl);
                         } else if (event === '/es/seccion/depilacion-con-hilo/') {
                             await createWindow('treatments', appBaseUrl);
-                        } else {
-                            await createWindow('extras', appBaseUrl);
+                        } else if (res) {
+                            await createWindow('blog', appBaseUrl);
                         }
                     }
 

@@ -15,7 +15,12 @@ function inandoutgo({ system }) {
             .filter(i => i.folder === 'inandoutgo')
             .filter(p => p.url.indexOf(`${deviceType}.`) !== -1)
             .filter((a,i) => i < 3)
-            .forEach((item, index) => view.get(`image${index}`).src = item.url);
+            .forEach((item, index) => {
+                const image = view.get(`image${index}`);
+                image.src = item.url;
+                image.title = item.name;
+                image.alt = item.name;
+            });
 
         const disconnect = ({ orientation: () => system.deviceInfo().orientation })
             .reactive()

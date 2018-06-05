@@ -28,7 +28,10 @@ function photos({ system }) {
             if (photos.length) {
                 const photo = photos.splice(0, 1)[0];
                 await system.loadStageFiles(photo.url).start();
-                view.get('photos').appendChild(Node(`<div class="box"><img src="${photo.url}?v=${system.info().version}"</div>`))
+                view.get('photos').appendChild(Node(`
+                    <div class="box">
+                        <img src="${photo.url}?v=${system.info().version}" alt="${photo.name}" title="${photo.name}"
+                    </div>`))
             } else {
                 view.get('loading').style.display = 'none';
                 await new Promise(res => setTimeout(res, 0));

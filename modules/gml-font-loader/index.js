@@ -32,12 +32,12 @@ function addStyle(name, url) {
     document.getElementsByTagName('head')[0].appendChild(s);
     const css = `@font-face {
           font-family: ${name};
-          src: url("${url}.eot");
-          src: url("${url}.eot?#iefix") 
-          format("embedded-opentype"), url("${url}.woff2") 
-          format("woff2"), url("${url}.woff") 
-          format("woff"), url("${url}.ttf") 
-          format("truetype"), url("${url}.svg#webfont") format("svg");
+          src: url("${url.replace('{{ext}}', 'eot')}");
+          src: url("${url.replace('{{ext}}', 'eot')}#iefix") 
+          format("embedded-opentype"), url("${url.replace('{{ext}}', 'woff2')}") 
+          format("woff2"), url("${url.replace('{{ext}}', 'woff2')}") 
+          format("woff"), url("${url.replace('{{ext}}', 'ttf')}") 
+          format("truetype"), url("${url.replace('{{ext}}', 'svg')}#webfont") format("svg");
           font-weight: normal;
           font-style: normal; }`;
     if (s.styleSheet){
@@ -57,7 +57,7 @@ export default function () {
             return Promise.all(resources.map((resource) => {
                 return new Promise(function (resolve) {
                     const name = resource.url.substr(resource.url.lastIndexOf('/') +1, resource.url.lastIndexOf('.') - resource.url.lastIndexOf('/') -1);
-                    const url = resource.url.substr(0, resource.url.lastIndexOf('.'));
+                    const url = resource.url.replace('.ttf', '.{{ext}}');
                     addStyle(resource.name || name, url);
                     return waitFont(resource.name || name, function () {
                         resource.name = resource.name || name;

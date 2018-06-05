@@ -21,6 +21,7 @@ google.options({ auth: jwtClient });
 const processes = require('./processes.json');
 const sm = require('sitemap');
 const appsManifest = require('./static/localization/system/es.json');
+
 function deleteFolder(path) {
     if (fs.existsSync(path)) {
         fs.readdirSync(path).forEach(function (file) {
@@ -60,6 +61,30 @@ function formatGoogleSheet({ value, format }) {
     return str.replace(/\n/g, '<br/>');
 }
 
+function parseHref(item) {
+    return item.toLowerCase().trim()
+        .replace(/[`~!@#$%^&*()_|+=?;:'",<>\{\}\[\]\\\/]/gi, '')
+        .replace(/à/g, 'a')
+        .replace(/ä/g, 'a')
+        .replace(/á/g, 'a')
+        .replace(/é/g, 'e')
+        .replace(/è/g, 'e')
+        .replace(/ë/g, 'e')
+        .replace(/ï/g, 'i')
+        .replace(/í/g, 'i')
+        .replace(/ì/g, 'i')
+        .replace(/ö/g, 'o')
+        .replace(/ò/g, 'o')
+        .replace(/ó/g, 'o')
+        .replace(/ó/g, 'o')
+        .replace(/ü/g, 'u')
+        .replace(/ù/g, 'u')
+        .replace(/ú/g, 'u')
+        .replace(/ñ/g, 'n')
+        .replace('&', ' and ')
+        .replace(/\s/g, '-');
+}
+
 function parseSheet(sht) {
     const cols = sht[0].filter(i => i.formattedValue).map(i => i.formattedValue.replace(/\s/g, '_'));
     return sht.slice(1)
@@ -75,24 +100,7 @@ function parseSheet(sht) {
                 .reduce((ret, item, index) => {
                     const col = cols[index];
                     if (col === 'titulo') {
-                        ret['href'] = item.toLowerCase().trim()
-                            .replace(/[`~!@#$%^&*()_|+\-=?;:'",.<>\{\}\[\]\\\/]/gi, '')
-                            .replace(/à/g, 'a')
-                            .replace(/ä/g, 'a')
-                            .replace(/á/g, 'a')
-                            .replace(/é/g, 'e')
-                            .replace(/è/g, 'e')
-                            .replace(/ë/g, 'e')
-                            .replace(/ï/g, 'i')
-                            .replace(/í/g, 'i')
-                            .replace(/ì/g, 'i')
-                            .replace(/ö/g, 'o')
-                            .replace(/ò/g, 'o')
-                            .replace(/ó/g, 'o')
-                            .replace(/ü/g, 'u')
-                            .replace(/ù/g, 'u')
-                            .replace(/ú/g, 'u')
-                            .replace(/\s/g, '-');
+                        ret['href'] = parseHref(item);
                     }
                     ret[col] = item;
                     return ret;
@@ -139,16 +147,17 @@ module.exports = function (utils, posts) {
 
     function savePhoto(fold, item, imageWidth, deviceType) {
         return new Promise(function (resolve, reject) {
-            const dest = fs.createWriteStream(__dirname + `${root}${fold.name}/${deviceType}.${item.originalFilename}`);
+            const url = `${root}${fold.name}/${deviceType}.${parseHref(item.title)}`;
             const format = item.mimeType.replace('image/', '');
-            const existsSync = fs.existsSync(__dirname + `${root}${fold.name}/${deviceType}.${item.originalFilename}`);
+            const existsSync = fs.existsSync(__dirname + url);
             if (existsSync) {
                 return resolve({
-                    url: `${root}${fold.name}/${deviceType}.${item.originalFilename}`,
-                    name: item.originalFilename,
+                    url,
+                    name: item.title,
                     folder: fold.name
                 });
             }
+            const dest = fs.createWriteStream(__dirname + url);
 
             const resizer = sharp().resize(imageWidth,
                 parseInt((imageWidth / item.imageMediaMetadata.width) * item.imageMediaMetadata.height, 10))
@@ -156,8 +165,8 @@ module.exports = function (utils, posts) {
             drive.files.get({ fileId: item.id, alt: 'media' })
                 .on('end', function () {
                     resolve({
-                        url: `${root}${fold.name}/${deviceType}.${item.originalFilename}`,
-                        name: item.originalFilename,
+                        url,
+                        name: item.title,
                         folder: fold.name
                     });
                 })
@@ -190,11 +199,6 @@ module.exports = function (utils, posts) {
                     });
 
                 promises.push(...list.items
-                    .map(function (i) {
-                        // if (i.mimeType === 'application/vnd.google-apps.spreadsheet')
-                        //     console.log(i.mimeType, i.id);
-                        return i;
-                    })
                     .filter(item => item.mimeType === 'image/jpeg')
                     .map(function (item, index) {
                         const fold = folders.filter(f => f.id === item.parents[0].id)[0];
@@ -422,14 +426,32 @@ module.exports = function (utils, posts) {
     };
 
     obj.createSitemap = function () {
-        const urls = Object.keys(appsManifest.apps).map(key => {
-            return { url: `/es/${appsManifest.apps[key].url}`, changefreq: 'monthly', priority: 1 };
-        });
+        const urls = Object.keys(appsManifest.apps)
+            .map(key => {
+                const images = photos
+                    .filter(p => p.folder === appsManifest.apps[key].url)
+                    .filter(p => p.url.indexOf('desktop') !== -1);
+                const img = images.map(i => {
+                    return {
+                        url: `https://www.inandoutbelleza.es${i.url}`,
+                        title: i.name,
+                        geoLocation: 'Málaga, España'
+                    };
+                });
+                return {
+                    url: `/es/${appsManifest.apps[key].url}`,
+                    changefreq: 'monthly',
+                    priority: 1,
+                    lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-01`),
+                    img
+                };
+            });
+
         urls.push(...sheets.promotions.map(item => {
             return {
                 url: `/es/promociones/${item.href}`,
                 changefreq: 'monthly',
-                priority: 0.8,
+                priority: 1,
                 lastmodISO: getLastmodISO(item.creacion)
             };
         }));
@@ -437,7 +459,7 @@ module.exports = function (utils, posts) {
             return {
                 url: `/es/tratamientos/${item.tipo.toLowerCase().replace(/\s/g, '-').replace(/ó/g, 'o')}/${item.href}`,
                 changefreq: 'monthly',
-                priority: 0.8,
+                priority: 1,
                 lastmodISO: getLastmodISO('01/05/2018')
             };
         }));
@@ -445,7 +467,7 @@ module.exports = function (utils, posts) {
             return {
                 url: `/es/tarjetas/${item.href}`,
                 changefreq: 'monthly',
-                priority: 0.8,
+                priority: 0.6,
                 lastmodISO: getLastmodISO(item.desde)
             };
         }));
@@ -453,7 +475,7 @@ module.exports = function (utils, posts) {
             return {
                 url: `/es/beauty-parties/${item.href}`,
                 changefreq: 'monthly',
-                priority: 0.8,
+                priority: 1,
                 lastmodISO: getLastmodISO('01/05/2018')
             };
         }));
@@ -461,7 +483,7 @@ module.exports = function (utils, posts) {
             return {
                 url: `/es/novedades/${item.href}`,
                 changefreq: 'monthly',
-                priority: 0.8,
+                priority: 1,
                 lastmodISO: getLastmodISO(item.fecha)
             };
         }));
@@ -473,20 +495,69 @@ module.exports = function (utils, posts) {
                 lastmodISO: getLastmodISO(item.fecha)
             };
         }));
+
+        const priorityPosts = ['microblading-en-malaga', 'ventajas-microblading',
+            'depilacion-al-caramelo-malaga', 'depilacion-con-hilo',
+            'el-exito-de-inout-tiene-nombre-depilacion-con-hilo', 'la-depilacion-con-hilo-es-la-reina',
+            '3-ventajas-de-la-depilacion-con-hilo', 'los-5-esmaltes-de-opi-mas-vendidos',
+            'tarjetas-regalo-tratamientos-esteticos-malaga',
+            'quieres-hacer-una-beauty-party-en-malaga', 'alisado-cejas-malaga',
+            'comprar-biologique-recherche-malaga', 'cosmeticos-faciales-biologique-recherche',
+            'segunda-piel-biologique-recherche', 'las-famosas-usan-p50-biologique-recherche'];
+
         posts
             .filter(p => p.post_type === 'post')
             .forEach(function (post) {
-            urls.push({
-                url: `/${post.post_name}`,
-                priority: 0.8,
-                lastmodISO: getLastmodISO(post.post_date)
-            })
-        });
+                const images = posts
+                    .filter(p => p.post_parent === post.ID)
+                    .filter(p => p.post_type === 'attachment');
+                const isPriority = priorityPosts.indexOf(post.post_name) !== -1;
+                urls.push({
+                    url: `/${post.post_name}`,
+                    priority: isPriority ? 1 : 0.8,
+                    lastmodISO: getLastmodISO(isPriority ? '2018-05-01 18:09:48' : post.post_date),
+                    img: images.map(i => {
+                        return {
+                            url: `https://www.inandoutbelleza.es${i.guid}`,
+                            title: i.post_title,
+                            geoLocation: 'Málaga, España'
+                        };
+                    })
+                });
+            });
         return sm.createSitemap({
             hostname: 'https://www.inandoutbelleza.es/',
             cacheTime: 600000,
             urls
         });
+    };
+
+    obj.stubData = function () {
+        sheets.treatments = [{
+            identificador: 'TRT-1',
+            titulo: 'tratamiento',
+            precio: 30,
+            precio_texto: '30,00 €',
+            foto: '/assets/images/prd-bb_cream.jpeg',
+            tipo: 'facial',
+            descripcion: 'tratamiento de la piel',
+            online: 'si'
+        }];
+        sheets.beautyparties = [];
+        sheets.promotions = [];
+        sheets.news = [];
+        sheets.products = [{
+            identificador: 'PRD-1',
+            titulo: 'producto numero 1',
+            disponible: 'si',
+            cantidad: '50ml',
+            precio: 30,
+            precio_texto: '30,00 €',
+            foto: '/assets/images/prd-bb_cream.jpeg',
+            descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et\\r\\ndolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut\\r\\naliquip ex ea commodo consequat.'
+        }];
+        sheets.press = [];
+        sheets.bonusCards = [];
     };
 
     function getTreatmentsList() {
@@ -588,25 +659,6 @@ module.exports = function (utils, posts) {
         return numbers;
 
     }
-
-    // obj.getCalendar = function (calendarId, datetime) {
-    //     const cal = calendars[calendarId];
-    //
-    //     datetime.setHours(0,0,0,0);
-    //     const timeMin = datetime.toISOString();
-    //     datetime.setHours(23,59,59,999);
-    //     const timeMax = datetime.toISOString();
-    //     const params = {
-    //         calendarId: cal.id,
-    //         timeMin: timeMin,
-    //         timeMax: timeMax,
-    //         timeZone: cal.timeZone
-    //     };
-    //     calendar.events.list(params).then(function(d) {
-    //         console.log(d);
-    //     });
-    //
-    // };
 
     return obj;
 };
