@@ -111,9 +111,9 @@ const createStaticHtmls = require('./seo/createStaticHtmls');
     app.get('/api/posts/*', function (req, res) {
         const post_name = req.path.replace('/api/posts/', '');
         const post = posts.find(i => i.post_name === post_name);
-        const images = posts
+        const images = post ? posts
             .filter(p => p.post_parent === post.ID)
-            .filter(p => p.post_type === 'attachment');
+            .filter(p => p.post_type === 'attachment') : [];
         res.send(JSON.stringify(Object.assign({ images }, post || {})));
     });
 
