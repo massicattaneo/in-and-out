@@ -83,7 +83,7 @@ const config = {
                 collapseWhitespace: true,
                 minifyCSS: true,
                 minifyJS: true,
-                removeAttributeQuotes: true,
+                removeAttributeQuotes: false,
                 removeComments: true
             },
             version,
