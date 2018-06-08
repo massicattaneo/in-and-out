@@ -20,14 +20,14 @@ const cssStyleFont = function ({ name, url }) {
           font-weight: normal;
           font-style: normal; }`;
 };
-
+const webSiteUrl = 'https://www.inandoutbelleza.es';
 function getBreadcrumbItems(items) {
     return items.map((i, index, array) => {
         return {
             '@type': 'ListItem',
             'position': index + 1,
             'item': {
-                '@id': `https://www.inandoutbelleza.es/${array.slice(0, index + 1).join('/')}`,
+                '@id': `${webSiteUrl}/${array.slice(0, index + 1).join('/')}`,
                 'name': i
             }
         };
@@ -51,6 +51,10 @@ function createBreadcrumb(url) {
 
 function parseUrlTreatmentType(string) {
     return string.toLowerCase().replace(/\s/g, '-').replace(/ó/g, 'o');
+}
+
+function getLastmodISO(string) {
+    return new Date(string.split('/').reverse().join('-')).toISOString();
 }
 
 function map(template, google, posts) {
@@ -96,7 +100,7 @@ function map(template, google, posts) {
         "provider": {
             "@type": "Organization",
             "name": "In&Out Belleza",
-            "@id": "https://www.inandoutbelleza.es${url}"
+            "@id": "${webSiteUrl}${url}"
         },
         "description": "${item.descripcion}",
         "name": "${item.titulo}"
@@ -119,7 +123,8 @@ function map(template, google, posts) {
             urls.push({ url: `/${oldUrls[index]}`, html: html });
         });
 
-    ['promotions', 'bonusCards', 'news', 'press'].forEach(function (name) {
+
+    ['promotions', 'news', 'press'].forEach(function (name) {
         const html = template
             .replace('{{body}}', createHtmlList(name))
             .replace(/{{title}}/g, getTitle(es.apps[name].windowTitle))
@@ -138,47 +143,106 @@ function map(template, google, posts) {
                 html: html
             });
         }
+
         urls.push(...google[name].map(item => {
+            const imageUrl = `/google/drive/${es.apps[name].url}/desktop.${item.foto}`;
+            const linkUrl = `/es/${es.apps[name].url}/${item.href}`;
+            const jsonD = `<script type="application/ld+json">
+            {
+              "@context": "http://schema.org",
+              "@type": "NewsArticle",
+              "mainEntityOfPage": {
+                "@type": "WebPage",
+                "@id": "${webSiteUrl}${linkUrl}"
+              },
+              "headline": "${item.titulo}",
+              "image": [
+                "${webSiteUrl}${imageUrl}"
+               ],
+              "datePublished": "${getLastmodISO(item.fecha || item.creacion || '01/05/2018')}",
+              "dateModified": "${getLastmodISO(item.fecha || item.creacion || '01/05/2018')}",
+              "author": {
+                "@type": "Organization",
+                "name": "In&Out centro de Belleza - Malaga"
+              },
+               "publisher": {
+                "@type": "Organization",
+                "name": "In&Out centro de Belleza - Malaga",
+                "logo": {
+                  "@type": "ImageObject",
+                  "url": "${webSiteUrl}/assets/images/manzana.png"
+                }
+              },
+              "description": "${striptags(item.descripcion)}"
+            }
+        </script>`;
+
             return {
-                url: `/es/${es.apps[name].url}/${item.href}`,
+                url: linkUrl,
                 html: template
                     .replace('{{body}}', `
                             <h1>${item.titulo}</h1>
-                            <img style="width: 100% !important;" data-src="/google/drive/${es.apps[name].url}/desktop.${item.foto}" alt="${item.titulo}" title="${item.titulo}"/>
-                            <p>${item.descripcion}</p>`)
+                            <img style="width: 100% !important;" data-src="${imageUrl}" alt="${item.titulo}" title="${item.titulo}"/>
+                            <p>${item.descripcion}</p>${jsonD}`)
                     .replace(/{{title}}/g, `${getTitle(es.apps[name].windowTitle)} - ${item.titulo}`)
                     .replace(/{{description}}/g, striptags(item.descripcion).substr(0,150))
             };
         }));
     });
 
-    google.treatments
-        .reduce((a, b) => {
-            const type = b.tipo;
-            if (b.tipo && a.indexOf(type) === -1) a.push(type);
-            return a;
-        }, [])
-        .forEach(function (type) {
-            const trts = google.treatments.filter(i => i.tipo === type);
-            const html = template
-                .replace('{{body}}', `<h1>${type}</h1><ul>${trts.map(i => {
-                    return `<li><a href="/es/tratamientos/${parseUrlTreatmentType(type)}/${i.href}">${i.titulo}</a></li>`
-                }).join('')}</ul>`)
-                .replace(/{{title}}/g, getTitle(`${es.apps.treatments.windowTitle} - ${type}`))
-                .replace(/{{description}}/g, `${type}: ${trts.map(i => i.titulo).join(', ')}`);
-            urls.push({
-                url: `/es/tratamientos/${parseUrlTreatmentType(type)}`,
-                html: html
-            });
-        });
 
-    ['treatments'].forEach(function (name) {
+    /****************************************************************** BONUS CARDS */
+    (function () {
         const html = template
-            .replace('{{body}}', createHtmlList(name, item => `/${parseUrlTreatmentType(item.tipo)}`))
-            .replace(/{{title}}/g, getTitle(es.apps[name].windowTitle))
-            .replace(/{{description}}/g, es.apps[name].windowDescription);
+            .replace('{{body}}', createHtmlList('bonusCards'))
+            .replace(/{{title}}/g, getTitle(es.apps.bonusCards.windowTitle))
+            .replace(/{{description}}/g, es.apps.bonusCards.windowDescription);
         urls.push({
-            url: `/es/${es.apps[name].url}`,
+            url: `/es/${es.apps.bonusCards.url}`,
+            html: html
+        });
+        urls.push(...google.bonusCards.map(item => {
+            return {
+                url: `/es/${es.apps.bonusCards.url}/${item.href}`,
+                html: template
+                    .replace('{{body}}', `
+                        <h1>${item.titulo}</h1>
+                        <img style="width: 100% !important;" data-src="/google/drive/${es.apps.bonusCards.url}/desktop.${item.foto}" alt="${item.titulo}" title="${item.titulo}"/>
+                        <p>${item.descripcion}</p>`)
+                    .replace(/{{title}}/g, `${getTitle(es.apps.bonusCards.windowTitle)} - ${item.titulo}`)
+                    .replace(/{{description}}/g, striptags(item.descripcion).substr(0,150))
+            };
+        }));
+    })();
+
+    /****************************************************************** TREATMENTS */
+    (function () {
+        google.treatments
+            .reduce((a, b) => {
+                const type = b.tipo;
+                if (b.tipo && a.indexOf(type) === -1) a.push(type);
+                return a;
+            }, [])
+            .forEach(function (type) {
+                const trts = google.treatments.filter(i => i.tipo === type);
+                const html = template
+                    .replace('{{body}}', `<h1>${type}</h1><ul>${trts.map(i => {
+                        return `<li><a href="/es/tratamientos/${parseUrlTreatmentType(type)}/${i.href}">${i.titulo}</a></li>`
+                    }).join('')}</ul>`)
+                    .replace(/{{title}}/g, getTitle(`${es.apps.treatments.windowTitle} - ${type}`))
+                    .replace(/{{description}}/g, `${type}: ${trts.map(i => i.titulo).join(', ')}`);
+                urls.push({
+                    url: `/es/tratamientos/${parseUrlTreatmentType(type)}`,
+                    html: html
+                });
+            });
+
+        const html = template
+            .replace('{{body}}', createHtmlList('treatments', item => `/${parseUrlTreatmentType(item.tipo)}`))
+            .replace(/{{title}}/g, getTitle(es.apps['treatments'].windowTitle))
+            .replace(/{{description}}/g, es.apps['treatments'].windowDescription);
+        urls.push({
+            url: `/es/${es.apps['treatments'].url}`,
             html: html
         });
         urls.push({
@@ -189,23 +253,24 @@ function map(template, google, posts) {
             url: `/tratamientos-de-belleza`,
             html: html
         });
-        urls.push(...google[name].map(item => {
-            const url = `/es/${es.apps[name].url}/${parseUrlTreatmentType(item.tipo)}/${item.href}`;
+        urls.push(...google['treatments'].map(item => {
+            const url = `/es/${es.apps['treatments'].url}/${parseUrlTreatmentType(item.tipo)}/${item.href}`;
             return {
                 url: url,
                 html: template
                     .replace('{{body}}', `
-                            <h1>${item.titulo}</h1>
-                            <img style="width: 100% !important;" data-src="/google/drive/${es.apps[name].url}/desktop.${item.foto}"/>
-                            <p>${item.descripcion}</p>
-                            ${createTreatmentSchema(item, url)}
-                            `)
-                    .replace(/{{title}}/g, `${getTitle(es.apps[name].windowTitle)} - ${item.titulo}`)
+                        <h1>${item.titulo}</h1>
+                        <img style="width: 100% !important;" data-src="/google/drive/${es.apps['treatments'].url}/desktop.${item.foto}"/>
+                        <p>${item.descripcion}</p>
+                        ${createTreatmentSchema(item, url)}
+                        `)
+                    .replace(/{{title}}/g, `${getTitle(es.apps['treatments'].windowTitle)} - ${item.titulo}`)
                     .replace(/{{description}}/g, striptags(item.descripcion))
             };
         }));
-    });
+    })();
 
+    /****************************************************************** FOTOS */
     urls.push({
         url: `/es/${es.apps.photos.url}`,
         html: template
