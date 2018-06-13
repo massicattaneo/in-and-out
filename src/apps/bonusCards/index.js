@@ -10,7 +10,7 @@ function bonusCards({ system }) {
     return async function ({ parent, db }) {
         const obj = {};
         const view = HtmlView(template, styles, {});
-        const locale = await system.locale(`/localization/bonusCard/es.json`);
+        const locale = await system.locale(`/localization/bonusCards/es.json`);
         await locale.load(`/localization/common/es.json`);
 
         system.store.bonusCards

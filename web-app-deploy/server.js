@@ -33,6 +33,7 @@ const httpsOptions = {
 };
 const adminKeys = require('./private/adminKeys');
 const createStaticHtmls = require('./seo/createStaticHtmls');
+const members = require('./extras/members.json');
 
 (async function () {
     const { store, db } = await mongo.connect();
@@ -432,6 +433,42 @@ const createStaticHtmls = require('./seo/createStaticHtmls');
                     res.send(err.message);
                 });
         });
+
+    app.post('/api/newsletter',
+        requiresAdmin,
+        async function (req, res) {
+            const emails = await mongo.getEmails();
+            const allMembers = members.concat(emails).filter((e, i, a) => a.indexOf(e) === i);
+            const bcc = (req.body.test ? req.body.emails : allMembers);
+            if (!req.body.test) {
+                console.log('SENDING NEWSLETTER');
+            }
+
+            const newArray = [];
+            while (bcc.length) {
+                newArray.push(bcc.splice(0, 49))
+            }
+
+            newArray.forEach(function (email, index) {
+                const bcc = email;
+                setTimeout(function () {
+                    try {
+                        const emailTemplate = createTemplate('newsLetterEmail', {
+                            bcc: bcc,
+                            subject: req.body.subject,
+                            html: req.body.html
+                        });
+                        mailer.send(emailTemplate);
+                        console.log('NEWSLETTER SENT', bcc);
+                    } catch(e) {
+                        console.log('ERROR NEWSLETTER', bcc);
+                    }
+                }, index * 60 * 1000);
+            });
+            res.send('ok');
+        }
+    );
+
 
     let callback;
     if (isDeveloping) {

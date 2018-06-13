@@ -56,6 +56,11 @@
       "href": "/admin/es/imprimir",
       "title": "IMPRIMIR",
       "menu": "IMPRIMIR"
+    },
+    "newsletter": {
+      "href": "/admin/es/newsletter",
+      "title": "NEWSLETTER",
+      "menu": "NEWSLETTER"
     }
   },
   "menuHeader": {

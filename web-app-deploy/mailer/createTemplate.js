@@ -1,5 +1,6 @@
 const { host, greenColor, grayColor, confirmRegistrationUrl, changePasswordUrl } = require('../serverInfo');
 const footer = require('./footer.js');
+const newsletter = require('./templates/newsletter');
 const recover = require('./templates/recover');
 const confirm = require('./templates/confirm');
 const orderConfirm = require('./templates/orderConfirm');
@@ -29,6 +30,13 @@ module.exports = function (type, emailParams) {
                 subject: 'Cambia la contraseña de tu cuenta In&Out', // Subject line
                 text: '', // plain text body
                 html: recover(params)
-            }
+            };
+        case 'newsLetterEmail':
+            return {
+                bcc: emailParams.bcc,
+                subject: emailParams.subject, // Subject line
+                text: '', // plain text body
+                html: newsletter(params)
+            };
     }
 };

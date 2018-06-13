@@ -6,7 +6,7 @@ function toCurrency(number) {
 
 module.exports = function ({grayColor, id, cart, googleDb, footer, amount, host}) {
     return `
-    <p style="font-family: Arial; color: ${grayColor}">
+    <p style="font-family: Arial; color: ${grayColor}; width: 600px;">
         <h1>Hola!</h1>
         <p>
             Aqui tienes el QR te tu orden que puedes mostrar en nuestro centro:<br/>

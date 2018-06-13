@@ -2,7 +2,7 @@ const { confirmRegistrationUrl } = require('../../serverInfo');
 
 module.exports = function({grayColor, name, greenColor, host, activationCode, footer}) {
     return `
-    <div style="font-family: Arial; color: ${grayColor}">
+    <div style="font-family: Arial; color: ${grayColor}; width: 600px;">
         <h1>Bienvenid@ ${name}!</h1>
         <p>
             Por favor haz

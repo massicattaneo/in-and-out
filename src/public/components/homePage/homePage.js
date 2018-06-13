@@ -98,11 +98,13 @@ export default async function ({ system, parent, context, thread }) {
             })
         });
 
+    system.locale(`/localization/globalize/${system.info().lang}.json`);
     Array.prototype
         .forEach
         .bind(context.appsManifest)
         .queue()
         .subscribe(function ({ stage, name }) {
+            system.locale(`/localization/${name}/${system.info().lang}.json`);
             return system.loadStageFiles(stage)
                 .on('progress', percentage => system.store[`app_load_${name}`] = parseInt(percentage, 10))
                 .on('complete', () => system.store[`app_load_${name}`] = 100)

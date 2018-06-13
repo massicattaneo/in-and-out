@@ -1,13 +1,10 @@
 function addItem(node, items) {
-
-    Object.keys(node.attributes).map(key => node.attributes[key])
-        .filter(attr => {
-            return attr.name && attr.name.indexOf('#') === 0;
-        })
-        .forEach(item => {
-            items[item.name.substr(1)] = node;
-            node.removeAttribute(item.name);
-        });
+    for (let i=0; i<node.attributes.length; i++) {
+        if (node.attributes[i].name && node.attributes[i].name.indexOf('#') === 0) {
+            items[node.attributes[i].name.substr(1)] = node;
+            node.removeAttribute(node.attributes[i].name);
+        }
+    }
 }
 
 function exploreNode(node, before) {

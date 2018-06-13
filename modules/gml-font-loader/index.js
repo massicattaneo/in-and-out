@@ -32,8 +32,7 @@ function addStyle(name, url) {
     document.getElementsByTagName('head')[0].appendChild(s);
     const css = `@font-face {
           font-family: ${name};
-          src: url("${url.replace('{{ext}}', 'eot')}");
-          src: url("${url.replace('{{ext}}', 'eot')}#iefix") 
+          src: url("${url.replace('{{ext}}', 'eot')}") 
           format("embedded-opentype"), url("${url.replace('{{ext}}', 'woff2')}") 
           format("woff2"), url("${url.replace('{{ext}}', 'woff2')}") 
           format("woff"), url("${url.replace('{{ext}}', 'ttf')}") 

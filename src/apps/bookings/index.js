@@ -18,6 +18,7 @@ function bookings({ system }) {
         await locale.load(`/localization/bookings/es.json`);
         const parentView = HtmlView('<div></div>', []);
         parent.appendChild(parentView.get());
+
         let view;
         let freeBusy = {};
         const today = new Date();
@@ -50,7 +51,19 @@ function bookings({ system }) {
                 view = parentView.appendTo('', noTreatmentsTemplate, [], locale.get());
             } else {
                 view = parentView.appendTo('', template, styles, locale.get());
-
+                Object
+                    .keys(centers)
+                    .filter(c => new Date(centers[c].starting).getTime() < Date.now())
+                    .filter(c => new Date(centers[c].ending).getTime() > Date.now())
+                    .forEach(function (key) {
+                    const index = Number(centers[key].index) + 1;
+                    view.appendTo('centers', `
+                        <output class="text-checkbox" onclick="this.form.goToCenter(${index-1})">
+                            <input type="radio" name="center" id="center_${index}" />
+                            <label class="clickable" for="center_${index}">{{center}} {{location${index}AddressLabel}}</label>
+                        </output>
+                    `, styles, locale.get());
+                });
                 view.get('booking').go = function (id, checked) {
                     if (checked && model.treatments.indexOf(id) === -1) {
                         model.treatments.push(id);
