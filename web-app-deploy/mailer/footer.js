@@ -28,5 +28,5 @@ module.exports = `
         </tr>
     </table>
     <span style="font-size: 11px; color: #888">Málaga - Calle Salitre, 11 Tel: 951 131 460 | Móvil: 633 90 91 03</span><br/>
-    <span style="font-size: 11px; color: #888">Málaga - Calle puerta de Buenaventura, 4, 11 Tel: 951 387 919 | Móvil: 695 685 291</span>
+    <span style="font-size: 11px; color: #888">Málaga - Calle Puerta de Buenaventura, 4 Tel: 951 387 919 | Móvil: 695 685 291</span>
 `;
