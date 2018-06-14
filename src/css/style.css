@@ -110,6 +110,9 @@ label {
 .button:before {
     padding-right: 6px;
 }
+input[disabled].button {
+    background-color: grey !important;
+}
 /** LOADER */
 .loader {
     width: 50px;
@@ -409,6 +412,15 @@ label {
 .text-checkbox > input:checked ~ label {
     background-color: #ee9ffc;
     color: white;
+}
+
+.text-checkbox.disabled > input + label {
+    background-color: #626262;
+    color: #848484;
+}
+.text-checkbox.disabled .clickable:active {
+    transform: none;
+    transition: none;
 }
 
 #welcome {

@@ -10,6 +10,7 @@ import editEvent from './edit-event.html';
 import editNote from './edit-note.html';
 import eventTpl from './event.html';
 import { createModal } from "../../utils";
+import { getCalendar } from '../../../../web-app-deploy/shared';
 
 const stepHeight = 13;
 const minPeriod = 15;
@@ -17,6 +18,11 @@ const topOffset = 60;
 const startHour = 9;
 const startMinutes = 30;
 let clipboard;
+
+function timeToDecimal(t) {
+    const arr = t.split(':');
+    return parseFloat(parseInt(arr[0], 10) + '.' + parseInt((arr[1]/6)*10, 10));
+}
 
 function sameDay(d1, d2) {
     return d1.getFullYear() === d2.getFullYear() &&
@@ -71,19 +77,16 @@ export default async function({ locale, system, thread }) {
         d.setDate(window.event.target.value);
         system.store.date = d.getTime();
     };
-
     form.back = function() {
         const d = new Date(system.store.date);
         d.setMonth(d.getMonth() - 1);
         system.store.date = d.getTime();
     };
-
     form.forward = function() {
         const d = new Date(system.store.date);
         d.setMonth(d.getMonth() + 1);
         system.store.date = d.getTime();
     };
-
     form.dragEnter = function() {
         window.event.target.classList.add('hover')
     };
@@ -100,7 +103,7 @@ export default async function({ locale, system, thread }) {
         if (params.userAction === 'move') {
             thread.execute('booking/delete', {
                 eventId: params.id,
-                calendarId: system.publicDb.calendars.find(c => c.worker === params.worker).id
+                calendarId: system.publicDb.workers.find(c => c.column === worker).googleId
             })
         }
 
@@ -110,9 +113,9 @@ export default async function({ locale, system, thread }) {
             ? [new Date(date).getHours(), new Date(date).getMinutes()]
             : target.innerText.split(':').map(i => Number(i));
         date.setHours(hour[0], hour[1], 0, 0);
-        const cal = system.publicDb.calendars.find(c => c.worker === worker);
+        const dbWorker = system.publicDb.workers.find(c => c.column === worker);
 
-        const displayName = cal.title;
+        const displayName = dbWorker.title;
         const e = createEvent(Object.assign(params, {
             id,
             worker,
@@ -132,7 +135,7 @@ export default async function({ locale, system, thread }) {
             if (e.id) {
                 await thread.execute('booking/delete', {
                     eventId: e.id,
-                    calendarId: cal.id
+                    calendarId: dbWorker.googleId
                 })
             }
             const evt = createEvent(Object.assign({}, e, {
@@ -142,7 +145,7 @@ export default async function({ locale, system, thread }) {
             }));
             await thread.execute('booking/add', {
                 duration: evt.duration * 60 * 1000,
-                calendarId: cal.id,
+                calendarId: dbWorker.googleId,
                 date: new Date(evt.date).toISOString(),
                 summary: evt.summary,
                 processId: evt.processId,
@@ -157,7 +160,7 @@ export default async function({ locale, system, thread }) {
         modalView.get('form').delete = function(worker, eventId) {
             thread.execute('booking/delete', {
                 eventId: eventId,
-                calendarId: system.publicDb.calendars.find(i => i.worker === worker).id
+                calendarId: system.publicDb.workers.find(i => i.column === worker).googleId
             });
             close()
         };
@@ -185,7 +188,7 @@ export default async function({ locale, system, thread }) {
         if (system.store.keysPressed.indexOf('x') !== -1) {
             thread.execute('booking/delete', {
                 eventId: d.id,
-                calendarId: system.publicDb.calendars.find(c => c.worker === d.worker).id
+                calendarId: system.publicDb.workers.find(i => i.column === d.worker).googleId
             })
         }
     };
@@ -197,7 +200,7 @@ export default async function({ locale, system, thread }) {
         if (system.store.keysPressed.indexOf('v') !== -1 && clipboard) {
             thread.execute('booking/add', {
                 duration: clipboard.duration * 60 * 1000,
-                calendarId: system.publicDb.calendars.find(i => i.worker === worker).id,
+                calendarId: system.publicDb.workers.find(i => i.column === worker).googleId,
                 date: date.toISOString(),
                 summary: clipboard.summary,
                 processId: clipboard.processId,
@@ -215,12 +218,12 @@ export default async function({ locale, system, thread }) {
             if (event.id) {
                 await thread.execute('booking/delete', {
                     eventId: event.id,
-                    calendarId: system.publicDb.calendars.find(i => i.worker === worker).id
+                    calendarId: system.publicDb.workers.find(i => i.column === worker).googleId
                 });
             }
             await thread.execute('booking/add', {
                 duration: 60 * 60 * 1000,
-                calendarId: system.publicDb.calendars.find(i => i.worker === worker).id,
+                calendarId: system.publicDb.workers.find(i => i.column === worker).googleId,
                 date: noteDate.toISOString(),
                 summary: this.note.value,
                 processId: 96,
@@ -233,7 +236,7 @@ export default async function({ locale, system, thread }) {
             if (event.id) {
                 await thread.execute('booking/delete', {
                     eventId: event.id,
-                    calendarId: system.publicDb.calendars.find(i => i.worker === worker).id
+                    calendarId: system.publicDb.workers.find(i => i.column === worker).googleId
                 });
             }
             modalView.get('close').click();
@@ -286,7 +289,7 @@ export default async function({ locale, system, thread }) {
         if (callServer) {
             const { items } = await thread.execute('booking/get', {
                 date: new Date(system.store.date),
-                calendarId: c.id
+                calendarId: c.googleId
             });
             return items;
         }
@@ -294,21 +297,29 @@ export default async function({ locale, system, thread }) {
     }
 
     function drawCalendars(search, callServer = true) {
-        system.publicDb.calendars.forEach(async function(c) {
-            const dayView = view.clear(c.worker).appendTo(c.worker, dayTpl, [], c);
+        const calendar = getCalendar(system.publicDb, system.store.date);
+        system.publicDb.workers.forEach(async function (c) {
+            const dayView = view.clear(c.column).appendTo(c.column, dayTpl, [], c);
             dayView.style();
             c.items = await getServerDayEvents(callServer, c);
 
             (new Array(43)).fill(0).forEach(function(zero, index) {
-                const d = new Date();
+                const d = new Date(system.store.date);
                 d.setHours(startHour, startMinutes, 0, 0);
                 d.setTime(d.getTime() + (index * minPeriod * 60 * 1000));
-                dayView.appendTo('wrapper', hourTpl, {}, {
-                    label: d.formatTime('hh:mm'),
-                    top: (stepHeight * index) + topOffset,
-                    height: stepHeight,
-                    worker: c.worker
-                });
+
+                const ttd = timeToDecimal(`${d.getHours().toFixed(2)}:${d.getMinutes().toFixed(2)}`);
+                const day = calendar.week[d.getDay()].filter(arr => arr[1] === c.index);
+                const find = day.find((arr) => ttd >= arr[2] && ttd < arr[3]);
+                if (find) {
+                    dayView.appendTo('wrapper', hourTpl, {}, {
+                        label: d.formatTime('hh:mm'),
+                        top: (stepHeight * index) + topOffset,
+                        height: stepHeight,
+                        worker: c.column,
+                        bgColor: system.publicDb.centers.find(c => c.index === find[0]).color
+                    });
+                }
             });
 
             c.items.forEach(function({ id, start, end, description, summary, extendedProperties, attendees }) {
@@ -319,7 +330,7 @@ export default async function({ locale, system, thread }) {
                 const duration = Math.ceil((endTime - startTime) / (60 * 1000));
                 const e = createEvent({
                     id,
-                    worker: c.worker,
+                    worker: c.column,
                     processId,
                     summary,
                     description,
@@ -331,7 +342,7 @@ export default async function({ locale, system, thread }) {
                 if (!search || summary.toLowerCase().indexOf(search) !== -1)
                     dayView.appendTo('wrapper', eventTpl, [], e);
             });
-            dayViews[c.worker] = dayView;
+            dayViews[c.column] = dayView;
         });
         componentHandler.upgradeDom();
     }
@@ -371,18 +382,19 @@ export default async function({ locale, system, thread }) {
     }
 
     view.remove = function(calendarId, eventId) {
-        const calendar = system.publicDb.calendars.find(i => i.id === calendarId);
-        if (!dayViews[calendar.worker]) return;
+
+        const dbWorker = system.publicDb.workers.find(c => c.googleId === calendarId);
+        if (!dayViews[dbWorker.column]) return;
         const item = document.getElementById(eventId);
         if (!item) return;
         item.parentNode.removeChild(item);
     };
 
     view.add = function(ev) {
-        const calendar = system.publicDb.calendars.find(i => i.id === ev.calendarId);
-        if (!dayViews[calendar.worker]) return;
+        const dbWorker = system.publicDb.workers.find(c => c.googleId === ev.calendarId);
+        if (!dayViews[dbWorker.column]) return;
         if (!sameDay(new Date(system.store.date), new Date(ev.start))) return;
-        dayViews[calendar.worker].appendTo('wrapper', eventTpl, [], createEvent(Object.assign({ worker: calendar.worker }, ev)));
+        dayViews[dbWorker.column].appendTo('wrapper', eventTpl, [], createEvent(Object.assign({ worker: dbWorker.column }, ev)));
     };
 
     return view;

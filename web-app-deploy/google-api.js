@@ -3,7 +3,7 @@ const calendar = google.calendar('v3');
 const drive = google.drive('v2');
 const googleSheets = google.sheets('v4');
 const fs = require('fs');
-const googleDb = require('./private/inandout-b97ef85c65d6.json');
+const googleDb = require('./private/new-hours.js');
 const jwtClient = new google.auth.JWT(
     googleDb.client_email,
     null,
@@ -21,6 +21,7 @@ google.options({ auth: jwtClient });
 const processes = require('./processes.json');
 const sm = require('sitemap');
 const appsManifest = require('./static/localization/system/es.json');
+const shared = require('./shared');
 
 function deleteFolder(path) {
     if (fs.existsSync(path)) {
@@ -239,6 +240,8 @@ module.exports = function (utils, posts) {
         Object.assign(ret, sheets, {
             calendars: googleDb.calendars,
             centers: googleDb.centers,
+            workers: googleDb.workers,
+            timestamp: new Date().toISOString(),
             processes
         });
         return ret;
@@ -265,34 +268,24 @@ module.exports = function (utils, posts) {
         });
     };
 
-    obj.freeBusy = function ({ timestamp, calendars, timeFrame }) {
+    obj.freeBusy = function ({ timeMin, timeMax, items }) {
         return new Promise(function (res, rej) {
-            const from = new Date(timestamp);
-            const to = new Date(timestamp);
-            from.setUTCHours(7, 0, 0, 0);
-            to.setUTCHours(18, 0, 0, 0);
             const temp = {
                 headers: { 'content-type': 'application/json' },
-                resource: {
-                    timeMin: timeFrame ? new Date(timeFrame.from).toISOString() : from.toISOString(),
-                    timeMax: timeFrame ? new Date(timeFrame.to).toISOString() : to.toISOString(),
-                    items: calendars.map(i => {
-                        return { id: googleDb.calendars[i].id };
-                    })
-                }
+                resource: { timeMin, timeMax, items }
             };
             calendar.freebusy.query(temp, function (err, data) {
                 if (err) return rej(new Error('error'));
                 if (!data) return rej(new Error('error'));
-                const array = Object.keys(data.calendars).map(id => {
+                const array = Object.keys(data.calendars).map(googleId => {
                     return {
-                        id: googleDb.calendars.filter(item => item.id === id)[0].worker,
-                        busy: data.calendars[id].busy
+                        workerIndex: googleDb.workers.find(w => w.googleId === googleId).index,
+                        busy: data.calendars[googleId].busy
                     };
                 }).reduce((ret, item) => {
-                    ret[item.id] = item.busy;
+                    ret[item.workerIndex] = item.busy;
                     return ret;
-                }, {});
+                }, new Array(googleDb.workers.length));
                 return res(array);
             });
         });
@@ -304,7 +297,7 @@ module.exports = function (utils, posts) {
             .map(id => {
                 const treat = sheets.treatments.filter(t => t.identificador == id)[0];
                 const cal = googleDb.calendars[calendarIndex];
-                // console.log('LOCATION INDEX', cal.locationIndex);
+                // console.log('LOCATION INDEX', cal.lo-cationIndex);
                 if (locationIndex != cal.locationIndex) return -2000000000000;
                 const date = new Date(timestamp);
                 const periods = cal.week[date.getDay()].periods;
@@ -336,18 +329,18 @@ module.exports = function (utils, posts) {
 
     obj.calendarInsert = function ({ id, from, to, label, description = '', summary, processId = 97 }) {
         return new Promise(function (resolve, reject) {
+            const location = shared.getLocation(googleDb, from, id).address;
             const params = {
                 calendarId: id,
                 resource: {
                     summary,
-                    location: googleDb.centers[googleDb.calendars.filter(c => c.id === id)[0].location].address,
+                    location,
                     start: { 'dateTime': (new Date(from)).toISOString() },
                     end: { 'dateTime': (new Date(to)).toISOString() },
                     description,
                     extendedProperties: { private: { processId, label } }
                 }
             };
-
             calendar.events.insert(params, function (e, o) {
                 if (e) return reject(new Error('error'));
                 const start = new Date(o.start.dateTime);
@@ -402,28 +395,29 @@ module.exports = function (utils, posts) {
     };
 
     obj.getBookings = async function (hash) {
-        const results = await Promise.all(googleDb.calendars.map(({ id }) => {
-            return new Promise(function (resolve, reject) {
-                const calendarId = id;
-                calendar.events.list({
-                    calendarId,
-                    timeMin: (new Date()).toISOString(),
-                    q: hash
-                }, function (err, o) {
-                    if (err) return reject(new Error('error'));
-                    resolve(o.items.map(({ id, summary, extendedProperties, location, start, end }) => {
-                        return {
-                            eventId: id,
-                            calendarId,
-                            summary: summary, location,
-                            start: new Date(start.dateTime).getTime(),
-                            end: new Date(end.dateTime).getTime()
-                        };
-                    }));
-                });
-            });
-        }));
-        return results.reduce((a, b) => a.concat(b), []);
+        // const results = await Promise.all(googleDb.calendars.map(({ id }) => {
+        //     return new Promise(function (resolve, reject) {
+        //         const calendarId = id;
+        //         calendar.events.list({
+        //             calendarId,
+        //             timeMin: (new Date()).toISOString(),
+        //             q: hash
+        //         }, function (err, o) {
+        //             if (err) return reject(new Error('error'));
+        //             resolve(o.items.map(({ id, summary, extendedProperties, location, start, end }) => {
+        //                 return {
+        //                     eventId: id,
+        //                     calendarId,
+        //                     summary: summary, location,
+        //                     start: new Date(start.dateTime).getTime(),
+        //                     end: new Date(end.dateTime).getTime()
+        //                 };
+        //             }));
+        //         });
+        //     });
+        // }));
+        // return results.reduce((a, b) => a.concat(b), []);
+        return [];
     };
 
     obj.createSitemap = function () {
@@ -461,7 +455,7 @@ module.exports = function (utils, posts) {
                 url: `/es/tratamientos/${item.tipo.toLowerCase().replace(/\s/g, '-').replace(/ó/g, 'o')}/${item.href}`,
                 changefreq: 'monthly',
                 priority: 1,
-                lastmodISO: getLastmodISO('01/06/2018')
+                lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-02`)
             };
         }));
         urls.push(...sheets.bonusCards.map(item => {
@@ -469,7 +463,7 @@ module.exports = function (utils, posts) {
                 url: `/es/tarjetas/${item.href}`,
                 changefreq: 'monthly',
                 priority: 0.6,
-                lastmodISO: getLastmodISO(item.desde)
+                lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-02`)
             };
         }));
         urls.push(...sheets.beautyparties.map(item => {
@@ -477,7 +471,7 @@ module.exports = function (utils, posts) {
                 url: `/es/beauty-parties/${item.href}`,
                 changefreq: 'monthly',
                 priority: 1,
-                lastmodISO: getLastmodISO('01/06/2018')
+                lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-02`)
             };
         }));
         urls.push(...sheets.news.map(item => {
@@ -516,7 +510,7 @@ module.exports = function (utils, posts) {
                 urls.push({
                     url: `/${post.post_name}`,
                     priority: isPriority ? 1 : 0.8,
-                    lastmodISO: getLastmodISO(isPriority ? '2018-06-01 18:09:48' : post.post_date),
+                    lastmodISO: getLastmodISO(isPriority ? '2018-05-02 18:09:48' : post.post_date),
                     img: images.map(i => {
                         return {
                             url: `https://www.inandoutbelleza.es${i.guid}`,

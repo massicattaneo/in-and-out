@@ -43,6 +43,8 @@ export default async function ({ system, wait, thread }) {
             : [],
         beautyparties: publicDb.beautyparties || [],
         centers: publicDb.centers,
+        workers: publicDb.workers,
+        timestamp: publicDb.timestamp,
         calendars: publicDb.calendars,
         notifications: Math.random(),
         reviews: new Array(publicDb.reviews.count).fill(''),

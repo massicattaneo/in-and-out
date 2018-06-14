@@ -1,0 +1,8 @@
+<div>
+    {{#each hours}}
+        <span class="text-checkbox">
+            <input type="radio" onclick="this.form.enableButton()" id="hour_{{this}}" value="{{this}}" name="hour"/>
+            <label class="clickable" for="hour_{{this}}">{{this}}</label>
+        </span>
+    {{/each}}
+</div>

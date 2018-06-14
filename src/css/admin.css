@@ -186,12 +186,11 @@ th {
 
 .hour label {
     position: relative;
-    background: #ffffff;
     top: -7px;
 }
 
 .hour.hover label {
-    background: #56ab2a;
+    background: #56ab2a !important;
 }
 
 .process {

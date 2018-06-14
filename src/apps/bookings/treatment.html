@@ -1,6 +1,15 @@
 <div>
-    <div class="text-checkbox">
-        <input type="checkbox" {{checked}} id="id_{{index}}" onchange="this.form.go('{{item.id}}', this.checked)" />
-        <label class="clickable" for="id_{{index}}">{{item.label}}</label>
+    <div class="text-checkbox {{availableDisabled}}" style="position: relative">
+        <input type="checkbox" {{availableDisabled}} {{checked}} id="id_{{index}}" onchange="this.form.selectTreatment('{{item.identificador}}', this.checked)" />
+        <label class="clickable" for="id_{{index}}">{{item.tipo}}: {{item.titulo}}
+            <span style="font-size: 10px;
+    position: absolute;
+    color: white;
+    top: 4px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    transform: rotate(-4deg);">{{availableText}}</span>
+        </label>
     </div>
 </div>

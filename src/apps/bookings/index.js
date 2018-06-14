@@ -1,44 +1,45 @@
 import { plugin } from 'gml-system';
 import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './index.html';
-import hourTemplate from './hour.html';
+import hoursTemplate from './hours.html';
 import createAnAccountTemplate from '../../common/createAnAccount.html';
 import treatmentTemplate from './treatment.html';
 import noTreatmentsTemplate from './no-treatments.html';
 import * as styles from './index.scss';
+import {
+    getCenters,
+    getTreatments,
+    decimalToTime,
+    getAvailableHours
+} from '../../../web-app-deploy/shared';
 
 function bookings({ system }) {
     return async function ({ parent, thread, wait }) {
         const obj = {};
-        const maximumDays = 10;
-        const centers = system.store.centers;
         const locale = await system.locale(`/localization/static.json`);
         await locale.load(`/localization/globalize/es.json`);
         await locale.load(`/localization/common/es.json`);
         await locale.load(`/localization/bookings/es.json`);
         const parentView = HtmlView('<div></div>', []);
         parent.appendChild(parentView.get());
+        const dayNames = [0, 1, 2, 3, 4, 5, 6].map(i => locale.get(`day_${i}`));
+        const monthNames = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => locale.get(`month_${i}`));
 
         let view;
-        let freeBusy = {};
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const maximumDays = 10;
         const oneDayMs = 1000 * 60 * 60 * 24;
-        const now = Date.now();
+        const today = (function () {
+            const d = new Date(system.store.timestamp);
+            d.setUTCHours(1, 0, 0, 0);
+            return d.getTime();
+        })();
+
         const model = ({
             center: 0,
             treatments: [],
-            date: 0,
+            date: today,
             progress: 0
         }).reactive();
-
-        const days = [locale.get('day_today'), locale.get('day_tomorrow')]
-            .concat(new Array(maximumDays - 2).fill(0).map((v, i) => {
-                const dt = new Date(now + oneDayMs * (i + 2));
-                return `${locale.get('day_' + dt.getDay())} ${dt.formatDay('dd/mm')}`;
-            }));
-        let availableDays = getAvailableDays(centers.salitre.opening);
-        model.date = availableDays[0].timestamp;
 
         const disc1 = ({
             logged: () => system.store.logged,
@@ -51,40 +52,20 @@ function bookings({ system }) {
                 view = parentView.appendTo('', noTreatmentsTemplate, [], locale.get());
             } else {
                 view = parentView.appendTo('', template, styles, locale.get());
-                Object
-                    .keys(centers)
-                    .filter(c => new Date(centers[c].starting).getTime() < Date.now())
-                    .filter(c => new Date(centers[c].ending).getTime() > Date.now())
-                    .forEach(function (key) {
-                    const index = Number(centers[key].index) + 1;
-                    view.appendTo('centers', `
-                        <output class="text-checkbox" onclick="this.form.goToCenter(${index-1})">
-                            <input type="radio" name="center" id="center_${index}" />
-                            <label class="clickable" for="center_${index}">{{center}} {{location${index}AddressLabel}}</label>
-                        </output>
-                    `, styles, locale.get());
-                });
-                view.get('booking').go = function (id, checked) {
-                    if (checked && model.treatments.indexOf(id) === -1) {
+                view.get('booking').selectTreatment = function (id, checked) {
+                    if (checked) {
                         model.treatments.push(id);
-                    } else if (!checked && model.treatments.indexOf(id) !== -1) {
+                    } else {
                         model.treatments.splice(model.treatments.indexOf(id), 1);
                     }
-                    appendHours();
                 };
                 view.get('booking').next = () => {
-                    const d = availableDays.filter(i => i.timestamp === model.date)[0];
-                    const next = availableDays[d.index + 1];
-                    if (next) {
-                        model.date = next.timestamp;
-                    }
+                    const calcDay = new Date(model.date + oneDayMs).getDay();
+                    model.date = model.date + oneDayMs * (calcDay === 0 ? 2 : 1);
                 };
                 view.get('booking').prev = () => {
-                    const d = availableDays.filter(i => i.timestamp === model.date)[0];
-                    const prev = availableDays[d.index - 1];
-                    if (prev) {
-                        model.date = prev.timestamp;
-                    }
+                    const calcDay = new Date(model.date - oneDayMs).getDay();
+                    model.date = model.date - oneDayMs * (calcDay === 0 ? 2 : 1);
                 };
                 view.get('booking').book = async function () {
                     if (this.hour && this.hour.value !== '') {
@@ -95,44 +76,101 @@ function bookings({ system }) {
                         const book = await thread.execute('booking/insert', { model, hour });
                         system.store.bookings.push(book);
                         system.store.loading = false;
+                        model.treatments.splice(0, model.treatments.length);
                         await new Promise(r => setTimeout(r, 200));
                         system.navigateTo(locale.get('urls.loginHome'));
                     }
                 };
-
                 view.get('booking').goToCenter = (index) => {
-                    const centerName = Object.keys(centers).filter(key => centers[key].index === index)[0];
-                    const center = centers[centerName];
-                    availableDays = getAvailableDays(center.opening);
-                    model.center = center.index;
-                    model.date = availableDays[0].timestamp;
-                    appendHours();
+                    model.center = index;
+                };
+                view.get('booking').enableButton = () => {
+                    view.get('book').removeAttribute('disabled');
                 };
             }
         });
 
 
+        function appendCenters(centers) {
+            view.clear('centers');
+            centers.forEach(function (index) {
+                view.appendTo('centers', `
+                        <output class="text-checkbox" onclick="this.form.goToCenter(${index})">
+                            <input type="radio" name="center" id="center_${index}" ${model.center === index ? 'checked' : ''} />
+                            <label class="clickable" for="center_${index}">{{center}} ${system.store.centers[index].label}</label>
+                        </output>
+                    `, styles, locale.get());
+            });
+        }
+
+        function appendTreatments(treatments) {
+            view.clear('treatments');
+            treatments.forEach((item, index) => {
+                const checked = model.treatments.indexOf(item.identificador) !== -1 ? 'checked' : '';
+                const availableText = item.available ? '' : 'DISPONIBLE EN OTRO CENTRO';
+                const availableDisabled = item.available ? '' : 'disabled';
+                view.appendTo('treatments', treatmentTemplate, [], {
+                    item,
+                    index,
+                    checked,
+                    availableText,
+                    availableDisabled
+                });
+            });
+        }
+
+        function refreshButtons() {
+            if (model.date <= today) {
+                view.get('prev').setAttribute('disabled', 'disabled');
+            } else {
+                view.get('prev').removeAttribute('disabled');
+            }
+            if (model.date >= today + (maximumDays * oneDayMs)) {
+                view.get('next').setAttribute('disabled', 'disabled');
+            } else {
+                view.get('next').removeAttribute('disabled');
+            }
+        }
+
         const disconnect = ({
             deviceType: () => system.deviceInfo().deviceType,
-            width: () => system.deviceInfo().width,
             orientation: () => system.deviceInfo().orientation,
             progress: () => model.progress,
             workerId: () => model.workerId,
             date: () => model.date,
             center: () => model.center,
             logged: () => system.store.logged,
-            trt: () => system.store.treatments
+            trt: () => system.store.treatments,
+            mTrt: () => model.treatments
         })
             .reactive()
-            .connect(async function ({ width, orientation, date, trt, logged }, changedKey) {
+            .connect(async function ({ orientation, date, trt, center, logged, mTrt }) {
                 if (logged && trt.filter(t => t.favourite).length) {
                     view.style(orientation);
-                    const filter = availableDays.filter(i => i.timestamp === date);
-                    if (filter.length)
-                        view.get('date').innerText = filter[0].label;
-                    const promise = callServer(changedKey === 'date');
-                    appendTreatments(promise);
-                    if (changedKey === 'date') appendHours(promise);
+                    const centers = getCenters(system.store, date);
+                    const treatments = getTreatments(system.store, date, center, trt);
+                    const selTreatments = mTrt.filter(id => {
+                        const t = treatments.find(t => t.identificador === id);
+                        return t && t.available;
+                    });
+                    view.get('date').innerText = new Date(date).formatDay('dddd dd/mm', dayNames);
+                    refreshButtons();
+                    appendCenters(centers);
+                    appendTreatments(treatments);
+                    view.clear('hours').appendTo('hours', '<div>SELECIONA UNO O MAS TRATAMIENTOS</div>', []);
+                    view.get('book').setAttribute('disabled', 'disabled');
+                    if (selTreatments.length && centers.filter(c => c === center).length) {
+                        view.clear('hours').appendTo('hours', '<div style="text-align: center; width: 100%"><img style="width: 33px" src="/assets/images/loading.gif" /></div>', []);
+                        const freeBusy = await thread.execute('booking/get-hours',
+                            { date, treatments: selTreatments, center });
+                        const hours = getAvailableHours(system.store, date, center, treatments, selTreatments, freeBusy)
+                            .map(h => decimalToTime(h).splice(0, 2).map(i => i.toString().padLeft(2, '0')).join(':'));
+                        if (hours.length) {
+                            view.clear('hours').appendTo('hours', hoursTemplate, [], { hours });
+                        } else {
+                            view.clear('hours').appendTo('hours', '<div>NO HAY TRABAJADORES DISPONIBLES</div>', [], {});
+                        }
+                    }
                 }
             });
 
@@ -140,122 +178,6 @@ function bookings({ system }) {
             disconnect();
             disc1();
         };
-
-        function getAvailableDays(opening) {
-            return new Array(maximumDays).fill(0).map((v, i) => i)
-                .filter(i => opening.indexOf(new Date(now + oneDayMs * i).getDay()) !== -1)
-                .map((i, index) => {
-                    return {
-                        label: days[i],
-                        timestamp: new Date(now + oneDayMs * i).getTime(),
-                        index
-                    };
-                });
-        }
-
-
-        async function callServer(hasDateChanged) {
-            freeBusy = await thread.execute('booking/get-hours', { hasDateChanged, date: model.date });
-            const key = Object.keys(centers).filter(key => centers[key].index === model.center)[0];
-            return {
-                treatments: system.store.treatments
-                    .filter(i => i.favourite === true)
-                    .filter(i => {
-                        return centers[key].workers.filter(w => i[w] !== '0').length > 0;
-                    })
-                    .map(({ identificador, titulo, tipo }) => {
-                        return { id: identificador, label: `${tipo}: ${titulo}` };
-                    }) || [],
-                freeBusy
-            };
-        }
-
-        function decimalToTime(decimalTimeString) {
-            const n = new Date(0, 0);
-            n.setSeconds(+decimalTimeString * 60 * 60);
-            return n.toTimeString().slice(0, 8).split(':').concat([0]).map(e => parseInt(e, 10));
-        }
-
-        function getDuration(worker) {
-            return model.treatments.reduce((a, b) => {
-                const dur = Number(system.store.treatments
-                    .filter(item => item.identificador == b)[0][worker]);
-                a += (dur === 0) ? -20000000 : dur;
-                return a;
-            }, 0);
-        }
-
-        function getHoursNested(w, dateToEval, duration, minutes) {
-            return system.store.calendars
-                .find(c => c.worker === w).week[dateToEval.getDay()].periods
-                .map((arr) => {
-                    const start = arr[0];
-                    const end = new Date(model.date);
-                    end.setHours(...decimalToTime(arr[1]));
-                    const date = new Date(model.date);
-                    date.setHours(...decimalToTime(start));
-                    const hours = [];
-                    while ((new Date(date.getTime() + (duration * 60 * 1000))).getTime() <= end.getTime()) {
-                        if (freeBusy[w]) {
-                            const intersect = !!(freeBusy[w].filter(busy => {
-                                return ((date.getTime() < (new Date(busy.end)).getTime()) &&
-                                    ((new Date(date.getTime() + (duration * 60 * 1000))).getTime() > (new Date(busy.start)).getTime()));
-                            }).length);
-                            if (!intersect && date.getTime() > Date.now()) {
-                                hours.push(date.getHours() + ':' + date.getMinutes().toString().padLeft(2, '0'));
-                            }
-                        }
-                        date.setTime(date.getTime() + (minutes * 60 * 1000));
-                    }
-                    return hours;
-                }).reduce((ret, arr) => ret.concat(arr), []);
-        }
-
-        function getHours(centerName, minutes, dateToEval) {
-            return centers[centerName].workers
-                .map(function (w) {
-                    const duration = getDuration(w);
-                    return duration > 0
-                        ? getHoursNested(w, dateToEval, Math.ceil(duration / minutes) * minutes, minutes) : [];
-                })
-                .reduce((ret, arr) => ret.concat(arr), [])
-                .sort((a, b) => new Date(`01-01-2000 ${a}`).getTime() - new Date(`01-01-2000 ${b}`).getTime())
-                .filter((item, pos, self) => self.indexOf(item) === pos)
-                .filter(item => item);
-        }
-
-        // TODO: fix hours
-        async function appendHours(promise) {
-            const minutes = 15;
-            view.get('hours').innerHTML = ``;
-            if (model.treatments.length) {
-                view.get('hours').innerHTML = `<img style="width: 33px" src="/assets/images/loading.gif" />`;
-                if (promise) await promise;
-                const centerName = Object.keys(centers).filter(key => centers[key].index === model.center)[0];
-                const hours = getHours(centerName, minutes, new Date(model.date));
-                view.get('hours').innerHTML = ``;
-                hours.forEach((item, index) => {
-                    view.appendTo('hours', hourTemplate, [], { index, item });
-                });
-            }
-        }
-
-        async function appendTreatments(promise) {
-            view.get('treatments').innerHTML = `<img style="width: 33px" src="/assets/images/loading.gif" />`;
-            const { treatments } = await promise;
-            view.get('treatments').innerHTML = ``;
-            treatments.forEach((item, index) => {
-                const checked = model.treatments.indexOf(item.id) !== -1 ? 'checked' : '';
-                view.appendTo('treatments', treatmentTemplate, [], { item, index, checked });
-            });
-            const toRemove = model.treatments.filter(id => {
-                return treatments.filter(i => i.id == id).length === 0;
-            });
-            toRemove.forEach(i => {
-                model.treatments.splice(model.treatments.indexOf(i), 1);
-            });
-        }
-
 
         return obj;
     };

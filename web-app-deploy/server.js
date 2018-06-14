@@ -20,7 +20,7 @@ const compression = require('compression');
 const stripe = require('./stripe')();
 const createTemplate = require('./mailer/createTemplate');
 const QRCode = require('qrcode');
-const googleDb = require('./private/inandout-b97ef85c65d6.json');
+const googleDb = require('./private/new-hours.js');
 const ObjectId = require('mongodb').ObjectID;
 const createPdfOrder = require('./pdf/createPdfOrder');
 const https = require('https');
@@ -34,6 +34,7 @@ const httpsOptions = {
 const adminKeys = require('./private/adminKeys');
 const createStaticHtmls = require('./seo/createStaticHtmls');
 const members = require('./extras/members.json');
+const shared = require('./shared');
 
 (async function () {
     const { store, db } = await mongo.connect();
@@ -176,11 +177,20 @@ const members = require('./extras/members.json');
                 });
         });
 
-    app.post('/google/free-busy',
+    app.post('/google/get-hours',
         requiresLogin,
         function (req, res) {
+            const { date, treatments, center } = req.body;
+            const timeMin = new Date(date);
+            timeMin.setUTCHours(7, 0, 0, 0);
+            const timeMax = new Date(date);
+            timeMax.setUTCHours(18, 0, 0, 0);
+            const items = shared.getWorkers(googleDb, date, center)
+                .map(w => {
+                    return { id: googleDb.workers[w].googleId };
+                });
             google
-                .freeBusy(req.body)
+                .freeBusy({ timeMin, timeMax, items })
                 .then(function (review) {
                     res.send(review);
                 })
@@ -250,42 +260,43 @@ const members = require('./extras/members.json');
         async function (req, res) {
             const { treatments, start, locationIndex } = req.body;
             const { name, tel, email } = await mongo.getUser({ _id: new ObjectId(req.session.userId) });
-            const from = new Date(start);
-            let calIndex = -1, busy = [1];
-            while (calIndex < googleDb.calendars.length - 1 && busy.length > 0) {
-                const treatmentsDuration = google.getTreatmentsDuration(treatments, ++calIndex, locationIndex, start);
-                if (treatmentsDuration > 0) {
-                    const to = new Date(from.getTime() + treatmentsDuration);
-                    const r = await google.freeBusy({
-                        timestamp: start,
-                        calendars: [calIndex],
-                        timeFrame: { from, to }
-                    });
-                    busy = r[googleDb.calendars[calIndex].worker];
-                    if (busy.length === 0) break;
-                }
-            }
-            if (busy.length === 0) {
-                const label = google.getTreatmentsLabel(treatments);
-                const duration = google.getTreatmentsDuration(treatments, calIndex, locationIndex, from.toISOString());
-                google.calendarInsert({
-                    id: googleDb.calendars[calIndex].id,
-                    from: from.toISOString(),
-                    to: new Date(from.getTime() + duration).toISOString(),
-                    summary: `${name} (TEL. ${tel}) ${label}`,
-                    description: email,
-                    label
-                }).then((e) => {
-                    res.send(e);
-                })
-                    .catch(() => {
-                        res.status(500);
-                        res.send('error');
-                    });
-            } else {
+            const workers = shared.getWorkersByHour(googleDb, start, locationIndex);
+            const all = google.publicDb().treatments;
+            const durations = workers.map(w => shared.getTreatmentsDuration(googleDb, all, treatments, w));
+            const dateMin = new Date(start);
+            const items = workers
+                .filter(w => shared.getTreatmentsDuration(googleDb, all, treatments, w) > 0)
+                .map(w => {
+                    return { id: googleDb.workers[w].googleId };
+                });
+            const freeBusy = await google.freeBusy({
+                timeMin: dateMin.toISOString(),
+                timeMax: new Date(dateMin.getTime() + Math.max(...durations) * 60 * 1000),
+                items
+            });
+            const find = freeBusy.find(a => a && a.length === 0);
+            if (!find) {
                 res.status(500);
+                console.log('no free time', freeBusy);
                 res.send('error');
+                return;
             }
+            const label = google.getTreatmentsLabel(treatments);
+            const workerIndex = freeBusy.indexOf(find);
+            google.calendarInsert({
+                id: googleDb.workers[workerIndex].googleId,
+                from: dateMin.toISOString(),
+                to: new Date(dateMin.getTime() + shared.getTreatmentsDuration(googleDb, all, treatments, workerIndex) * 60 * 1000).toISOString(),
+                summary: `${name} (TEL. ${tel}) ${label}`,
+                description: email,
+                label
+            }).then((e) => {
+                res.send(e);
+            }).catch((e) => {
+                res.status(500);
+                console.log('error', e);
+                res.send('error');
+            });
         });
 
     app.post('/google/calendar/delete',
@@ -446,7 +457,7 @@ const members = require('./extras/members.json');
 
             const newArray = [];
             while (bcc.length) {
-                newArray.push(bcc.splice(0, 49))
+                newArray.push(bcc.splice(0, 49));
             }
 
             newArray.forEach(function (email, index) {
@@ -460,7 +471,7 @@ const members = require('./extras/members.json');
                         });
                         mailer.send(emailTemplate);
                         console.log('NEWSLETTER SENT', bcc);
-                    } catch(e) {
+                    } catch (e) {
                         console.log('ERROR NEWSLETTER', bcc);
                     }
                 }, index * 60 * 1000);
