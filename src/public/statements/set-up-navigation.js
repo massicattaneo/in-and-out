@@ -21,13 +21,9 @@ export default async function({ system, wait, thread }) {
 
     async function createWindow(name, appBaseUrl) {
         let title = context.locale.get(`apps.${name}.windowTitle`);
-        let description = context.locale.get(`apps.${name}.windowDescription`);
         if (name !== 'blog') {
             document.getElementById('og-meta-title').setAttribute('content', title);
             document.getElementById('twitter-meta-title').setAttribute('content', title);
-            document.getElementById('meta-description').setAttribute('content', description);
-            document.getElementById('og-meta-description').setAttribute('content', description);
-            document.getElementById('twitter-meta-description').setAttribute('content', description);
         }
         document.title = context.locale.get('documentWindowTitle', title);
         const filter = context.appsManifest.filter(i => i.name == name);
