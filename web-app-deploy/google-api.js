@@ -443,7 +443,7 @@ module.exports = function (utils, posts) {
                     url: `/es/${appsManifest.apps[key].url}`,
                     changefreq: 'monthly',
                     priority: 1,
-                    lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-01`),
+                    lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-02`),
                     img
                 };
             });
@@ -461,7 +461,7 @@ module.exports = function (utils, posts) {
                 url: `/es/tratamientos/${item.tipo.toLowerCase().replace(/\s/g, '-').replace(/ó/g, 'o')}/${item.href}`,
                 changefreq: 'monthly',
                 priority: 1,
-                lastmodISO: getLastmodISO('01/05/2018')
+                lastmodISO: getLastmodISO('01/06/2018')
             };
         }));
         urls.push(...sheets.bonusCards.map(item => {
@@ -477,7 +477,7 @@ module.exports = function (utils, posts) {
                 url: `/es/beauty-parties/${item.href}`,
                 changefreq: 'monthly',
                 priority: 1,
-                lastmodISO: getLastmodISO('01/05/2018')
+                lastmodISO: getLastmodISO('01/06/2018')
             };
         }));
         urls.push(...sheets.news.map(item => {
@@ -516,7 +516,7 @@ module.exports = function (utils, posts) {
                 urls.push({
                     url: `/${post.post_name}`,
                     priority: isPriority ? 1 : 0.8,
-                    lastmodISO: getLastmodISO(isPriority ? '2018-05-01 18:09:48' : post.post_date),
+                    lastmodISO: getLastmodISO(isPriority ? '2018-06-01 18:09:48' : post.post_date),
                     img: images.map(i => {
                         return {
                             url: `https://www.inandoutbelleza.es${i.guid}`,

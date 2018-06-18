@@ -21,11 +21,6 @@ export default async function({ system, wait, thread }) {
 
     async function createWindow(name, appBaseUrl) {
         let title = context.locale.get(`apps.${name}.windowTitle`);
-        if (name !== 'blog') {
-            document.getElementById('og-meta-title').setAttribute('content', title);
-            document.getElementById('twitter-meta-title').setAttribute('content', title);
-        }
-        document.title = context.locale.get('documentWindowTitle', title);
         const filter = context.appsManifest.filter(i => i.name == name);
         const showCartIcon = filter.length ? filter[0].showCartIcon : false;
         context.focuses.push(await Window({
@@ -124,9 +119,6 @@ export default async function({ system, wait, thread }) {
                 context.focuses[context.focusIndex].destroy();
                 context.window.x = Math.max(100, context.window.x - 40);
                 context.window.y = Math.max(100, context.window.y - 40);
-            }
-            if (context.locale) {
-                document.title = context.locale.get('documentTitle');
             }
             system.store.windowOpened = false;
             if (system.info().lang === 'es') return;
