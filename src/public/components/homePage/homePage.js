@@ -44,23 +44,24 @@ export default async function ({ system, parent, context, thread }) {
 
     parent.appendChild(view.get());
 
+    const maxPreviewLength = 350;
     const item1 = system.store.news.map(i => {
         return {
             title: i.titulo,
             src: `/google/drive/novedades/${system.deviceInfo().deviceType}.${i.foto}`,
-            info: i.descripcion.substr(0, 150) + `... <br/><a onclick="window.navigate(this, event)" href="/es/novedades/${i.href}">LEER MAS</a>`,
+            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/novedades/${i.href}">LEER MAS</a>`,
         }
     })[0];
     const item2 = system.store.promotions.map(i => {
         return {
             title: i.titulo, src: `/google/drive/promociones/${system.deviceInfo().deviceType}.${i.foto}`,
-            info: i.descripcion.substr(0, 150) + `... <br/><a onclick="window.navigate(this, event)" href="/es/promociones/${i.href}">LEER MAS</a>`,
+            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/promociones/${i.href}">LEER MAS</a>`,
         }
     })[0];
     const item3 = system.store.press.map(i => {
         return {
             title: i.titulo, src: `/google/drive/en-los-medios/${system.deviceInfo().deviceType}.${i.foto}`,
-            info: i.descripcion.substr(0, 150) + `... <br/><a onclick="window.navigate(this, event)" href="/es/en-los-medios/${i.href}">LEER MAS</a>`,
+            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/en-los-medios/${i.href}">LEER MAS</a>`,
         }
     })[0];
     const item4 = system.store.photos.map(i => {

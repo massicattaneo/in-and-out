@@ -27,7 +27,7 @@ export default async function({ locale, system, thread }) {
             const v = view.clear('orders').appendTo('orders', list, listStyle, {
                 orders: orders
                     .filter(filterClients(search))
-                    .sort((a, b) => a.created - b.created)
+                    .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime())
                     .map(i => {
                         const date = new Date(i.created).formatDay('dddd, dd-mm-yyyy', dayNames);
                         const hour = new Date(i.created).formatTime('hh:mm');
