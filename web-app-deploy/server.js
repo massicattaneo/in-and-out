@@ -77,10 +77,10 @@ const shared = require('./shared');
             req.session.destroy(function (err) {
                 if (err) {
                     res.status(500);
-                    return res.send('error');
+                    return res.send('notAdmin');
                 } else {
                     res.status(500);
-                    return res.send('anonymous');
+                    return res.send('notAdmin');
                 }
             });
         }
@@ -93,7 +93,7 @@ const shared = require('./shared');
             req.session.destroy(function (err) {
                 if (err) {
                     res.status(500);
-                    return res.send('error');
+                    return res.send('anonymous');
                 } else {
                     res.status(500);
                     return res.send('anonymous');

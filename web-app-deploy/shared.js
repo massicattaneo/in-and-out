@@ -124,7 +124,7 @@ module.exports = {
         const cal = getCalendar(db, date);
         const workerIndex = db.workers.find(w => w.googleId === googleId).index;
         const bookDate = new Date(date);
-        const locIndex = cal.week[(bookDate.getDay())]
+        const filter = cal.week[(bookDate.getDay())]
             .filter(a => a[1] === workerIndex)
             .filter(a => {
                 const start = new Date(date);
@@ -135,7 +135,7 @@ module.exports = {
                 const end = new Date(date);
                 end.setUTCHours(...decimalToTime(a[3], -2));
                 return end.getTime() > bookDate.getTime();
-            })[0][0];
-        return db.centers.find(c => c.index === locIndex);
+            });
+        return filter.length ? db.centers.find(c => c.index === filter[0][0]) : 'NO LOCATION';
     }
 };

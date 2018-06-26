@@ -3,14 +3,14 @@
         {{title}}
 
         <button style="position:absolute; right: 0; overflow: visible;"
-                type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="day_{{id}}">
+                type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="day_{{column}}">
             <!--<i class="mdl-badge material-icons" data-badge="0">more_vert</i>-->
             <i class="mdl-badge material-icons">more_vert</i>
         </button>
-        <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="day_{{id}}">
+        <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="day_{{column}}">
             <li class="mdl-menu__item">
                 <output style="display: block; width: 100%;"
-                        onclick="this.form.editNote({worker: '{{worker}}'})">
+                        onclick="this.form.editNote({worker: '{{column}}'})">
                     NOTA
                 </output>
             </li>

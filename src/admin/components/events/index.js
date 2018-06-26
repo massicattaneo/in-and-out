@@ -212,7 +212,7 @@ export default async function({ locale, system, thread }) {
     form.editNote = function({ worker }) {
         const noteDate = new Date(system.store.date);
         noteDate.setHours(20, 30, 0, 0);
-        const items = system.publicDb.calendars.find(c => c.worker === worker).items || [];
+        const items = system.publicDb.workers.find(c => c.column === worker).items || [];
         const event = items.find(i => i.start.dateTime.indexOf('T20:30:00+02:00') !== -1) || {};
         const { modalView } = createModal(editNote, { note: event.summary || '' }, async function(close) {
             if (event.id) {
