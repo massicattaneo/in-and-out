@@ -29,13 +29,13 @@ module.exports = function createPdfOrder(res, googleDb, code, cart) {
             .lineTo(570, 65)
             .stroke();
 
-        const salitre = googleDb.centers.salitre;
-        const compania = googleDb.centers.compania;
+        const salitre = googleDb.centers[0];
+        const buenaventura = googleDb.centers[2];
         doc
             .fontSize(9)
             .fillColor('grey')
             .text(`${salitre.address} - tel: ${salitre.tel}, mov: ${salitre.mobile}`, 40, 75)
-            .text(`${compania.address} - tel: ${compania.tel}, mov: ${compania.mobile}`, 40, 90);
+            .text(`${buenaventura.address} - tel: ${buenaventura.tel}, mov: ${buenaventura.mobile}`, 40, 90);
 
         let y = 130;
 
