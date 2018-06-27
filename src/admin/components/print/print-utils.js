@@ -2,6 +2,18 @@ const txtImage =`data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAZABkAAD/2wBDAAMCAgMC
 
 const IVA = 21;
 
+function toCurrency(number) {
+    const string = parseFloat(number).toFixed(2);
+    const integer = string.split('.')[0].split('').reverse().reduce((array, item, index) => {
+        const number = Math.floor(index / 3);
+        array[number] = array[number] || [];
+        array[number].push(item)
+        return array;
+    }, []).map(a => a.reverse()).reverse().join('.').replace(/,/g, '');
+    const decimals = string.split('.')[1];
+    return `Euro ${integer},${decimals}`
+}
+
 export function printBills(startNumber = 1, expression, items, system) {
     const oldReactive = Object.prototype.reactive;
     const oldConnect = Object.prototype.connect;
@@ -48,23 +60,23 @@ export function printBills(startNumber = 1, expression, items, system) {
             (t.description + '  ').match(/(.{1,38}\s)\s*/g).forEach(function (line, i) {
                 doc.text(line, 30, start + (i * 5));
             });
-            doc.text(system.toCurrency(net), 150, start, 'right');
+            doc.text(toCurrency(net), 150, start, 'right');
             doc.text(IVA.toString() + '%', 175, start, 'right');
 
-            doc.text(system.toCurrency(t.amount), 200, start, 'right');
+            doc.text(toCurrency(t.amount), 200, start, 'right');
         });
 
         const total = b.transactions.reduce((tot, i) => tot + i.amount, 0);
         const totalNet = total / ((100 + IVA) / 100);
         doc.text('BASE IMPONIBLE', 140, 240, 'right');
-        doc.text(system.toCurrency(totalNet), 190, 240, 'right');
+        doc.text(toCurrency(totalNet), 190, 240, 'right');
         doc.text('%', 140, 247, 'right');
         doc.text('21%', 190, 247, 'right');
         doc.text('IVA', 140, 254, 'right');
-        doc.text(system.toCurrency(total - totalNet), 190, 254, 'right');
+        doc.text(toCurrency(total - totalNet), 190, 254, 'right');
         doc.setFontSize(16);
         doc.text('TOTAL', 140, 265, 'right');
-        doc.text(system.toCurrency(total), 190, 265, 'right');
+        doc.text(toCurrency(total), 190, 265, 'right');
 
         doc.rect(10, 235, 190, 0, 'S');
 
