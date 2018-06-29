@@ -493,7 +493,7 @@ const shared = require('./shared');
         }));
         callback = function response(req, res) {
             const isAdmin = req.path.substr(0, 6) === '/admin';
-            if (req.headers['x-forwarded-proto'] === 'http' && !isAdmin && !req.isSpider()) {
+            if (req.headers['x-forwarded-proto'] === 'http' && !req.isSpider()) {
                 res.redirect(`https://${req.headers.host}${req.url}`);
             } else if (isAdmin) {
                 res.sendFile(path.join(__dirname, 'static/templates/admin.html'));

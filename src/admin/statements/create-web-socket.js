@@ -2,8 +2,8 @@ export default function({ system, gos }) {
     const ctx = this;
     return new Promise(function(resolve) {
             if (!system.store.logged) return resolve();
-            const serverWs = new WebSocket(`ws://${location.hostname}:${location.port}`);
-            const nfcWs = new WebSocket('ws://localhost:8999');
+            const serverWs = new WebSocket(`wss://${location.hostname}:${location.port}`);
+            const nfcWs = new WebSocket('wss://localhost:8999');
             const restMapping = { users: 'clients', cash: 'cash', orders: 'orders' };
             Promise.all([
                 new Promise(r => {

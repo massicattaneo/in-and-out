@@ -1,5 +1,5 @@
 import * as styles from './icon.scss';
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './icon.html';
 
 export default function ({ system, context, parent, config }) {
@@ -7,7 +7,7 @@ export default function ({ system, context, parent, config }) {
     const { name } = config;
     const { icon = context.appsManifest.find(i => i.name === name).icon } = config;
     const url = `/${system.info().lang}/${context.locale.get(`apps.${config.name}.url`)}`;
-    const view = HtmlView(template, styles, {url});
+    const view = HtmlView(template, styles, { url });
     const iconClass = view.get('icon').className;
     const notifiers = ['news', 'reviews', 'press', 'promotions', 'bonusCards', 'beautyparties', 'treatments', 'photos'];
 
@@ -27,11 +27,18 @@ export default function ({ system, context, parent, config }) {
             view.get('notify').style.display = 'none';
             notifiers
                 .filter(n => n === name)
-                .filter(() => system.getStorage(name).length < system.store[name].length)
+                .filter(name => {
+                    return name === 'reviews' || name === 'photos'
+                        ? system.getStorage(name).length < system.store[name].length
+                        : system.store[name].filter(i => system.getStorage(name).indexOf(i.identificador) === -1).length > 0;
+                })
                 .forEach(() => {
                     view.get('notify').style.display = 'block';
-                    view.get('notify').innerHTML = Math.abs(system.getStorage(name).length - system.store[name].length);
-                })
+                    const innerHTML = name === 'reviews' || name === 'photos'
+                        ? Math.abs(system.getStorage(name).length - system.store[name].length)
+                        : system.store[name].filter(i => system.getStorage(name).indexOf(i.identificador) === -1).length;
+                    view.get('notify').innerHTML = innerHTML;
+                });
         });
 
     parent.appendChild(view.get());

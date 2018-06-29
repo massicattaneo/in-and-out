@@ -58,7 +58,7 @@ export function printBills(startNumber = 1, expression, items, system) {
             start += 10;
             doc.text(`${count + 1}`, 10, start);
             (t.description + '  ').match(/(.{1,38}\s)\s*/g).forEach(function (line, i) {
-                doc.text(line, 30, start + (i * 5));
+                doc.text(line.replace('€', 'Euro'), 30, start + (i * 5));
             });
             doc.text(toCurrency(net), 150, start, 'right');
             doc.text(IVA.toString() + '%', 175, start, 'right');
