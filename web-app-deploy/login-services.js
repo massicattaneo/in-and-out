@@ -116,11 +116,11 @@ module.exports = function ({
                 req.session.adminLevel = 0;
                 res.cookie('users', 'salitre', { expires: new Date(253402300000000) });
                 res.send('ok');
-            } else if (req.body.password === adminKeys.compania) {
-                req.session.userId = 'compania';
+            } else if (req.body.password === adminKeys.buenaventura) {
+                req.session.userId = 'buenaventura';
                 req.session.isAdmin = true;
                 req.session.adminLevel = 0;
-                res.cookie('users', 'compania', { expires: new Date(253402300000000) });
+                res.cookie('users', 'buenaventura', { expires: new Date(253402300000000) });
                 res.send('ok');
             } else if (req.body.password === adminKeys.carmen_v) {
                 req.session.userId = 'carmen_v';
