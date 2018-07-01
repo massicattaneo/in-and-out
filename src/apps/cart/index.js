@@ -17,8 +17,26 @@ function cart({ system }) {
         const locale = await system.locale(`/localization/static.json`);
         await locale.load(`/localization/common/es.json`);
         await locale.load(`/localization/cart/es.json`);
-
         const view = HtmlView(template, styles, locale.get());
+        const stored = {
+            'TRT': 'treatments',
+            'TAR': 'bonusCards'
+        };
+
+        if (system.info().addCart) {
+            system.store.cart.splice(0, system.store.cart.length);
+            system.store.cart.push(system.info().addCart);
+            system.info().addCart = null;
+        }
+
+        system.store.cart.forEach(function (id) {
+            if (id.startsWith('TRT') && !system.store.treatments.find(i => i.identificador === id)) {
+                system.store.cart.splice(system.store.cart.indexOf(id), 1);
+            }
+            if (id.startsWith('TAR') && !system.store.bonusCards.find(i => i.identificador === id)) {
+                system.store.cart.splice(system.store.cart.indexOf(id), 1);
+            }
+        });
 
         const disconnect =
             ({
@@ -30,10 +48,6 @@ function cart({ system }) {
                 });
 
         function groupItems(array) {
-            const stored = {
-                'TRT': 'treatments',
-                'TAR': 'bonusCards'
-            };
             return array
                 .reduce((arr, id) => {
                     const filter = arr.filter(i => i.id === id);

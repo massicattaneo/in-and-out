@@ -13,6 +13,10 @@
             style="position: absolute;right: 9px;bottom: 5px; display:{{bookDisplay}};"
             class="clickable button green-bg-color white-color"
             type="button" value="{{addToCartButton}}" />
+    <input onclick="this.form.book('{{item.identificador}}');"
+            style="position: relative; bottom: -5px; display:{{bookDisplay}};"
+            class="clickable button green-bg-color white-color"
+            type="button" value="{{bookButton}}" />
     <a style="position: absolute;right: 9px;bottom: 5px; display: {{callDisplay}};"
        href="tel:{{location1Phone}}"
             class="clickable button green-bg-color white-color">{{callUsButton}}</a>

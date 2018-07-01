@@ -135,6 +135,7 @@ function System({ ua, config = {} }) {
         retryTimeout: 2000,
         timeout: 1000,
         activationCode: getUrlParameter('activationCode'),
+        addCart: getUrlParameter('addCart'),
         version: config.version
     }).reactive();
     /**

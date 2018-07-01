@@ -16,6 +16,7 @@
     "loginHome": "/es/cuenta",
     "home": "/es",
     "cart": "/es/cesta",
+    "bookings": "/es/citas",
     "promotions": "/es/promociones"
   },
   "signature": "Tu equipo de In<span class=\"green-color\">&</span>Out.",

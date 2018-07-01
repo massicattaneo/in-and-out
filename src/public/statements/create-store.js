@@ -1,8 +1,9 @@
-import {sortByDate} from '../utils';
+import { sortByDate } from '../utils';
 
 function addDescription(i) {
-    return Object.assign(i, {descripcion: i.descripcion || ''});
+    return Object.assign(i, { descripcion: i.descripcion || '' });
 }
+
 export default async function ({ system, wait, thread }) {
     let status = await getStatus();
     const context = this;
@@ -19,22 +20,22 @@ export default async function ({ system, wait, thread }) {
         email: status.email,
         bookings: status.bookings || [],
         photos: publicDb.photos ? publicDb.photos
-            .filter(p => p.folder === 'fotos')
-            .filter(p => p.url.indexOf(`${deviceType}.`) !== -1)
-            .sort((a,b) => b.name.localeCompare(a.name))
+                .filter(p => p.folder === 'fotos')
+                .filter(p => p.url.indexOf(`${deviceType}.`) !== -1)
+                .sort((a, b) => b.name.localeCompare(a.name))
             : [],
         allPhotos: publicDb.photos || [],
         cart: system.getStorage('cart') || [],
         treatments: publicDb.treatments || [],
         promotions: publicDb.promotions ?
             publicDb.promotions
-                .filter(function(i) {
+                .filter(function (i) {
                     const date = Date.now();
                     const from = (new Date(i.desde.split('/').reverse().join('-')));
                     const to = (new Date(i.hasta.split('/').reverse().join('-')));
-                    from.setHours(0,0,0,0);
-                    to.setHours(23,59,59,59);
-                    return date >= from.getTime() && date <= to.getTime()
+                    from.setHours(0, 0, 0, 0);
+                    to.setHours(23, 59, 59, 59);
+                    return date >= from.getTime() && date <= to.getTime();
                 })
                 .sort(sortByDate('creacion'))
             : [],
@@ -43,13 +44,13 @@ export default async function ({ system, wait, thread }) {
         products: publicDb.products || [],
         bonusCards: publicDb.bonusCards ?
             publicDb.bonusCards
-                .filter(function(i) {
+                .filter(function (i) {
                     const date = Date.now();
                     const from = (new Date(i.desde.split('/').reverse().join('-')));
                     const to = (new Date(i.hasta.split('/').reverse().join('-')));
-                    from.setHours(0,0,0,0);
-                    to.setHours(23,59,59,59);
-                    return date >= from.getTime() && date <= to.getTime()
+                    from.setHours(0, 0, 0, 0);
+                    to.setHours(23, 59, 59, 59);
+                    return date >= from.getTime() && date <= to.getTime();
                 })
             : [],
         beautyparties: publicDb.beautyparties || [],
@@ -70,7 +71,18 @@ export default async function ({ system, wait, thread }) {
             return Object.assign(s, source);
         }, staticStore);
     system.store = (staticStore).reactive();
-
+    const today = (function () {
+        const d = new Date(system.store.timestamp);
+        if (d.getDay() === 0) d.setTime(d.getTime() + 24 * 60 * 60 * 1000);
+        d.setUTCHours(1, 0, 0, 0);
+        return d.getTime();
+    })();
+    system.book = ({
+        center: 0,
+        treatments: [],
+        date: today,
+        progress: 0
+    }).reactive();
 
     system.initStorage({
         news: system.store.news.map(i => i.identificador),
@@ -86,7 +98,7 @@ export default async function ({ system, wait, thread }) {
     function updateFavourites(favourites) {
         if (system.store.logged) {
             favourites.forEach(function (id) {
-                system.store.treatments.filter(i => i.identificador == id).forEach(i => i.favourite = true)
+                system.store.treatments.filter(i => i.identificador == id).forEach(i => i.favourite = true);
             });
         }
     }
@@ -100,14 +112,14 @@ export default async function ({ system, wait, thread }) {
                 logged: false,
                 email: '',
                 favourites: []
-            }
+            };
         }
     }
 
     ({ cart: () => system.store.cart })
         .reactive()
         .connect(function ({ cart }) {
-            system.setStorage({ cart: cart })
+            system.setStorage({ cart: cart });
         });
 
     updateFavourites(status.favourites);
@@ -126,6 +138,6 @@ export default async function ({ system, wait, thread }) {
         });
 
     system.addFileManifest(system.store.photos.map(function ({ url }) {
-        return { type: 'image', stage: url, url, size: 1 }
+        return { type: 'image', stage: url, url, size: 1 };
     }));
 }

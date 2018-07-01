@@ -61,11 +61,13 @@ export default async function({ system, thread, locale }) {
 
                 const salitre = Object.create(dm);
                 salitre.months = new Array(new Date().getMonth() + 1).fill(0);
+                const buenaventura = Object.create(dm);
+                buenaventura.months = new Array(new Date().getMonth() + 1).fill(0);
                 const compania = Object.create(dm);
                 compania.months = new Array(new Date().getMonth() + 1).fill(0);
                 const total = Object.create(dm);
                 total.months = new Array(new Date().getMonth() + 1).fill(0);
-                const result = { salitre, compania, total };
+                const result = { salitre, buenaventura, compania, total };
 
                 cash
                     .reduce((acc, i) => {
@@ -113,18 +115,24 @@ export default async function({ system, thread, locale }) {
                             backgroundColor: 'rgb(255, 195, 195)',
                             borderWidth: 1
                         },
-                            {
-                                label: 'COMPAÑIA',
-                                data: result.compania.months,
-                                backgroundColor: 'rgb(190, 230, 255)',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'TOTAL',
-                                data: result.total.months,
-                                backgroundColor: 'rgb(86, 171, 42)',
-                                borderWidth: 1
-                            }]
+                        {
+                            label: 'COMPAÑIA',
+                            data: result.compania.months,
+                            backgroundColor: 'rgb(190, 230, 255)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'BUENAVENTURA',
+                            data: result.buenaventura.months,
+                            backgroundColor: 'rgb(190, 230, 255)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'TOTAL',
+                            data: result.total.months,
+                            backgroundColor: 'rgb(86, 171, 42)',
+                            borderWidth: 1
+                        }]
                     }
                 });
             }
@@ -150,9 +158,9 @@ export default async function({ system, thread, locale }) {
                 const dm = { cash: 0, creditCards: 0 };
 
                 const salitre = Object.create(dm);
-                const compania = Object.create(dm);
+                const buenaventura = Object.create(dm);
                 const total = Object.create(dm);
-                const result = { salitre, compania, total };
+                const result = { salitre, buenaventura, total };
 
                 cash
                     .reduce((acc, i) => {

@@ -27,15 +27,24 @@ function treatments({ system }) {
             disconnect()
         };
 
-        view.get('treatments').change = function (id, value) {
+        async function changeFavourite(id, value) {
             system.store.treatments.filter(i => i.identificador == id)[0].favourite = value;
             const old = system.store.treatments.splice(0, system.store.treatments.length);
             system.store.treatments.push(...old);
-            thread.execute('user/treatmentFavourite', { id, value });
-        };
+            await thread.execute('user/treatmentFavourite', { id, value });
+        }
+
+        view.get('treatments').change = changeFavourite;
 
         view.get('treatments').add = function (id) {
             system.store.cart.push(id);
+        };
+
+        view.get('treatments').book = async function (id) {
+            await changeFavourite(id, true);
+            system.book.treatments.splice(0, system.book.treatments.length);
+            system.book.treatments.push(id);
+            system.navigateTo(locale.get('urls.bookings'));
         };
 
         obj.navigateTo = async function (e) {

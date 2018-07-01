@@ -34,12 +34,7 @@ function bookings({ system }) {
             return d.getTime();
         })();
 
-        const model = ({
-            center: 0,
-            treatments: [],
-            date: today,
-            progress: 0
-        }).reactive();
+        const model = system.book;
 
         const disc1 = ({
             logged: () => system.store.logged,
