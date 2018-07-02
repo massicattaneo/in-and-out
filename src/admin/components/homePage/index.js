@@ -112,25 +112,25 @@ export default async function({ system, thread, locale }) {
                         datasets: [{
                             label: 'SALITRE',
                             data: result.salitre.months,
-                            backgroundColor: 'rgb(255, 195, 195)',
+                            backgroundColor: '#cdfaff',
                             borderWidth: 1
                         },
                         {
                             label: 'COMPAÑIA',
                             data: result.compania.months,
-                            backgroundColor: 'rgb(190, 230, 255)',
+                            backgroundColor: '#cdffd6',
                             borderWidth: 1
                         },
                         {
                             label: 'BUENAVENTURA',
                             data: result.buenaventura.months,
-                            backgroundColor: 'rgb(190, 230, 255)',
+                            backgroundColor: '#ffcdcd',
                             borderWidth: 1
                         },
                         {
                             label: 'TOTAL',
                             data: result.total.months,
-                            backgroundColor: 'rgb(86, 171, 42)',
+                            backgroundColor: '#000000',
                             borderWidth: 1
                         }]
                     }
