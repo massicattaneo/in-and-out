@@ -59,7 +59,7 @@ export default async function({ locale, system, thread }) {
     const dayNames = new Array(7).fill(0).map((v, i) => locale.get(`day_${i}`));
     const monthNames = new Array(12).fill(0).map((v, i) => locale.get(`month_${i}`).substr(0, 4));
     const dayViews = {};
-    view.style();
+    view.style(system.deviceInfo().deviceType);
 
     const miniView = view.appendTo('minicalendar', miniCalTpl, miniCalStyle);
     miniView.style();
