@@ -395,29 +395,28 @@ module.exports = function (utils, posts) {
     };
 
     obj.getBookings = async function (hash) {
-        // const results = await Promise.all(googleDb.calendars.map(({ id }) => {
-        //     return new Promise(function (resolve, reject) {
-        //         const calendarId = id;
-        //         calendar.events.list({
-        //             calendarId,
-        //             timeMin: (new Date()).toISOString(),
-        //             q: hash
-        //         }, function (err, o) {
-        //             if (err) return reject(new Error('error'));
-        //             resolve(o.items.map(({ id, summary, extendedProperties, location, start, end }) => {
-        //                 return {
-        //                     eventId: id,
-        //                     calendarId,
-        //                     summary: summary, location,
-        //                     start: new Date(start.dateTime).getTime(),
-        //                     end: new Date(end.dateTime).getTime()
-        //                 };
-        //             }));
-        //         });
-        //     });
-        // }));
-        // return results.reduce((a, b) => a.concat(b), []);
-        return [];
+        const results = await Promise.all(googleDb.workers.map(({ googleId: id }) => {
+            return new Promise(function (resolve, reject) {
+                const calendarId = id;
+                calendar.events.list({
+                    calendarId,
+                    timeMin: (new Date()).toISOString(),
+                    q: hash
+                }, function (err, o) {
+                    if (err) return reject(new Error('error'));
+                    resolve(o.items.map(({ id, summary, extendedProperties, location, start, end }) => {
+                        return {
+                            eventId: id,
+                            calendarId,
+                            summary: summary, location,
+                            start: new Date(start.dateTime).getTime(),
+                            end: new Date(end.dateTime).getTime()
+                        };
+                    }));
+                });
+            });
+        }));
+        return results.reduce((a, b) => a.concat(b), []);
     };
 
     obj.createSitemap = function () {

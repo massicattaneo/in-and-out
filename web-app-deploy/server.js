@@ -267,22 +267,29 @@ const shared = require('./shared');
             const items = workers
                 .filter(w => shared.getTreatmentsDuration(googleDb, all, treatments, w) > 0)
                 .map(w => {
-                    return { id: googleDb.workers[w].googleId };
+                    return { id: googleDb.workers[w].googleId, workerIndex: w };
                 });
-            const freeBusy = await google.freeBusy({
-                timeMin: dateMin.toISOString(),
-                timeMax: new Date(dateMin.getTime() + Math.max(...durations) * 60 * 1000),
-                items
-            });
-            const find = freeBusy.find(a => a && a.length === 0);
-            if (!find) {
+            let busy;
+            let workerIndex;
+            for (let i = 0; i< items.length; i++) {
+                workerIndex = items[i].workerIndex;
+                const treatDur = shared.getTreatmentsDuration(googleDb, all, treatments, workerIndex);
+                busy = await google.freeBusy({
+                    timeMin: dateMin.toISOString(),
+                    timeMax: (new Date(dateMin.getTime() + treatDur * 60 * 1000)).toISOString(),
+                    items: [{id: items[i].id}]
+                });
+                if (busy.filter(i => !i || i.length === 0).length) break;
+                workerIndex = undefined;
+            }
+
+            if (!workerIndex) {
                 res.status(500);
-                console.log('no free time', freeBusy);
+                console.log(busy, workerIndex);
                 res.send('error');
                 return;
             }
             const label = google.getTreatmentsLabel(treatments);
-            const workerIndex = freeBusy.indexOf(find);
             google.calendarInsert({
                 id: googleDb.workers[workerIndex].googleId,
                 from: dateMin.toISOString(),
