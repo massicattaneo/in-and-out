@@ -5,6 +5,10 @@
 
 
 #snap {
+  position: fixed;
+  right: 20px;
+  bottom: 10px;
+  z-index: 1001;
   display: none;
   float: right;
   min-width: 101px;
@@ -19,6 +23,10 @@
 #camera {
   display: none;
   float: right;
+  position: fixed;
+  left: 20px;
+  bottom: 10px;
+  z-index: 1001;
   min-width: 101px;
   margin-top: -20px;
 }
