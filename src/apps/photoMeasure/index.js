@@ -55,7 +55,7 @@ function photoMeasure({ system }) {
         })
             .reactive()
             .connect(function ({ orientation, deviceType, hor, ver, offsetHor, offsetVer, takingPhoto, photoWidth, camera }) {
-                view.style(orientation, {
+                view.style(deviceType, {
                     imagecontainer: { display: !takingPhoto ? 'block' : 'none' },
                     videocontainer: { display: takingPhoto ? 'block' : 'none' },
                     boxcontainer: { width: `${photoWidth * 100}%`, marginLeft: `${(1 - photoWidth) * 50}%` },
