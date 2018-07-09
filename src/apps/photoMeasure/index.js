@@ -22,8 +22,8 @@ function photoMeasure({ system }) {
     return async function({ parent }) {
         let obj = {};
         let stream;
-        const locale = await system.locale(`/localization/photoMeasure/es.json`);
-        await locale.load(`/localization/common/es.json`);
+        const locale = await system.locale(`/localization/photoMeasure/${system.info().lang}.json`);
+        await locale.load(`/localization/common/${system.info().lang}.json`);
         const view = HtmlView(template, styles, locale.get());
         const videoEl = view.get('video');
         const form = view.get('wrapper');

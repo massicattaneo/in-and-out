@@ -7,7 +7,7 @@ import * as styles from './index.scss';
 function news({ system }) {
     return async function ({ parent, db }) {
         let obj = {};
-        const locale = await system.locale(`/localization/common/es.json`);
+        const locale = await system.locale(`/localization/common/${system.info().lang}.json`);
         await locale.load('/localization/static.json');
         const view = HtmlView(template, styles, locale.get());
         const newsList = system.store.news.slice(0);

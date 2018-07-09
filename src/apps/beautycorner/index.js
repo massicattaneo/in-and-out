@@ -6,7 +6,7 @@ import * as styles from './index.scss';
 function beautycorner({ system }) {
     return async function ({ parent, db }) {
         let obj = {};
-        const locale = await system.locale(`/localization/beautycorner/es.json`);
+        const locale = await system.locale(`/localization/beautycorner/${system.info().lang}.json`);
         const view = HtmlView(template, styles, locale.get());
         const deviceType = system.deviceInfo().deviceType === 'unknown' ? 'desktop' : system.deviceInfo().deviceType;
 

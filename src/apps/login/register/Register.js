@@ -4,12 +4,12 @@ import * as styles from './register.scss';
 import registerDone from './register-done.html';
 
 const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const telRegEx = /^[+]*[(]{0,1}[0-9]{1,3}[)]{0,1}[-\s\./0-9]*$/g;
+const telRegEx = /^(\+34|0034|34)?[\s|\-|\.]?[6|7|9][\s|\-|\.]?([0-9][\s|\-|\.]?){8}$/;
 export default async function ({ system, parent, thread }) {
     let obj = {};
     const locale = await system.locale(`/localization/static.json`);
-    await locale.load(`/localization/login/es.json`);
-    await locale.load(`/localization/common/es.json`);
+    await locale.load(`/localization/login/${system.info().lang}.json`);
+    await locale.load(`/localization/common/${system.info().lang}.json`);
 
     const view = HtmlView(template, styles, locale.get());
 
@@ -20,7 +20,6 @@ export default async function ({ system, parent, thread }) {
         if (!emailRegEx.test(view.get('email').value)) error({ text: 'malformedEmail', focus: 'email' });
         if (view.get('password').value === '') error({ text: 'missingPassword', focus: 'password' });
         if (view.get('tel').value === '') error({ text: 'missingTel', focus: 'tel' });
-        if (!telRegEx.test(view.get('tel').value)) error({ text: 'malformedTel', focus: 'tel' });
         if (!view.get('privacy').checked) error({ text: 'privacyNotAccepted', focus: 'privacy' });
         await register();
     };

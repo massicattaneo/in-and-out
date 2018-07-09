@@ -7,8 +7,8 @@ import * as styles from './index.scss';
 function beautyparties({ system }) {
     return async function ({ parent, db }) {
         let obj = {};
-        const locale = await system.locale(`/localization/beautyparties/es.json`);
-        await locale.load(`/localization/common/es.json`);
+        const locale = await system.locale(`/localization/beautyparties/${system.info().lang}.json`);
+        await locale.load(`/localization/common/${system.info().lang}.json`);
         const view = HtmlView(template, styles, locale.get());
 
         system.store.beautyparties.forEach(item => {

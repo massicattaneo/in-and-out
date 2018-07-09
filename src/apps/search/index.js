@@ -10,7 +10,7 @@ function search({ system }) {
     return async function ({ parent, context }) {
         let obj = {};
         const locale = await system.locale(`/localization/static.json`);
-        await locale.load(`/localization/search/es.json`);
+        await locale.load(`/localization/search/${system.info().lang}.json`);
         const view = HtmlView(template, styles, Object.assign({ searchString: system.store.search }, locale.get()));
         const disconnect =
             window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {

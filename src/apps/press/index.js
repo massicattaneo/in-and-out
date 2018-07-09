@@ -7,7 +7,7 @@ import pressTemplate from './press.html';
 function press({ system }) {
     return async function ({ parent, db, thread }) {
         let obj = {};
-        const locale = await system.locale(`/localization/common/es.json`);
+        const locale = await system.locale(`/localization/common/${system.info().lang}.json`);
         await locale.load('/localization/static.json');
         const view = HtmlView(template, styles, locale.get());
 

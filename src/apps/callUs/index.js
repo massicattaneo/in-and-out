@@ -7,7 +7,7 @@ function callUs({ system }) {
     return async function ({ parent }) {
         let obj = {};
         const locale = await system.locale(`/localization/static.json`);
-        await locale.load(`/localization/callUs/es.json`);
+        await locale.load(`/localization/callUs/${system.info().lang}.json`);
         const view = HtmlView(template, styles, locale.get());
 
         const disconnect =

@@ -6,7 +6,7 @@ import db from '../../../db.json';
 
 export default async function ({ thread, system, context, parent, title, showCartIcon, url }) {
     const obj = {};
-    const locale = await system.locale(`/localization/common/es.json`);
+    const locale = await system.locale(`/localization/common/${system.info().lang}.json`);
     const view = HtmlView(template, styles, locale.get());
     const barHeight = 40;
     const model = window.rx.create(Object.assign({}, context.window));

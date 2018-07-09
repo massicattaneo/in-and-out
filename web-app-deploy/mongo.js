@@ -265,10 +265,10 @@ module.exports = function (isDeveloping, utils) {
         });
     };
 
-    obj.buy = function ({ cart = [], userId, amount, email, sendTo }) {
+    obj.buy = function ({ cart = [], userId, amount, email, sendTo, lang }) {
         return new Promise(function (resolve, reject) {
             const doc = {
-                userId, sendTo, cart, email, amount, payed: false, created: (new Date()).toISOString()
+                userId, lang, sendTo, cart, email, amount, payed: false, created: (new Date()).toISOString()
             };
             db.collection('orders').insertOne(doc, function (err, res) {
                 if (err)

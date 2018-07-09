@@ -8,7 +8,7 @@ function team({ system }) {
     return async function ({ parent, db }) {
         let obj = {};
         const locale = await system.locale(`/localization/static.json`);
-        await locale.load(`/localization/team/es.json`);
+        await locale.load(`/localization/team/${system.info().lang}.json`);
         const view = HtmlView(template, styles, locale.get());
         const deviceType = system.deviceInfo().deviceType === 'unknown' ? 'desktop' : system.deviceInfo().deviceType;
 

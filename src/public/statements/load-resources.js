@@ -4,7 +4,6 @@ export default async function ({ system, wait }) {
     const lang = ['es', 'en'].indexOf(s) !== -1 ? s : 'es';
     this.redirectUrl = location.pathname === '/' ? '/'+lang : location.pathname;
     system.initStorage({ lang });
-
     system.loadStageFiles('fonts').start();
     await wait.all([
         system.loadStageFiles('system').start(),

@@ -4,7 +4,7 @@ import template from './header.html';
 
 export default async function ({ system, context, parent }) {
     const obj = {};
-    const locale = await system.locale(`/localization/common/es.json`);
+    const locale = await system.locale(`/localization/common/${system.info().lang}.json`);
     const loginUrl = `/${system.info().lang}/${context.locale.get(`apps.login.url`)}`;
     const cartUrl = `/${system.info().lang}/${context.locale.get(`apps.cart.url`)}`;
     const searchUrl = `/${system.info().lang}/${context.locale.get(`apps.search.url`)}`;

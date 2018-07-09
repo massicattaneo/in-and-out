@@ -110,28 +110,38 @@ export default async function ({ system, wait, thread }) {
             }
         });
 
-    system
-        .onNavigate()
-        .filter(e => e === '/es')
-        .subscribe(() => {
+    function navigateToHomeLang(lang) {
+        return () => {
             const url = context.redirectUrl;
-            if (!(url === '' || url === '/es' || url === '/' || url.startsWith('/api') || url.startsWith('/es/'))) {
-                context.redirectUrl = '/es' + url;
+            if (!(url === '' || url === `/${lang}` || url === '/' || url.startsWith('/api') || url.startsWith(`/${lang}/`))) {
+                context.redirectUrl = `/${lang}` + url;
             }
-            activeUrl = '/es';
+            activeUrl = lang;
             if (context.focuses.length) {
                 context.focuses[context.focusIndex].destroy();
                 context.window.x = Math.max(100, context.window.x - 40);
                 context.window.y = Math.max(100, context.window.y - 40);
             }
             system.store.windowOpened = false;
-            if (system.info().lang === 'es') return;
-            system.info().lang = 'es';
-            return system.locale(`/localization/system/es.json`).then(async function (locale) {
+            if (system.info().lang === lang) return;
+            system.info().lang = lang;
+            thread.execute('user/language', { lang });
+            return system.locale(`/localization/system/${lang}.json`).then(async function (locale) {
                 await locale.load(`/localization/static.json`);
                 context.locale = locale;
             });
-        });
+        };
+    }
+
+    system
+        .onNavigate()
+        .filter(e => e === '/es')
+        .subscribe(navigateToHomeLang('es'));
+
+    system
+        .onNavigate()
+        .filter(e => e === '/en')
+        .subscribe(navigateToHomeLang('en'));
 
     system
         .onNavigate()

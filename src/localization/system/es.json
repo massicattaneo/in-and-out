@@ -8,14 +8,14 @@
   "apps": {
     "bookings": {
       "iconText": "CITAS",
-      "windowTitle": "PIDE TU CITA",
-      "windowDescription": "Beauty center, os ofrece el servicio de coger vuestra hora y día online para vuestros taratamientos faciales, depilación con hilo, microblading de cejas, tratamientos corporales, masajes, uñas, maquillaje. ",
+      "windowTitle": "PIDE TU CITA ONLINE",
+      "windowDescription": "Beauty center, os ofrece el servicio online de coger vuestra hora y día online para vuestros tratamientos faciales, depilación con hilo, microblading de cejas, tratamientos corporales, masajes, uñas, maquillaje. ",
       "url": "citas"
     },
     "treatments": {
       "iconText": "TRATAMIENTOS",
       "windowTitle": "TRATAMIENTOS",
-      "windowDescription": "Salón de belleza, ofrece servicios tales cómo tratamientos faciales, depilación con hilo, microblading de cejas, tratamientos corporales, masajes, uñas, maquillaje y organizaciones de Beauty Party. ",
+      "windowDescription": "Salón de belleza, ofrece servicios tales cómo tratamientos faciales, depilación con hilo, microblading de cejas, tratamientos corporales, masajes, uñas, maquillaje y organizaciones de Beauty Party.",
       "url": "tratamientos"
     },
     "bonusCards": {
@@ -99,7 +99,7 @@
     "cart": {
       "iconText": "",
       "windowTitle": "MI CESTA",
-      "windowDescription": "Tu cesta donde comprar tratamientos y productos In&Out Málaga",
+      "windowDescription": "Tu cesta donde comprar tratamientos y productos de In&Out Málaga: Carita, Decléor, Fedua, Opi, Biologique Recherche, Channel, Yves Saint Lauren",
       "url": "cesta"
     },
     "beautycorner": {
@@ -171,7 +171,7 @@
     "malformedEmail": "tu correo no esta en un forma valida",
     "malformedTel": "tu telefono no esta en un forma valida",
     "privacyNotAccepted": "Por favor acepte el tratamiento de datos",
-    "missingUser": "El correo no crresponde a ninguna cuenta",
+    "missingUser": "El correo no corresponde a ninguna cuenta",
     "existingUser": "El correo ya tiene una cuenta",
     "camera-forbidden": "Tu dispositivo no permite el acceso a la camara",
     "missing-star-rating": "Deja una valoracion con las estrellas",

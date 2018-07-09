@@ -107,7 +107,7 @@ export default async function ({ system, parent, context, thread }) {
             if (params === 'anonymous') {
                 system.store.logged = false;
                 error.innerHTML = context.locale.get(`errors.session-expired`);
-                system.navigateTo('/es/cuenta/entrar');
+                system.navigateTo(context.locale.get('urls.login'));
             }
             timer = setTimeout(function () {
                 error.style.top = '-90px';
@@ -121,19 +121,19 @@ export default async function ({ system, parent, context, thread }) {
         return {
             title: i.titulo,
             src: `/google/drive/novedades/${system.deviceInfo().deviceType}.${i.foto}`,
-            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/novedades/${i.href}">LEER MAS</a>`
+            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="${context.locale.get('urls.news')}/${i.href}">LEER MAS</a>`,
         };
     })[0];
     const item2 = system.store.promotions.map(i => {
         return {
             title: i.titulo, src: `/google/drive/promociones/${system.deviceInfo().deviceType}.${i.foto}`,
-            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/promociones/${i.href}">LEER MAS</a>`
+            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="${context.locale.get('urls.promotions')}/${i.href}">LEER MAS</a>`,
         };
     })[0];
     const item3 = system.store.press.map(i => {
         return {
             title: i.titulo, src: `/google/drive/en-los-medios/${system.deviceInfo().deviceType}.${i.foto}`,
-            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/en-los-medios/${i.href}">LEER MAS</a>`
+            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="${context.locale.get('urls.press')}/${i.href}">LEER MAS</a>`,
         };
     })[0];
     const item4 = system.store.photos.map(i => {

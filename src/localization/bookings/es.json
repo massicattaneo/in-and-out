@@ -1,7 +1,10 @@
 {
   "center": "CENTRO",
-  "title1": "MI TRATAMIENTOS PREFERIDOS:",
+  "title1": "MIS TRATAMIENTOS PREFERIDOS:",
   "title2": "HORARIO:",
   "confirm": "CONFIRMA MI CITA",
-  "no-account-text": "NO TIENES UNA CUENTA"
+  "noTreatsTitle":"AUN NO TIENES TRATAMIETOS PREFERIDOS?",
+  "noTreatsExplanation":"para añadirlos vete a:",
+  "noTreatsIcon":"TRATAMIENTOS",
+  "noTreatsStars":"Y pulsa las estrellas"
 }

@@ -1,0 +1,23 @@
+{
+  "day_1": "Monday",
+  "day_2": "Tuesday",
+  "day_3": "Wednesday",
+  "day_4": "Thursday",
+  "day_5": "Friday",
+  "day_6": "Saturday",
+  "day_0": "Sunday",
+  "day_today":"today",
+  "day_tomorrow":"tomorrow",
+  "month_0": "January",
+  "month_1": "February",
+  "month_2": "March",
+  "month_3": "April",
+  "month_4": "May",
+  "month_5": "June",
+  "month_6": "July",
+  "month_7": "August",
+  "month_8": "September",
+  "month_9": "October",
+  "month_10": "November",
+  "month_11": "December"
+}

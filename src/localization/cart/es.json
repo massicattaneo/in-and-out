@@ -6,6 +6,23 @@
   },
   "creditCardLabel": "Carta de debito o credito",
   "payButton": "PAGAR",
+  "freeShipping": "ENVIO gratis (a partir de {{freeChargeLimit}}):",
+  "howToCalculate": "Los gastos de envio se calculan a partir del total ({{totalProducts}}) de los productos.",
+  "totalToPay": "TOTAL A PAGAR:",
+  "emailSummary": "En el correo te enviaremo un resumen de los gastos y un PDF que podras utilizar como regalo",
+  "sendEmailLabel": "ENVIA LA CONFIRMACION A ESTE CORREO:",
+  "onlySpain": "Se hacen envios solo en España",
+  "shippingTime": "Los productos se entregaran en un <strong>maximo de 5 dias laborables</strong>",
+  "shippingAddress": "ENVIAME LOS PRODUCTOS AQUÍ:",
+  "nameSurname": "NOMBRE Y APPELIDO:",
+  "address": "DIRECCIÓN:",
+  "city": "POBLACION:",
+  "cap": "CODIGO POSTAL:",
+  "phone": "TELEFONO:",
+  "isGift": "ES UN REGALO?",
+  "no": "NO",
+  "yes": "SI",
+  "part": "SOLO LOS PRODUCTOS",
   "buy": {
     "title": "Gracias por tu compra:",
     "qrCode": "Aqui tienes el QR te tu orden que puedes mostrar en nuestro centro:",
@@ -14,5 +31,18 @@
     "sentEmail": "Te hemos enviado un correo a este correo:",
     "homePage": "Para volver a la pagina de inicio",
     "buttonHome": "pulsa aquí"
+  },
+  "emptyCart": {
+    "noProducts": "NO HAY COMPRAS EN LA CESTA",
+    "goTo": "para añadir productos puedes irte a:"
+  },
+  "pdf": {
+    "title": "Centro de belleza",
+    "greetings": "Hola! Ya puedes disfrutar de los tratamientos de In&Out!!!",
+    "book": "Pide cita en uno de nuestro centros con este codigo:",
+    "greetings2": "Hola! Aqui tiene el codigo de compra de tu productos In&Out!!!",
+    "waiting": "Esto es lo que te espera en nuestros centros:",
+    "sendMore": "Ademas te enviaremos:",
+    "send": "Te enviaremos:"
   }
 }

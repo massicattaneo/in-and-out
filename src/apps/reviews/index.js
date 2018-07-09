@@ -7,7 +7,7 @@ import reviewTemplate from './review.html';
 function reviews({ system }) {
     return async function ({ parent, thread }) {
         let obj = {};
-        const locale = await system.locale(`/localization/reviews/es.json`);
+        const locale = await system.locale(`/localization/reviews/${system.info().lang}.json`);
         locale.load('/localization/globalize/es.json');
         locale.load('/localization/static.json');
         const dayNames = new Array(7).fill(0).map((v, i) => locale.get(`day_${i}`));

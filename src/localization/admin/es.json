@@ -104,7 +104,6 @@
     "missingTel": "añade tu telefono",
     "missingPassword": "añade una contraseña",
     "malformedEmail": "tu correo no esta en un forma valida",
-    "malformedTel": "tu telefono no esta en un forma valida",
     "missingUser": "El correo no crresponde a ninguna cuenta",
     "existingUser": "El correo ya tiene una cuenta",
     "camera-forbidden": "Tu dispositivo no permite el acceso a la camara",

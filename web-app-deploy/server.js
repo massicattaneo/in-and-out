@@ -201,6 +201,13 @@ const CashSummary = require('./excel/cash-summary');
             });
         });
 
+    app.post('/api/language',
+        requiresLogin,
+        function (req, res) {
+            mongo.rest.update('users', req.session.userId, { lang: req.body.lang });
+            res.send('ok');
+        });
+
     app.post('/api/reviews',
         requiresLogin,
         function (req, res) {
@@ -244,14 +251,14 @@ const CashSummary = require('./excel/cash-summary');
 
     app.post('/api/stripe/pay',
         async function (req, res) {
-            const { token, email, sendTo, privacy } = req.body;
+            const { token, email, sendTo, privacy, lang } = req.body;
             const cart = req.body.cart.map(id => Object.assign({ id, used: false }));
             const cartAmount = shared.getCartTotal(google.publicDb(), req.body.cart).total;
             const productsAmount = shared.getCartTotal(google.publicDb(), req.body.cart.filter(id => id.substr(0, 3) === 'PRD')).total;
             const freeChargeLimit = google.publicDb().settings.freeChargeLimit;
             const sendingCharge = google.publicDb().settings.sendingCharge;
             const amount = Math.floor((cartAmount + ((productsAmount < freeChargeLimit && productsAmount !== 0) ? sendingCharge : 0)) * 100);
-            const { id } = await mongo.buy({ cart, userId: req.session.userId, email, amount, sendTo });
+            const { id } = await mongo.buy({ cart, userId: req.session.userId, email, amount, sendTo, lang });
             stripe.pay({ token, amount, orderId: id, cart, email })
                 .then(async function (stripeRes) {
                     const emailParams = {
@@ -352,8 +359,8 @@ const CashSummary = require('./excel/cash-summary');
             if (!fs.existsSync(filePath)) {
                 await QRCode.toFile(filePath, `${orderId}`);
             }
-            const { cart } = await mongo.getOrderInfo(orderId);
-            createPdfOrder(res, google.publicDb(), orderId, cart);
+            const order = await mongo.getOrderInfo(orderId);
+            createPdfOrder(res, google.publicDb(), orderId, order);
         });
 
     app.post('/google/calendar/insert',

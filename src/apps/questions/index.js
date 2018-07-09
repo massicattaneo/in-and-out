@@ -1,6 +1,7 @@
 import { plugin } from 'gml-system';
 import { Node, HtmlStyle, HtmlView } from 'gml-html';
-import template from './index_es.html';
+import templateEs from './index_es.html';
+import templateEn from './index_en.html';
 import * as styles from './index.scss';
 
 function questions({ system }) {
@@ -8,7 +9,7 @@ function questions({ system }) {
         let obj = {};
         const locale = await system.locale(`/localization/static.json`);
 
-        const view = HtmlView(template, styles, locale.get());
+        const view = HtmlView(system.info().lang === 'es' ? templateEs : templateEn, styles, locale.get());
 
         const disconnect =
             window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {

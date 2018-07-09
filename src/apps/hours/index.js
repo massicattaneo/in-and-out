@@ -8,8 +8,8 @@ function hours({ system }) {
     return async function ({ parent }) {
         let obj = {};
         const locale = await system.locale(`/localization/static.json`);
-        await locale.load(`/localization/globalize/es.json`);
-        await locale.load(`/localization/hours/es.json`);
+        await locale.load(`/localization/globalize/${system.info().lang}.json`);
+        await locale.load(`/localization/hours/${system.info().lang}.json`);
         const dayNames = new Array(7).fill(0).map((v, i) => locale.get(`day_${i}`));
 
         const getClosingDays = function (centerIndex) {

@@ -4,7 +4,7 @@ import menuItemButtonTemplate from './menuItemButton.html';
 
 export default async function (container, { system, table, column }) {
     const obj = {};
-    const locale = await system.locale(`/localization/common/es.json`);
+    const locale = await system.locale(`/localization/common/${system.info().lang}.json`);
 
     const types = system.store[table].reduce((a, b) => {
         if (b[column] && !a.find(i => i.item === b[column])) a.push({ href: b.menuhref, item: b[column] });

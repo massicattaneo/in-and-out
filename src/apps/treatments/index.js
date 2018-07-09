@@ -8,8 +8,8 @@ import { getCartTotal, isInPromotion } from '../../../web-app-deploy/shared';
 function treatments({ system }) {
     return async function ({ parent, thread }) {
         let obj = {};
-        const locale = await system.locale(`/localization/treatments/es.json`);
-        await locale.load(`/localization/common/es.json`);
+        const locale = await system.locale(`/localization/treatments/${system.info().lang}.json`);
+        await locale.load(`/localization/common/${system.info().lang}.json`);
         const view = HtmlView(template, styles, locale.get());
         view.get('search').style.width = 'calc(100% - 20px)';
 

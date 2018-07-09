@@ -9,7 +9,7 @@ import { getDiscountsItems, getDiscountsPrice, getPromotionDiscounts } from '../
 function promotions({ system }) {
     return async function ({ parent, db }) {
         let obj = {};
-        const locale = await system.locale(`/localization/common/es.json`);
+        const locale = await system.locale(`/localization/common/${system.info().lang}.json`);
         await locale.load('/localization/static.json');
         const view = HtmlView(template, styles, locale.get());
         const promotionsList = system.store.promotions.slice(0);

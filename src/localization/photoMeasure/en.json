@@ -1,0 +1,9 @@
+{
+  "photoButton": "PHOTO",
+  "snapAgain": "ANOTHER",
+  "changeCamera": "CAMERA",
+  "instruction1": "Put your face in the white window with the red line dividing it in half.",
+  "instruction2": "If you want press the \"CAMERA\" button to change between the front and back camera.",
+  "instruction3": "Press the \"PHOTO\" button.",
+  "instruction4": "If you do not like the photo you can repeat it by pressing the \"ANOTHER\" button"
+}

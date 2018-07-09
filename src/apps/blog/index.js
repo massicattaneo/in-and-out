@@ -16,7 +16,7 @@ function blog({ system }) {
             images: post.images || [],
             content: post.post_content || `No hemos encontrado ningun contenido que corresponda a tu busqueda: 
                 <strong>
-                ${decodeURI(location.pathname.replace('/es/', '').replace(/-/g, ' '))}
+                ${decodeURI(location.pathname.replace(`/es/`, '').replace(`/en/`, '').replace(/-/g, ' '))}
                 </strong>.
                 Visita nuestro sitio
                 y podras econtrar mas informaciones sobre nuestros tratamientos y productos.`

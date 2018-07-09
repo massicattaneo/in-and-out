@@ -7,7 +7,7 @@ function inandoutgo({ system }) {
     return async function ({ parent, db }) {
         let obj = {};
         const locale = await system.locale(`/localization/static.json`);
-        await locale.load(`/localization/inandoutgo/es.json`);
+        await locale.load(`/localization/inandoutgo/${system.info().lang}.json`);
         const view = HtmlView(template, styles, locale.get());
         const deviceType = system.deviceInfo().deviceType === 'unknown' ? 'desktop' : system.deviceInfo().deviceType;
 

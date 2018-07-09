@@ -19,52 +19,54 @@ function login({ system }) {
             }
         };
         const locale = await system.locale(`/localization/static.json`);
-        await locale.load(`/localization/login/es.json`);
+        await locale.load(`/localization/login/${system.info().lang}.json`);
 
         const view = HtmlView(template, styles, locale.get());
+
         if (system.store.logged) {
             subPage.destroy();
-            subPage = await Logged({ system, parent: view.get(), thread });
+            subPage = await Logged({ system, parent: view.get('container'), thread });
         } else {
             subPage.destroy();
-            subPage = await Home({ system, parent: view.get(), thread });
+            subPage = await Home({ system, parent: view.get('container'), thread });
         }
 
         const disconnect =
             window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
                 view.style(orientation);
+                view.get(system.info().lang).style.pointerEvents = 'none';
             });
 
         parent.appendChild(view.get());
 
         obj.navigateTo = async function (e) {
-            view.get().innerHTML = '';
+            view.get('container').innerHTML = '';
             subPage.destroy();
             if (e !== 'confirmacion' && system.store.logged) {
-                subPage = await Logged({ system, parent: view.get(), thread });
+                subPage = await Logged({ system, parent: view.get('container'), thread });
                 return subPage;
             }
             switch (e) {
             case 'crear':
-                subPage = await Register({ system, parent: view.get(), thread });
+                subPage = await Register({ system, parent: view.get('container'), thread });
                 return subPage;
             case 'entrar':
-                subPage = await Login({ system, parent: view.get(), thread });
+                subPage = await Login({ system, parent: view.get('container'), thread });
                 return subPage;
             case 'recuperar':
-                subPage = await Recover({ system, parent: view.get(), thread });
+                subPage = await Recover({ system, parent: view.get('container'), thread });
                 return subPage;
             case 'reiniciar':
-                subPage = await Reset({ system, parent: view.get(), thread });
+                subPage = await Reset({ system, parent: view.get('container'), thread });
                 return subPage;
             case 'confirmacion':
-                subPage = await Confirm({ system, parent: view.get(), thread });
+                subPage = await Confirm({ system, parent: view.get('container'), thread });
                 return subPage;
             case 'privacyAccept':
                 subPage = await PrivacyAccept({ system, parent: view.get(), thread });
                 return subPage;
             default:
-                subPage = await Home({ system, parent: view.get(), thread });
+                subPage = await Home({ system, parent: view.get('container'), thread });
                 return subPage;
             }
 

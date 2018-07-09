@@ -1,0 +1,68 @@
+{
+  "changeLanguage": "CHANGE LANGUAGE",
+  "register": {
+    "title": "Register and ...",
+    "nameLabel": "name",
+    "emailLabel": "email",
+    "passwordLabel": "password",
+    "telLabel": "phone",
+    "registerButton": "REGISTER"
+  },
+  "registerDone": {
+    "title": "You've been registered to In&Out",
+    "text": "We have sent you an email. Open it and click on the link to activate your account."
+  },
+  "logged": {
+    "emptyOrders": "You have not made any order",
+    "emptyCards": "You do not have any In&Out card yet",
+    "emptyAppointments": "You do not have any appointments yet",
+    "bookTitle": "MY APPOINTMENTS:",
+    "logout": "LOG OUT FROM YOU ACCOUNT",
+    "logoutButton": "LOGOUT",
+    "deleteAccount": "DELETE YOUR ACCOUNT",
+    "deleteAccountButton": "DELETE",
+    "deletePassword": "password",
+    "deleteBooking": "DELETE APPOINTMENT",
+    "deleted": {
+      "title": "We have deleted your account",
+      "message": "If you have improvements, doubts or complaints please do not hesitate to write to this email:"
+    }
+  },
+  "login": {
+    "title": "LOGIN TO YOUR ACCOUNT",
+    "emailLabel": "email",
+    "passwordLabel": "password",
+    "loginButton": "LOGIN"
+  },
+  "confirm": {
+    "title": "NOW YOU CAN USE YOUR ACCOUNT",
+    "message": "Your account is now active. Click <a href=\"/en/account/login\" onclick=\"window.navigate(this, event)\">here</a> to log in to your account."
+  },
+  "home": {
+    "title": "ENJOY ALL THE PRIVILEGES OF HAVING AN ACCOUNT:",
+    "enter-message": "I already have an account:",
+    "enter-button": "LOGIN",
+    "create-message": "I want to create a new account",
+    "create-button": "REGISTER",
+    "recover-message": "I forgot/<strong>DON'T HAVE</strong> the password:",
+    "recover-button": "RECOVER"
+  },
+  "recover": {
+    "title": "RECOVER YOUR ACCOUNT:",
+    "emailLabel": "email",
+    "recoverButton": "REVOCER"
+  },
+  "recoverDone": {
+    "title": "We've sent you an email:",
+    "text": "To use your account enter your webmail and click on the link that we have sent you. There We will ask you to enter your password."
+  },
+  "reset": {
+    "title": "PUT YOUR PASSWORD",
+    "passwordLabel": "password",
+    "resetButton": "OK"
+  },
+  "resetDone": {
+    "title": "Now you can use your In&Out account:",
+    "text": "We have already saved your new password. Click <a href=\"/en/account/login\" onclick=\"window.navigate(this, event)\"> here </a> to log in to your account."
+  }
+}

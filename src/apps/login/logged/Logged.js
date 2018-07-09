@@ -8,9 +8,9 @@ import { getSpainOffset, toICSDate } from '../../../../web-app-deploy/shared';
 export default async function ({ system, parent, thread }) {
     const obj = {};
     const locale = await system.locale(`/localization/static.json`);
-    await locale.load(`/localization/common/es.json`);
-    await locale.load(`/localization/globalize/es.json`);
-    await locale.load(`/localization/login/es.json`);
+    await locale.load(`/localization/common/${system.info().lang}.json`);
+    await locale.load(`/localization/globalize/${system.info().lang}.json`);
+    await locale.load(`/localization/login/${system.info().lang}.json`);
     const dayNames = new Array(7).fill(0).map((v, i) => locale.get(`day_${i}`));
     const view = HtmlView(template, styles, Object.assign({
         hasNewsletter: system.info().status.newsletter ? 'checked' : ''

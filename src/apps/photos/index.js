@@ -6,7 +6,7 @@ import * as styles from './index.scss';
 function photos({ system }) {
     return async function ({ parent }) {
         let obj = {};
-        const locale = await system.locale(`/localization/photos/es.json`);
+        const locale = await system.locale(`/localization/photos/${system.info().lang}.json`);
         const view = HtmlView(template, styles, locale.get());
         const photos = system.store.photos.slice(0);
         const disconnect =

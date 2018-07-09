@@ -1,0 +1,29 @@
+{
+  "createAnAccount": {
+    "title1": "DO NOT YOU HAVE AN ACCOUNT YET?",
+    "paragraph1": "Create your new account for:",
+    "item-list1": "BOOK ONLINE",
+    "item-list2": "USE THE EYEBROWS METER",
+    "item-list3": "LEAVE A REVIEW",
+    "item-list4": "AND MUCH MORE ...",
+    "loginButton": "I HAVE AN ACCOUNT",
+    "registerButton": "I WANT TO CREATE AN ACCOUNT"
+  },
+  "urls": {
+    "login": "/en/account/login",
+    "register": "/en/account/register",
+    "treatments": "/en/treatments",
+    "loginHome": "/en/account",
+    "home": "/en",
+    "cart": "/en/cart",
+    "bookings": "/en/online-bookings",
+    "products": "/en/products",
+    "news": "/en/news",
+    "press": "/en/press",
+    "promotions": "/en/promotions"
+  },
+  "signature": "Your team In<span class=\"green-color\">&</span>Out.",
+  "newItemTemplate": "<div class=\"new\">NEW</div>",
+  "addToCartButton": "ADD TO CART",
+  "callUsButton": "CALL US"
+}

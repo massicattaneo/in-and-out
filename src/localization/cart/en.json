@@ -1,0 +1,48 @@
+{
+  "treatmentsTypes": {
+    "treatments": "TREATMENTS",
+    "bonusCards": "DISCOUNTS",
+    "products": "PRODUCTS"
+  },
+  "creditCardLabel": "Credit or Debit card",
+  "payButton": "PAY",
+  "freeShipping": "FREE shipping (starting from {{freeChargeLimit}}):",
+  "howToCalculate": "The shipping costs are calculated over the products total ({{totalProducts}}).",
+  "totalToPay": "TOTAL TO PAY:",
+  "emailSummary": "In the email we will send you a cost summary and a PDF the you will be able to use as gift.",
+  "sendEmailLabel": "SEND THE EMAIL TO THIS ADDRESS:",
+  "onlySpain":"We only sent to Spanish directions",
+  "shippingTime":"The products are shipped in <strong>5 working days maximum</strong>",
+  "shippingAddress": "SEND ME THE PRODUCTS HERE:",
+  "nameSurname": "NAME & SURNAME:",
+  "address": "STREET:",
+  "city": "CITY:",
+  "cap": "CAP:",
+  "phone": "PHONE:",
+  "isGift": "ES UN REGALO?",
+  "no": "NO",
+  "yes": "YES",
+  "part": "ONLY THE PRODUCTS",
+  "buy": {
+    "title": "Thanks for your purchase:",
+    "qrCode": "Here you have your QR order that you can show in our centers:",
+    "pdf": "Here you can download the summary of your purchase:",
+    "downloadPdf": "DOWNLOAD THE PDF",
+    "sentEmail": "We have sent you an email to this address:",
+    "homePage": "To return to the home page",
+    "buttonHome": "press here"
+  },
+  "emptyCart": {
+    "noProducts": "THERE ARE NO PRODUCTS IN THE CART",
+    "goTo": "To add them you can go to:"
+  },
+  "pdf": {
+    "title": "Beauty center",
+    "greetings": "Hello! You are done to enjoy these In&Out beauty treatments",
+    "book": "Book an appointment in one of our centers with this code:",
+    "greetings2": "Hello! Here's your purchase code of your In&Out products!!!",
+    "waiting": "This is what is waiting for you in our centers:",
+    "sendMore": "And we will send you:",
+    "send": "We will send you:"
+  }
+}

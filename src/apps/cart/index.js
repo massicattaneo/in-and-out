@@ -24,8 +24,8 @@ function cart({ system }) {
         const freeChargeLimit = system.store.settings.freeChargeLimit;
         const sendingCharge = system.store.settings.sendingCharge;
         const locale = await system.locale(`/localization/static.json`);
-        await locale.load(`/localization/common/es.json`);
-        await locale.load(`/localization/cart/es.json`);
+        await locale.load(`/localization/common/${system.info().lang}.json`);
+        await locale.load(`/localization/cart/${system.info().lang}.json`);
         const view = HtmlView(template, styles, locale.get());
         const storeTypes = {
             'TRT': 'treatments',
@@ -117,7 +117,7 @@ function cart({ system }) {
         }
 
         function emptyCart() {
-            const emptyView = view.clear('products').appendTo('products', emptyCartHtml);
+            const emptyView = view.clear('products').appendTo('products', emptyCartHtml, [], locale.get());
             Icon({ system, context, parent: emptyView.get('icons'), config: { name: 'treatments' } });
             Icon({ system, context, parent: emptyView.get('icons'), config: { name: 'bonusCards' } });
             if (system.store.products.filter(p => p.disponible === 'si').length) {
@@ -186,7 +186,8 @@ function cart({ system }) {
                         email: view.get('products').email.value,
                         cart,
                         token: token.id,
-                        sendTo
+                        sendTo,
+                        lang: system.info().lang
                     });
                     system.store.cart.splice(0, system.store.cart.length);
                     setTimeout(function () {

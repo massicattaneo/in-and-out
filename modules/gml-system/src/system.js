@@ -426,7 +426,7 @@ function System({ ua, config = {} }) {
      * @returns {Object} public - a chain to the public
      */
     system.locale = (file, namespace) => {
-        const localization = Localization(Object.assign({}, config, { deviceType: device.info().deviceType }));
+        const localization = Localization(Object.assign({}, config, { deviceType: device.info().deviceType, info: system.info() }));
         return localization.load(file, namespace);
     };
     // *************************************************************************** GLOBALIZATION

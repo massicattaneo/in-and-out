@@ -5,7 +5,7 @@ import * as styles from './home.scss';
 export default async function ({ system, parent }) {
     let obj = {};
     const locale = await system.locale(`/localization/static.json`);
-    await locale.load(`/localization/login/es.json`);
+    await locale.load(`/localization/login/${system.info().lang}.json`);
 
     const view = HtmlView(template, styles, locale.get());
     const form = view.get('wrapper');

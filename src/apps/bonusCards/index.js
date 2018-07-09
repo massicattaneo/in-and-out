@@ -10,8 +10,8 @@ function bonusCards({ system }) {
     return async function ({ parent, db }) {
         const obj = {};
         const view = HtmlView(template, styles, {});
-        const locale = await system.locale(`/localization/bonusCards/es.json`);
-        await locale.load(`/localization/common/es.json`);
+        const locale = await system.locale(`/localization/bonusCards/${system.info().lang}.json`);
+        await locale.load(`/localization/common/${system.info().lang}.json`);
         view.get('search').style.width = 'calc(100% - 20px)';
 
         const store = window.rx.create({

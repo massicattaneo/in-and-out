@@ -1,4 +1,5 @@
 {
+  "changeLanguage": "CAMBIA IDIOMA",
   "register": {
     "title": "Crea tu cuenta y ...",
     "nameLabel": "nombre",
@@ -64,7 +65,7 @@
   "reset": {
     "title": "PON TU CONTRASEÑA:",
     "passwordLabel": "contraseña",
-    "resetButton": "CONTINUAR"
+    "resetButton": "LISTO"
   },
   "resetDone": {
     "title": "Ahora puedes utilizar tu cuenta in and out:",

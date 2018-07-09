@@ -18,6 +18,8 @@
     "cart": "/es/cesta",
     "bookings": "/es/citas",
     "products": "/es/productos",
+    "news": "/es/novedades",
+    "press": "/es/en-los-medios",
     "promotions": "/es/promociones",
     "bonusCards": "/es/tarjetas"
   },

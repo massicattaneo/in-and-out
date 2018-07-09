@@ -22,9 +22,9 @@ function bookings({ system }) {
     return async function ({ parent, thread, wait }) {
         const obj = {};
         const locale = await system.locale(`/localization/static.json`);
-        await locale.load(`/localization/globalize/es.json`);
-        await locale.load(`/localization/common/es.json`);
-        await locale.load(`/localization/bookings/es.json`);
+        await locale.load(`/localization/globalize/${system.info().lang}.json`);
+        await locale.load(`/localization/common/${system.info().lang}.json`);
+        await locale.load(`/localization/bookings/${system.info().lang}.json`);
         const parentView = HtmlView('<div></div>', []);
         parent.appendChild(parentView.get());
         const dayNames = [0, 1, 2, 3, 4, 5, 6].map(i => locale.get(`day_${i}`));

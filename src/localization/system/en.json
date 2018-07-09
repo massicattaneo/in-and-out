@@ -1,0 +1,160 @@
+{
+  "documentTitle": "In&Out - beauty salon",
+  "documentWindowTitle": "{0} - In&Out Málaga",
+  "homePage": {
+    "pdfPrices": "PRICE LIST",
+    "onEvidence": "LATEST"
+  },
+  "apps": {
+    "bookings": {
+      "iconText": "BOOKINGS",
+      "windowTitle": "BOOK YOUR TREATMENTS ONLINE",
+      "windowDescription": "Beauty center, offers you an online booking service of facial treatments, cotton threading, eyebrows microblading, body treatments, massages, nails, makeup.",
+      "url": "online-bookings"
+    },
+    "treatments": {
+      "iconText": "TREATMENTS",
+      "windowTitle": "TREATMENTS",
+      "windowDescription": "Beauty salon, offers services such as facials, hair removal, eyebrows microblading, body treatments, massages, nails, makeup and Beauty Party organizations.",
+      "url": "treatments"
+    },
+    "bonusCards": {
+      "iconText": "DISCOUNTS",
+      "windowTitle": "DISCOUNTS",
+      "windowDescription": "Beauty salon, specialized in waxing and eyebrow microblading, offers facial & body treatments, massages, nail, make-up ... with these grouped treatments sold together you will get a cheaper price.",
+      "url": "discounts"
+    },
+    "products": {
+      "iconText": "PRODUCTS",
+      "windowTitle": "PRODUCTS",
+      "windowDescription": "Beauty salon, offering the best cosmetic brands on the market: Carita, Decléor, Fedua, Opi, Biologique Recherche, Channel, Yves Saint Lauren.",
+      "url": "products"
+    },
+    "beautyparties": {
+      "iconText": "BEAUTY PARTIES",
+      "windowTitle": "BEAUTY PARTIES",
+      "windowDescription": "Beauty center, offers to organize your own beauty party and meet with your friends, co-workers, family members. Tips, makeup, nails, beauty facials ... and lots of laughs!",
+      "url": "beauty-parties"
+    },
+    "inandoutgo": {
+      "iconText": "IN&OUT GO",
+      "windowTitle": "IN&OUT GO",
+      "windowDescription": "Our Beauty center offers to move their aesthetic centers to the living room of your home, time is no longer an excuse to pamper yourself and take care of you (facials, nails, makeup, massages ...).",
+      "url": "inandout-go"
+    },
+    "team": {
+      "iconText": "TEAM",
+      "windowTitle": "OUR TEAM",
+      "windowDescription": "You will find great professionals from the world of aesthetics and the care of the personal image. specialist in Microblading, cotton threading, maderox ...",
+      "url": "team"
+    },
+    "news": {
+      "iconText": "NEWS",
+      "windowTitle": "NEWS",
+      "windowDescription": "Keep informed at all times of the latest developments in facials, body treatments, massages, nails, makeup.",
+      "url": "news"
+    },
+    "promotions": {
+      "iconText": "PROMOTIONS",
+      "windowTitle": "PROMOTIONS",
+      "windowDescription": "Every month we realize promotions in facial treatments, corporal treatments, massages, nails as loyalty for its clients.",
+      "url": "promotions"
+    },
+    "photos": {
+      "iconText": "PHOTOS",
+      "windowTitle": "THE PHOTOS OF OUR CENTERS",
+      "windowDescription": "Beauty salon, pioneer in the technique of waxing hair in Malaga and with a long history that endorse us in facials, body treatments, massages, nails, makeup and Beauty Party organizers.",
+      "url": "photos"
+    },
+    "hours": {
+      "iconText": "OPENINGS",
+      "windowTitle": "OPENINGS HOURS",
+      "windowDescription": "Uninterrupted hours from Monday to Saturday. Our beauty salon offers facials services, body treatments, massages, nails, makeup.",
+      "url": "openings-hours"
+    },
+    "location": {
+      "iconText": "REACH US",
+      "windowTitle": "HOW TO REACH US",
+      "windowDescription": "Beauty salons located in the province of Malaga where we offer facials, body treatments, massages, nails, makeup. One is located in Calle Salitre and another in Calle Buenaventura.",
+      "url": "how-to-reach-us"
+    },
+    "callUs": {
+      "iconText": "CALL US",
+      "windowTitle": "CALL US",
+      "windowDescription": "You want a date or you want a facial, body, makeup, nail, eyebrow studies for hair removal and microblading ... do not hesitate to contact us at 951131460 or 951387919.",
+      "url": "call-us"
+    },
+    "questions": {
+      "iconText": "QUESTIONS",
+      "windowTitle": "COOKIES, PRIVACIDAD Y MAS ...",
+      "windowDescription": "You do not know what type of facial or body treatment to perform, you do not know how to make up ... all these questions we can solve them through this section. What are you waiting for?",
+      "url": "questions"
+    },
+    "login": {
+      "iconText": "",
+      "windowTitle": "MY ACCOUNT",
+      "windowDescription": "Enter the In & Out Málaga account to buy and reserve online appointments. We specialize in waxing and eyebrow microblading",
+      "url": "account"
+    },
+    "cart": {
+      "iconText": "",
+      "windowTitle": "BASKET",
+      "windowDescription": "Your cart where to buy treatments and products of In&Out Málaga:: Carita, Decléor, Fedua, Opi, Biologique Recherche, Channel, Yves Saint Lauren",
+      "url": "cart"
+    },
+    "beautycorner": {
+      "iconText": "BEAUTY CORNER",
+      "windowTitle": "BEAUTY CORNER",
+      "windowDescription": "Take the possibility during your wedding day, or an important day of your life, to give your guests a touch-up, makeup, with a \"refresh \" space.",
+      "url": "beauty-corner"
+    },
+    "press": {
+      "iconText": "IN THE MEDIA",
+      "windowTitle": "IN THE MEDIA",
+      "windowDescription": "Section where you can check the latest news, press releases on microblading, threading, hair remove, makeup ...",
+      "url": "in-the-media"
+    },
+    "reviews": {
+      "iconText": "REVIEWS",
+      "windowTitle": "REVIEWS",
+      "windowDescription": "From In and Out we always think of you as there are all your comments will serve us for our improvement. Do not hesitate to leave yours.",
+      "url": "reviews"
+    },
+    "photoMeasure": {
+      "iconText": "EYEBROW METER",
+      "windowTitle": "MEASURE YOUR EYEBROWS",
+      "windowDescription": "Application that In and Out puts at your disposal to know how you have your eyebrows and what should be the appropriate form based on your look.",
+      "url": "eyebrow-meter"
+    },
+    "blog": {
+      "iconText": "BLOG",
+      "windowTitle": "BLOG",
+      "windowDescription": "",
+      "url": "blog"
+    },
+    "search": {
+      "iconText": "FIND",
+      "windowTitle": "FIND IN ALL THE WEBSITE IN&OUT",
+      "windowDescription": "Easily find the right treatment or beauty product for you and, above all, discover that we are pioneers in eyebrow hair removal and eyebrow microblading",
+      "url": "find"
+    }
+  },
+  "errors": {
+    "wrongEmail": "The email doesn't match with any account",
+    "generic": "Something went wrong. Please try again later.",
+    "wrongPassword": "Your password is wrong",
+    "inactiveUser": "You still not have activated your account. Please follow the instructions that we send to your email.",
+    "missingEmail": "Add your email",
+    "missingName": "Add you name",
+    "missingTel": "Add your phone",
+    "missingPassword": "Add a paasword",
+    "malformedEmail": "Your email has a wrong format",
+    "missingUser": "The email doesn't match with any account",
+    "existingUser": "The email has already an account",
+    "camera-forbidden": "Your device doesn't permit the access to the camera",
+    "missing-star-rating": "Provide you feedback with the stars",
+    "missing-review": "Provide a text feedback",
+    "cart-pay": "An error occured. We weren't able to finish the pay process. Please try again.",
+    "session-expired": "Your session has expired."
+  }
+}
