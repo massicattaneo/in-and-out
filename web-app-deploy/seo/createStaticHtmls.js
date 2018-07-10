@@ -105,7 +105,27 @@ function map(template, google, posts) {
         "description": "${item.descripcion}",
         "name": "${item.titulo}"
     }
-</script>`;
+</script>
+<script type="application/ld+json">
+    {
+      "@context": "http://schema.org/",
+      "@type": "Product",
+      "name": "Tratamiento de belleza, ${item.tipo} - ${item.titulo}",
+      "description": "${item.descripcion}",
+      "brand": {
+        "@type": "Thing",
+        "name": "In&Out Centro de Belleza - Malaga"
+      },
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "EUR",
+        "price": "${item.precio}",
+        "priceValidUntil": "2030-12-31"
+      }
+    }
+</script>
+
+`;
     }
 
     const oldUrls = ['beauty-corner', 'beauty-parties', null, 'contacto', null, 'in-out-go', null, 'quienes-somos'];
