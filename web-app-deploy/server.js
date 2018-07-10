@@ -283,7 +283,7 @@ const shared = require('./shared');
                 workerIndex = undefined;
             }
 
-            if (!workerIndex) {
+            if (workerIndex === undefined) {
                 res.status(500);
                 console.log(busy, workerIndex);
                 res.send('error');
