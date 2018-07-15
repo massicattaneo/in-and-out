@@ -10,19 +10,19 @@ function sameDay(dateA, dateB) {
     return true;
 }
 
-export default async function({ locale, system, thread }) {
+export default async function ({ locale, system, thread }) {
     const view = HtmlView('<div/>', [], locale.get());
     view.style();
 
     ({ adminLevel: () => system.store.adminLevel })
         .reactive()
-        .connect(async function({ adminLevel }) {
+        .connect(async function ({ adminLevel }) {
             view.clear();
             if (adminLevel > 0) {
                 const v = view.appendTo('', template, style, {});
                 v.get('from').valueAsDate = new Date();
                 v.get('to').valueAsDate = new Date();
-                v.get().print = async function() {
+                v.get().print = async function () {
                     const from = this.from.valueAsDate;
                     from.setHours(0, 0, 0, 0);
                     const to = this.to.valueAsDate;
@@ -30,7 +30,11 @@ export default async function({ locale, system, thread }) {
                     const progressive = Number(this.progressive.value);
                     const maximum = Number(this.maximum.value);
                     const expression = this.expression.value;
-                    const users = { salitre: this.salitre.checked, compania: this.compania.checked };
+                    const users = {
+                        salitre: this.salitre.checked,
+                        compania: this.compania.checked,
+                        buenaventura: this.buenaventura.checked
+                    };
                     const data = await thread.execute('rest-api', {
                         api: `cash?date>${from.getTime()}&date<${to.getTime()}`,
                         method: 'get'
@@ -64,7 +68,7 @@ export default async function({ locale, system, thread }) {
                             return arr;
                         }, [])
                         .sort((a, b) => a.date - b.date)
-                        .map(function(i) {
+                        .map(function (i) {
                             const find = system.store.clients.find(c => c._id === i.clientId);
                             return {
                                 name: find ? `${find.surname} ${find.name}` : 'SIN CONTACTO',
@@ -78,7 +82,7 @@ export default async function({ locale, system, thread }) {
             }
         });
 
-    view.destroy = function() {
+    view.destroy = function () {
 
     };
 
