@@ -1,7 +1,6 @@
 import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import * as styles from './window.scss';
 import template from './window.html';
-import db from '../../../db.json';
 // import EventEmitter from 'gml-event-emitter';
 
 export default async function ({ thread, system, context, parent, title, showCartIcon, url }) {
@@ -95,7 +94,7 @@ export default async function ({ thread, system, context, parent, title, showCar
     async function startMobileApp(name) {
         const apps = await system.install(name);
         view.get().style.transform = `translate(${system.deviceInfo().width}px, 0)`;
-        app = await apps[name]({ parent: view.get('content'), db, thread, context });
+        app = await apps[name]({ parent: view.get('content'), thread, context });
         await new Promise(res => setTimeout(res, 0));
         shouldLoadContent() && loadContent();
         view.get().style.transform = `translate(0, 0)`;
@@ -108,7 +107,7 @@ export default async function ({ thread, system, context, parent, title, showCar
         view.get().style.left = context.window.x + 'px';
         view.get().style.top = context.window.y + 'px';
         const apps = await system.install(name);
-        app = await apps[name]({ parent: view.get('content'), db, thread, context });
+        app = await apps[name]({ parent: view.get('content'), thread, context });
 
         shouldLoadContent() && loadContent();
     }

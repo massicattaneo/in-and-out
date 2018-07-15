@@ -7,7 +7,7 @@ import buyTpl from './buyTpl.html';
 import { getDiscountsItems, getDiscountsPrice, getPromotionDiscounts } from '../../../web-app-deploy/shared';
 
 function promotions({ system }) {
-    return async function ({ parent, db }) {
+    return async function ({ parent }) {
         let obj = {};
         const locale = await system.locale(`/localization/common/es.json`);
         await locale.load('/localization/static.json');

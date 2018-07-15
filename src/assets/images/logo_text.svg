@@ -56,7 +56,7 @@
      transform="translate(0,-768.89764)">
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#56ab29;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#56ab2a;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="27.142859"
        y="937.2193"
        id="text3365"
@@ -65,7 +65,7 @@
          id="tspan3367"
          x="27.142859"
          y="937.2193"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:125px;font-family:'Helvetica Neue LT Std';-inkscape-font-specification:'Helvetica Neue LT Std Bold';fill:#56ab29;fill-opacity:1">in<tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:125px;font-family:'Helvetica Neue LT Std';-inkscape-font-specification:'Helvetica Neue LT Std Bold';fill:#56ab2a;fill-opacity:1">in<tspan
    style="font-size:125px;fill:#717173;fill-opacity:1"
    id="tspan4169">&amp;</tspan>out</tspan></text>
     <text
@@ -101,7 +101,7 @@
       </g>
       <g
          id="layer2-7"
-         style="fill:#56ab29;stroke:none">
+         style="fill:#56ab2a;stroke:none">
         <path
            id="path3356"
            d="M 1557,5180 C 1355,5155 1134,5039 947,4861 861,4779 702,4601 605,4480 462,4300 314,4044 211,3797 151,3651 73,3404 45,3266 -8,3013 -10,2702 40,2472 c 74,-348 257,-660 510,-874 157,-132 298,-203 486,-244 109,-23 365,-24 494,0 256,45 530,150 792,303 l 67,39 124,-61 c 210,-104 411,-161 604,-172 197,-11 359,30 589,147 322,164 478,314 623,598 141,277 189,527 178,917 -6,217 -21,329 -67,500 -77,290 -201,515 -469,850 -228,285 -435,476 -610,564 -102,52 -167,65 -288,59 -83,-5 -116,-12 -213,-48 -227,-83 -263,-93 -350,-98 -118,-6 -181,12 -374,108 -89,44 -195,88 -236,99 -88,23 -247,33 -343,21 z"

@@ -5,7 +5,7 @@ import packTemplate from './pack.html';
 import * as styles from './index.scss';
 
 function beautyparties({ system }) {
-    return async function ({ parent, db }) {
+    return async function ({ parent }) {
         let obj = {};
         const locale = await system.locale(`/localization/beautyparties/es.json`);
         await locale.load(`/localization/common/es.json`);

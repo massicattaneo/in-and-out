@@ -7,7 +7,7 @@ import * as styles from './index.scss';
 import { getCartTotal, getPromotionDiscounts, sortByDate } from '../../../web-app-deploy/shared';
 
 function bonusCards({ system }) {
-    return async function ({ parent, db }) {
+    return async function ({ parent }) {
         const obj = {};
         const view = HtmlView(template, styles, {});
         const locale = await system.locale(`/localization/bonusCards/es.json`);

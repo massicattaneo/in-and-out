@@ -94,7 +94,9 @@ const config = {
         new CopyWebpackPlugin([
             { from: './src/css', to: 'css' },
             { from: './src/localization', to: 'localization' },
-            { from: './src/assets', to: 'assets' }
+            { from: './src/assets', to: 'assets' },
+            { from: './src/manifest.json', to: 'manifest.json' },
+            { from: './src/sw.js', to: 'sw.js' }
         ]),
         new webpack.HotModuleReplacementPlugin(),
     ]

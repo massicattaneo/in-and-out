@@ -4,7 +4,7 @@ import template from './index.html';
 import * as styles from './index.scss';
 
 function beautycorner({ system }) {
-    return async function ({ parent, db }) {
+    return async function ({ parent }) {
         let obj = {};
         const locale = await system.locale(`/localization/beautycorner/es.json`);
         const view = HtmlView(template, styles, locale.get());

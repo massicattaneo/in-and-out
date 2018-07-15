@@ -79,6 +79,7 @@ const shared = require('./shared');
         }
     });
 
+
     function requiresAdmin(req, res, next) {
         if (req.session && req.session.isAdmin) {
             return next();
@@ -116,6 +117,28 @@ const shared = require('./shared');
     await google.initDrivePhotos();
     await google.initDriveSheets();
     // google.stubData();
+
+    app.get('/api/merchant/treatments.txt', function (req, res) {
+        const f = {
+            id: i => i.identificador,
+            title: i => i.titulo,
+            description: i => i.descripcion,
+            link: i => `/es/cesta?addCart=${i.identificador}`,
+            'image link': () => 'https://www.inandoutbelleza.es/assets/images/manazana.png',
+            availability: () => 'in_stock',
+            price: i => `${i.precio} EUR`,
+            'google product category': () => 'Salud y belleza > Cuidado personal',
+            brand: () => 'In&Out',
+            shipping: () => '0 EUR',
+            adult: () => 'no'
+        };
+        res.type('text/plain');
+        const head = Object.keys(f).join('\t');
+        const treatments = google.publicDb().treatments.map(function (t) {
+            return Object.keys(f).map(k => f[k](t).toString().replace(/\n/g, '')).join('\t');
+        }).join('\n');
+        res.send(`${head}\n${treatments}`);
+    });
 
     app.get('/api/posts/*', function (req, res) {
         const post_name = req.path.replace('/api/posts/', '');
@@ -601,7 +624,7 @@ const shared = require('./shared');
     const server = http.createServer(app).listen(port, () => {
         console.log('http server running at ' + port);
     });
-
+    //
     // const httpsPort = 8091;
     // const server = https.createServer(httpsOptions, app).listen(httpsPort, () => {
     //     console.log('https server running at ' + httpsPort)

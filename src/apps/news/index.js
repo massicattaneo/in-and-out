@@ -5,7 +5,7 @@ import newsTemplate from './news.html';
 import * as styles from './index.scss';
 
 function news({ system }) {
-    return async function ({ parent, db }) {
+    return async function ({ parent }) {
         let obj = {};
         const locale = await system.locale(`/localization/common/es.json`);
         await locale.load('/localization/static.json');

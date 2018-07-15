@@ -5,7 +5,7 @@ import workerTemplate from './worker.html';
 import * as styles from './index.scss';
 
 function team({ system }) {
-    return async function ({ parent, db }) {
+    return async function ({ parent }) {
         let obj = {};
         const locale = await system.locale(`/localization/static.json`);
         await locale.load(`/localization/team/es.json`);
@@ -17,13 +17,15 @@ function team({ system }) {
                 .filter(i => i.name === name && i.url.indexOf(`${deviceType}.`) !== -1)[0].url;
         }
 
-        db.workers.forEach(function (item) {
-            const des = locale.get(`user${item.id}description`);
-            const description = `<p>${des instanceof Object ? '' : des}</p>`;
-            const imageUrl = getImageUrl(item.profileImageName);
-            const { name } = item;
-            view.appendTo('workers', workerTemplate, [], { name, description: description, imageUrl });
-        });
+        system.store.workers
+            .filter(i => i.profileImageName)
+            .forEach(function (item) {
+                const des = locale.get(`user${item.id}description`);
+                const description = `<p>${des instanceof Object ? '' : des}</p>`;
+                const imageUrl = getImageUrl(item.profileImageName);
+                const { name } = item;
+                view.appendTo('workers', workerTemplate, [], { name, description: description, imageUrl });
+            });
 
         const disconnect =
             window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {

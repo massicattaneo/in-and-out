@@ -5,7 +5,7 @@ import * as styles from './index.scss';
 import pressTemplate from './press.html';
 
 function press({ system }) {
-    return async function ({ parent, db, thread }) {
+    return async function ({ parent, thread }) {
         let obj = {};
         const locale = await system.locale(`/localization/common/es.json`);
         await locale.load('/localization/static.json');

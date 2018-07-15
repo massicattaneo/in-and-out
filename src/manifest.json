@@ -1,0 +1,21 @@
+{
+  "name": "In&Out Belleza - Malaga",
+  "short_name": "In&Out",
+  "icons": [
+    {
+      "src": "/assets/images/web-app-icon-192-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/assets/images/web-app-icon-512-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/?utm_source=a2hs",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#282828",
+  "theme_color": "#56ab2a"
+}

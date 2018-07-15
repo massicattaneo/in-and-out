@@ -4,7 +4,7 @@ import template from './index.html';
 import * as styles from './index.scss';
 
 function inandoutgo({ system }) {
-    return async function ({ parent, db }) {
+    return async function ({ parent }) {
         let obj = {};
         const locale = await system.locale(`/localization/static.json`);
         await locale.load(`/localization/inandoutgo/es.json`);
