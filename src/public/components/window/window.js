@@ -4,12 +4,12 @@ import template from './window.html';
 import db from '../../../db.json';
 // import EventEmitter from 'gml-event-emitter';
 
-export default async function({ thread, system, context, parent, title, showCartIcon, url }) {
+export default async function ({ thread, system, context, parent, title, showCartIcon, url }) {
     const obj = {};
     const locale = await system.locale(`/localization/common/es.json`);
     const view = HtmlView(template, styles, locale.get());
     const barHeight = 40;
-    const model = Object.assign({}, context.window).reactive();
+    const model = window.rx.create(Object.assign({}, context.window));
     let app;
     let isDestroyed = false;
 
@@ -25,34 +25,32 @@ export default async function({ thread, system, context, parent, title, showCart
         .subscribe(loadContent);
 
     const disconnect =
-        ({
+        window.rx.connect({
             deviceType: () => system.deviceInfo().deviceType,
             height: () => system.deviceInfo().height,
             cart: () => system.store.cart,
             windowHeight: () => model.height
-        })
-            .reactive()
-            .connect(function t({ deviceType, height, cart, windowHeight }) {
-                const wrapperHeight = windowHeight - 15;
-                const isDesktop = deviceType === 'desktop';
-                const contHeight = (isDesktop ? Number(wrapperHeight) : height) - barHeight;
-                view.style(deviceType, {
-                    bar: { height: barHeight },
-                    container: { height: contHeight },
-                    wrapper: isDesktop ? { top: model.y, left: model.x, width: model.width, height: model.height } : {}
-                });
-                view.get('title').innerHTML = title;
-                view.get('notify').style.setProperty('display', cart.length ? 'block' : 'none', 'important');
-                view.get('notify').innerHTML = cart.length;
-                view.get('cart').style.display = showCartIcon ? 'block' : 'none';
+        }, function t({ deviceType, height, cart, windowHeight }) {
+            const wrapperHeight = windowHeight - 15;
+            const isDesktop = deviceType === 'desktop';
+            const contHeight = (isDesktop ? Number(wrapperHeight) : height) - barHeight;
+            view.style(deviceType, {
+                bar: { height: barHeight },
+                container: { height: contHeight },
+                wrapper: isDesktop ? { top: model.y, left: model.x, width: model.width, height: model.height } : {}
             });
+            view.get('title').innerHTML = title;
+            view.get('notify').style.setProperty('display', cart.length ? 'block' : 'none', 'important');
+            view.get('notify').innerHTML = cart.length;
+            view.get('cart').style.display = showCartIcon ? 'block' : 'none';
+        });
 
     obj.startApp = system.deviceInfo().deviceType === 'desktop' ? startDesktopApp : startMobileApp;
 
-    obj.destroy = function() {
+    obj.destroy = function () {
         isDestroyed = true;
-        return new Promise(function(resolve) {
-            obj.get().addEventListener('transitionend', function() {
+        return new Promise(function (resolve) {
+            obj.get().addEventListener('transitionend', function () {
                 context.main.removeChild(obj.get());
                 disconnect();
                 view.get('scrollable').removeEventListener('scroll', onScroll);
@@ -67,7 +65,7 @@ export default async function({ thread, system, context, parent, title, showCart
         });
     };
 
-    obj.navigateTo = function(subpage) {
+    obj.navigateTo = function (subpage) {
         app.navigateTo && app.navigateTo(subpage);
     };
 
@@ -124,7 +122,7 @@ export default async function({ thread, system, context, parent, title, showCart
     }
 
     function resize(e) {
-        setTimeout(function() {
+        setTimeout(function () {
             if (!isDestroyed) {
                 const style = view.get().style;
                 model.width = convert(style.width);

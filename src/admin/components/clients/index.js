@@ -18,15 +18,11 @@ export default async function({ locale, system, thread }) {
     const params = Object.assign({}, locale.get());
     const view = HtmlView(template, style, params);
 
-    ({width: () => system.deviceInfo().width})
-        .reactive()
-        .connect(function({ width }) {
+    window.rx.connect({width: () => system.deviceInfo().width}, function({ width }) {
             view.style('', {footer: {left: width > 1024 ? 240 : 0 }});
         });
 
-    ({ search: () => system.store.search, clients: () => system.store.clients })
-        .reactive()
-        .connect(function({ search, clients }) {
+    window.rx.connect({ search: () => system.store.search, clients: () => system.store.clients }, function({ search, clients }) {
             const filter = clients
                 .filter(filterClients(search))
                 .sort((a, b) => a.surname.localeCompare(b.surname))

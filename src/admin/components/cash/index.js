@@ -12,21 +12,17 @@ export default async function({ locale, system, thread }) {
     const params = Object.assign({}, locale.get());
     const view = HtmlView(template, style, params);
     let from, to;
-    const model = { date: Date.now() }.reactive();
+    const model = window.rx.create({ date: Date.now() });
     view.get('date').valueAsDate = new Date(model.date);
     view.get('wrapper').change = function() {
         model.date = new Date(view.get('date').valueAsDate).getTime();
     };
 
-    ({ width: () => system.deviceInfo().width })
-        .reactive()
-        .connect(function({ width }) {
-            view.style('', { footer: { left: width > 1024 ? 240 : 0 } });
-        });
+    window.rx.connect({ width: () => system.deviceInfo().width }, function({ width }) {
+        view.style('', { footer: { left: width > 1024 ? 240 : 0 } });
+    });
 
-    ({ search: () => system.store.search, cash: () => system.store.cash })
-        .reactive()
-        .connect(function({ search, cash }) {
+    window.rx.connect({ search: () => system.store.search, cash: () => system.store.cash }, function({ search, cash }) {
             const filter = cash
                 .filter(filterCash(search));
             const v = view.clear('cash').appendTo('cash', list, listStyle, {
@@ -52,9 +48,7 @@ export default async function({ locale, system, thread }) {
             v.style();
         });
 
-    ({ date: () => model.date })
-        .reactive()
-        .connect(async function({ date }) {
+    window.rx.connect({ date: () => model.date }, async function({ date }) {
             from = new Date(date);
             from.setHours(1, 0, 0, 0);
             to = new Date(date);

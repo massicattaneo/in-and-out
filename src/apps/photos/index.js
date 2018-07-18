@@ -1,8 +1,8 @@
-import {plugin} from 'gml-system';
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { plugin } from 'gml-system';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './index.html';
 import * as styles from './index.scss';
-import {RetryRequest} from "gml-http-request";
+import { RetryRequest } from 'gml-http-request';
 
 function photos({ system }) {
     return async function ({ parent }) {
@@ -10,9 +10,8 @@ function photos({ system }) {
         const locale = await system.locale(`/localization/photos/es.json`);
         const view = HtmlView(template, styles, locale.get());
         const photos = system.store.photos.slice(0);
-        const disconnect = ({ orientation: () => system.deviceInfo().orientation })
-            .reactive()
-            .connect(function ({ orientation }) {
+        const disconnect =
+            window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
                 view.style(orientation);
             });
 
@@ -21,7 +20,7 @@ function photos({ system }) {
         obj.destroy = function () {
             system.setStorage({ photos: system.store.photos.map(i => i.url) });
             system.store.notifications = Math.random();
-            disconnect()
+            disconnect();
         };
 
         obj.loadContent = async function () {
@@ -31,7 +30,7 @@ function photos({ system }) {
                 view.get('photos').appendChild(Node(`
                     <div class="box">
                         <img src="${photo.url}?v=${system.info().version}" alt="${photo.name}" title="${photo.name}"
-                    </div>`))
+                    </div>`));
             } else {
                 view.get('loading').style.display = 'none';
                 await new Promise(res => setTimeout(res, 0));
@@ -39,7 +38,7 @@ function photos({ system }) {
         };
 
         return obj;
-    }
+    };
 }
 
 plugin(photos);

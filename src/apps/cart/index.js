@@ -1,5 +1,5 @@
-import {plugin} from 'gml-system';
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { plugin } from 'gml-system';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './index.html';
 import * as styles from './index.scss';
 import emptyCartHtml from './empty-cart.html';
@@ -8,6 +8,7 @@ import cartTemplate from './cart.html';
 import buyTemplate from './buy.html';
 import Icon from '../../public/components/icon/icon';
 import stripeStyle from './stripeStyle';
+
 const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
 function cart({ system }) {
@@ -39,13 +40,9 @@ function cart({ system }) {
         });
 
         const disconnect =
-            ({
-                orientation: () => system.deviceInfo().orientation
-            })
-                .reactive()
-                .connect(function ({ orientation }) {
-                    view.style(orientation);
-                });
+            window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
+                view.style(orientation);
+            });
 
         function groupItems(array) {
             return array
@@ -62,7 +59,7 @@ function cart({ system }) {
                             title: `${t.tipo ? `${t.tipo}: ` : ''}${t.titulo}`,
                             price: Number(t.precio),
                             type
-                        })
+                        });
                     }
                     return arr;
                 }, []).sort((a, b) => a.title > b.title);
@@ -70,9 +67,9 @@ function cart({ system }) {
 
         view.get('products').add = function (id, num) {
             if (num > 0) {
-                system.store.cart.push(id)
+                system.store.cart.push(id);
             } else {
-                system.store.cart.splice(system.store.cart.indexOf(id), 1)
+                system.store.cart.splice(system.store.cart.indexOf(id), 1);
             }
         };
 
@@ -98,14 +95,10 @@ function cart({ system }) {
         }
 
         const discCart =
-            ({
-                cart: () => system.store.cart
-            })
-                .reactive()
-                .connect(function ({ cart }) {
-                    (cart.length) ? drawCart(cart) : emptyCart();
-                    view.get('pay').style.display = cart.length ? 'block' : 'none';
-                });
+            window.rx.connect({ cart: () => system.store.cart }, function ({ cart }) {
+                (cart.length) ? drawCart(cart) : emptyCart();
+                view.get('pay').style.display = cart.length ? 'block' : 'none';
+            });
 
         obj.destroy = function () {
             disconnect();
@@ -155,7 +148,7 @@ function cart({ system }) {
         });
 
         return obj;
-    }
+    };
 }
 
 plugin(cart);

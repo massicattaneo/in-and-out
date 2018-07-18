@@ -1,5 +1,5 @@
-import {plugin} from 'gml-system';
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { plugin } from 'gml-system';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './index.html';
 import treatmentTemplate from './treatment.html';
 import * as styles from './index.scss';
@@ -13,9 +13,8 @@ function treatments({ system }) {
         const view = HtmlView(template, styles, locale.get());
         const menu = await Menu(view.get('menu'), { system });
 
-        const disconnect = ({ orientation: () => system.deviceInfo().orientation })
-            .reactive()
-            .connect(function ({ orientation }) {
+        const disconnect =
+            window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
                 view.style(orientation);
             });
 
@@ -24,7 +23,7 @@ function treatments({ system }) {
         obj.destroy = function () {
             system.setStorage({ treatments: system.store.treatments.map(i => i.identificador) });
             system.store.notifications = Math.random();
-            disconnect()
+            disconnect();
         };
 
         async function changeFavourite(id, value) {
@@ -81,7 +80,7 @@ function treatments({ system }) {
         }
 
         return obj;
-    }
+    };
 }
 
 plugin(treatments);

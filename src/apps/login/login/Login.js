@@ -1,7 +1,7 @@
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './login.html';
 import * as styles from './login.scss';
-import {RetryRequest} from "gml-http-request";
+import { RetryRequest } from 'gml-http-request';
 
 export default async function ({ system, parent, thread }) {
     let obj = {};
@@ -11,9 +11,8 @@ export default async function ({ system, parent, thread }) {
 
     const view = HtmlView(template, styles, locale.get());
 
-    const disconnect = ({ orientation: () => system.deviceInfo().orientation })
-        .reactive()
-        .connect(function ({ orientation }) {
+    const disconnect =
+        window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
             view.style(orientation);
         });
 
@@ -27,7 +26,7 @@ export default async function ({ system, parent, thread }) {
         };
         await thread.execute('user/login', data);
         system.store.logged = true;
-        system.navigateTo(locale.get('urls.home'))
+        system.navigateTo(locale.get('urls.home'));
     };
 
     obj.destroy = function () {

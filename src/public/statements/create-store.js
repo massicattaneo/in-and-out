@@ -70,19 +70,19 @@ export default async function ({ system, wait, thread }) {
             source[`app_load_${name}`] = 0;
             return Object.assign(s, source);
         }, staticStore);
-    system.store = (staticStore).reactive();
+    system.store = window.rx.create(staticStore);
     const today = (function () {
         const d = new Date(system.store.timestamp);
         if (d.getDay() === 0) d.setTime(d.getTime() + 24 * 60 * 60 * 1000);
         d.setUTCHours(1, 0, 0, 0);
         return d.getTime();
     })();
-    system.book = ({
+    system.book = window.rx.create({
         center: 0,
         treatments: [],
         date: today,
         progress: 0
-    }).reactive();
+    });
 
     system.initStorage({
         news: system.store.news.map(i => i.identificador),
@@ -116,26 +116,22 @@ export default async function ({ system, wait, thread }) {
         }
     }
 
-    ({ cart: () => system.store.cart })
-        .reactive()
-        .connect(function ({ cart }) {
-            system.setStorage({ cart: cart });
-        });
+    window.rx.connect({ cart: () => system.store.cart }, function ({ cart }) {
+        system.setStorage({ cart: cart });
+    });
 
     updateFavourites(status.favourites);
 
-    ({ logged: () => system.store.logged })
-        .reactive()
-        .connect(async function () {
-            const { bookings = [], favourites, email } = await getStatus();
-            system.store.bookings.splice(0, system.store.bookings.length);
-            system.store.bookings.push(...bookings);
-            system.store.treatments.forEach(i => i.favourite = false);
-            system.store.email = email;
-            updateFavourites(favourites);
-            const old = system.store.treatments.splice(0, system.store.treatments.length);
-            system.store.treatments.push(...old);
-        });
+    window.rx.connect({ logged: () => system.store.logged }, async function () {
+        const { bookings = [], favourites, email } = await getStatus();
+        system.store.bookings.splice(0, system.store.bookings.length);
+        system.store.bookings.push(...bookings);
+        system.store.treatments.forEach(i => i.favourite = false);
+        system.store.email = email;
+        updateFavourites(favourites);
+        const old = system.store.treatments.splice(0, system.store.treatments.length);
+        system.store.treatments.push(...old);
+    });
 
     system.addFileManifest(system.store.photos.map(function ({ url }) {
         return { type: 'image', stage: url, url, size: 1 };

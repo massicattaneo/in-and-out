@@ -1,5 +1,5 @@
-import {plugin} from 'gml-system';
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { plugin } from 'gml-system';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './index.html';
 import * as styles from './index.scss';
 
@@ -21,20 +21,19 @@ function beautycorner({ system }) {
                 image.title = item.name;
             });
 
-        const disconnect = ({ orientation: () => system.deviceInfo().orientation })
-            .reactive()
-            .connect(function ({ orientation }) {
+        const disconnect =
+            window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
                 view.style(orientation);
             });
 
         parent.appendChild(view.get());
 
         obj.destroy = function () {
-            disconnect()
+            disconnect();
         };
 
         return obj;
-    }
+    };
 }
 
 plugin(beautycorner);

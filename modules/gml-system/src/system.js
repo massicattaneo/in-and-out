@@ -129,7 +129,7 @@ function System({ ua, config = {} }) {
         return system;
     };
     // ***************************************************************************  INFO
-    const info = ({
+    const info = window.rx.create({
         lang: '',
         maxRetry: 3,
         retryTimeout: 2000,
@@ -137,7 +137,7 @@ function System({ ua, config = {} }) {
         activationCode: getUrlParameter('activationCode'),
         addCart: getUrlParameter('addCart'),
         version: config.version
-    }).reactive();
+    });
     /**
      * retrieves the public info coming from the url and the configuration passed
      * @example

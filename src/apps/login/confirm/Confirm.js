@@ -1,7 +1,7 @@
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './confirm.html';
 import * as styles from './confirm.scss';
-import {RetryRequest} from "gml-http-request";
+import { RetryRequest } from 'gml-http-request';
 
 export default async function ({ system, parent }) {
     let obj = {};
@@ -11,9 +11,8 @@ export default async function ({ system, parent }) {
 
     const view = HtmlView(template, styles, locale.get());
 
-    const disconnect = ({ orientation: () => system.deviceInfo().orientation })
-        .reactive()
-        .connect(function ({ orientation }) {
+    const disconnect =
+        window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
             view.style(orientation);
         });
 

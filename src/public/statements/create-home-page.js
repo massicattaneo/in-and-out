@@ -12,11 +12,9 @@ export default async function ({ system, wait, thread }) {
     boot.className += ' fade-out';
     await wait.time(200);
 
-    ({ loading: () => system.store.loading })
-        .reactive()
-        .connect(function ({ loading }) {
-            boot.className = boot.className.replace('fade-out', '');
-            document.getElementById('boot').style.display = !loading ? 'none' : 'block';
-            document.getElementById('system').style.display = loading ? 'none' : 'block';
-        });
+    window.rx.connect({ loading: () => system.store.loading }, function ({ loading }) {
+        boot.className = boot.className.replace('fade-out', '');
+        document.getElementById('boot').style.display = !loading ? 'none' : 'block';
+        document.getElementById('system').style.display = loading ? 'none' : 'block';
+    });
 }

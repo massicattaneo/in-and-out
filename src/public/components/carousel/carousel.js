@@ -7,16 +7,14 @@ export default async function ({ system, context, parent, config }) {
     const obj = {};
     const view = HtmlView(template, styles);
     const { imagesManifest } = config;
-    const store = ({ images: null }).reactive();
+    const store = window.rx.create({ images: null });
 
-    ({
+    window.rx.connect({
         deviceType: () => system.deviceInfo().deviceType,
         height: () => system.deviceInfo().height,
         orientation: () => system.deviceInfo().orientation,
         images: () => store.images,
-    })
-        .reactive()
-        .connect(function ({ orientation, deviceType, height, images }) {
+    }, function ({ orientation, deviceType, height, images }) {
             view.style(`${deviceType}_${orientation}`, {wrapper: {height: height - 280}});
             if (images) {
                 view.get('pagevisible').appendChild(images[0])

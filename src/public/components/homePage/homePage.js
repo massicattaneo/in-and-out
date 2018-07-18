@@ -50,54 +50,50 @@ export default async function ({ system, parent, context, thread }) {
             title: i.titulo,
             src: `/google/drive/novedades/${system.deviceInfo().deviceType}.${i.foto}`,
             info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/novedades/${i.href}">LEER MAS</a>`,
-        }
+        };
     })[0];
     const item2 = system.store.promotions.map(i => {
         return {
             title: i.titulo, src: `/google/drive/promociones/${system.deviceInfo().deviceType}.${i.foto}`,
             info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/promociones/${i.href}">LEER MAS</a>`,
-        }
+        };
     })[0];
     const item3 = system.store.press.map(i => {
         return {
             title: i.titulo, src: `/google/drive/en-los-medios/${system.deviceInfo().deviceType}.${i.foto}`,
             info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/en-los-medios/${i.href}">LEER MAS</a>`,
-        }
+        };
     })[0];
     const item4 = system.store.photos.map(i => {
-        return { title: 'Nuestra ultima foto', src: i.url }
+        return { title: 'Nuestra ultima foto', src: i.url };
     })[0];
     const items = [];
 
-    items.push(...[item2,item1, item3, item4].map(function (item) {
+    items.push(...[item2, item1, item3, item4].map(function (item) {
         const params = Object.assign({ item }, context.locale.get());
-        return view.appendTo('news', newsTemplate, newsStyles, params)
+        return view.appendTo('news', newsTemplate, newsStyles, params);
     }));
 
-    ({
+    window.rx.connect({
         height: () => system.deviceInfo().height,
         width: () => system.deviceInfo().width,
         deviceType: () => system.deviceInfo().deviceType,
         open: () => system.store.windowOpened
-    })
-        .reactive()
-        .connect(function ({ height, width, open, deviceType }) {
-            const visibleWidth = (open & deviceType !== 'desktop' && width >= 600) ? width - 600 : width;
-            view.style('', {
-                scrollable: { height },
-                iconswrapper: { width: (open & deviceType !== 'desktop') ? width - 600 : 'auto' },
-                news: { width: visibleWidth },
-                image: { width: visibleWidth },
-            });
-            error.style.top = '-90px';
-
-
-            items.forEach(function (item) {
-                const number = Math.min(4, Math.floor(visibleWidth / 300));
-                const howMuch = number - (number % 2);
-                item.style('', { wrapper: { width: (visibleWidth / howMuch) - 50 } });
-            })
+    }, function ({ height, width, open, deviceType }) {
+        const visibleWidth = (open & deviceType !== 'desktop' && width >= 600) ? width - 600 : width;
+        view.style('', {
+            scrollable: { height },
+            iconswrapper: { width: (open & deviceType !== 'desktop') ? width - 600 : 'auto' },
+            news: { width: visibleWidth },
+            image: { width: visibleWidth },
         });
+        error.style.top = '-90px';
+        items.forEach(function (item) {
+            const number = Math.min(4, Math.floor(visibleWidth / 300));
+            const howMuch = number - (number % 2);
+            item.style('', { wrapper: { width: (visibleWidth / howMuch) - 50 } });
+        });
+    });
 
     system.locale(`/localization/globalize/${system.info().lang}.json`);
     Array.prototype

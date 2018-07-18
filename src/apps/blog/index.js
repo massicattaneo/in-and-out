@@ -12,7 +12,7 @@ function blog({ system }) {
 
         const params = {
             title: post.post_title || 'IN&OUT - CENTRO DE BELLEZA EN MALAGA',
-            date: new Date(post.post_date|| Date.now()).formatDay('dd/mm/yyyy'),
+            date: new Date(post.post_date || Date.now()).formatDay('dd/mm/yyyy'),
             images: post.images || [],
             content: post.post_content || `No hemos encontrado ningun contenido que corresponda a tu busqueda: 
                 <strong>
@@ -24,9 +24,8 @@ function blog({ system }) {
         const view = HtmlView(template, styles, params);
 
 
-        const disconnect = ({ orientation: () => system.deviceInfo().orientation })
-            .reactive()
-            .connect(function ({ orientation }) {
+        const disconnect =
+            window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
                 view.style(orientation);
             });
 

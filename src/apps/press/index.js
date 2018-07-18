@@ -1,5 +1,5 @@
-import {plugin} from 'gml-system';
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { plugin } from 'gml-system';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './index.html';
 import * as styles from './index.scss';
 import pressTemplate from './press.html';
@@ -18,18 +18,17 @@ function press({ system }) {
                 return b1 - a1;
             });
 
-        const disconnect = ({ orientation: () => system.deviceInfo().orientation })
-            .reactive()
-            .connect(function ({ orientation }) {
+        const disconnect =
+            window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
                 view.style(orientation);
             });
 
         parent.appendChild(view.get());
 
         obj.destroy = function () {
-            system.setStorage({press: system.store.press.map(i => i.identificador)});
+            system.setStorage({ press: system.store.press.map(i => i.identificador) });
             system.store.notifications = Math.random();
-            disconnect()
+            disconnect();
         };
 
         obj.loadContent = async function () {
@@ -37,24 +36,27 @@ function press({ system }) {
                 const item = press.splice(0, 1)[0];
                 const newItem = system.getStorage('press').indexOf(item.identificador) === -1
                     ? locale.get('newItemTemplate') : '';
-                view.appendTo('press', pressTemplate, [], Object.assign({item, newItem}, locale.get()));
+                view.appendTo('press', pressTemplate, [], Object.assign({ item, newItem }, locale.get()));
             } else {
                 view.get('loading').style.display = 'none';
                 await new Promise(res => setTimeout(res, 0));
             }
         };
 
-        obj.navigateTo = function(subpath) {
+        obj.navigateTo = function (subpath) {
             const item = system.store.press.find(i => i.href === subpath);
             if (item) {
                 const newItem = system.getStorage('press').indexOf(item.identificador) === -1
                     ? locale.get('newItemTemplate') : '';
-                view.clear('press').appendTo('press', pressTemplate, [], Object.assign({item, newItem}, locale.get()));
+                view.clear('press').appendTo('press', pressTemplate, [], Object.assign({
+                    item,
+                    newItem
+                }, locale.get()));
             }
         };
 
         return obj;
-    }
+    };
 }
 
 plugin(press);

@@ -1,5 +1,5 @@
-import {plugin} from 'gml-system';
-import {HtmlView} from 'gml-html';
+import { plugin } from 'gml-system';
+import { HtmlView } from 'gml-html';
 import template from './index.html';
 import * as styles from './index.scss';
 import reviewTemplate from './review.html';
@@ -47,27 +47,25 @@ function reviews({ system }) {
             }
         });
 
-        const disconnect = ({
+        const disconnect = window.rx.connect({
             orientation: () => system.deviceInfo().orientation,
             logged: () => system.store.logged
-        })
-            .reactive()
-            .connect(function ({ orientation, logged }) {
-                view.style(orientation, { add: { display: logged ? 'block' : 'none' } });
-            });
+        }, function ({ orientation, logged }) {
+            view.style(orientation, { add: { display: logged ? 'block' : 'none' } });
+        });
 
         parent.appendChild(view.get());
 
         obj.destroy = function () {
             system.setStorage({ reviews: system.store.reviews });
             system.store.notifications = Math.random();
-            disconnect()
+            disconnect();
         };
 
         let loadCounter = 0;
         obj.loadContent = async function () {
             if (loadCounter >= 0) {
-                const list = await thread.execute('reviews/get', {counter: loadCounter});
+                const list = await thread.execute('reviews/get', { counter: loadCounter });
                 loadCounter = (list.length) ? loadCounter + 1 : -1;
                 list.forEach(function (item) {
                     view.appendTo('reviews', reviewTemplate, [], { item, stars: getStarTemplate(item.rate) });
@@ -80,7 +78,7 @@ function reviews({ system }) {
 
         parent.appendChild(view.get());
         return obj;
-    }
+    };
 }
 
 plugin(reviews);

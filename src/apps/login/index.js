@@ -1,5 +1,5 @@
-import {plugin} from 'gml-system';
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { plugin } from 'gml-system';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './index.html';
 import * as styles from './index.scss';
 import Register from './register/Register';
@@ -13,7 +13,10 @@ import Logged from './logged/Logged';
 function login({ system }) {
     return async function ({ parent, thread }) {
         let obj = {};
-        let subPage = {destroy: () => {}};
+        let subPage = {
+            destroy: () => {
+            }
+        };
         const locale = await system.locale(`/localization/static.json`);
         await locale.load(`/localization/login/es.json`);
 
@@ -26,9 +29,8 @@ function login({ system }) {
             subPage = await Home({ system, parent: view.get(), thread });
         }
 
-        const disconnect = ({ orientation: () => system.deviceInfo().orientation })
-            .reactive()
-            .connect(function ({ orientation }) {
+        const disconnect =
+            window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
                 view.style(orientation);
             });
 
@@ -38,28 +40,28 @@ function login({ system }) {
             view.get().innerHTML = '';
             subPage.destroy();
             if (e !== 'confirmacion' && system.store.logged) {
-                subPage = await Logged({ system, parent: view.get(), thread })
+                subPage = await Logged({ system, parent: view.get(), thread });
                 return subPage;
             }
             switch (e) {
-                case 'crear':
-                    subPage = await Register({ system, parent: view.get(), thread })
-                    return subPage;
-                case 'entrar':
-                    subPage = await Login({ system, parent: view.get(), thread })
-                    return subPage;
-                case 'recuperar':
-                    subPage = await Recover({ system, parent: view.get(), thread })
-                    return subPage;
-                case 'reiniciar':
-                    subPage = await Reset({ system, parent: view.get(), thread })
-                    return subPage;
-                case 'confirmacion':
-                    subPage = await Confirm({ system, parent: view.get(), thread })
-                    return subPage;
-                default:
-                    subPage = await Home({ system, parent: view.get(), thread })
-                    return subPage;
+            case 'crear':
+                subPage = await Register({ system, parent: view.get(), thread });
+                return subPage;
+            case 'entrar':
+                subPage = await Login({ system, parent: view.get(), thread });
+                return subPage;
+            case 'recuperar':
+                subPage = await Recover({ system, parent: view.get(), thread });
+                return subPage;
+            case 'reiniciar':
+                subPage = await Reset({ system, parent: view.get(), thread });
+                return subPage;
+            case 'confirmacion':
+                subPage = await Confirm({ system, parent: view.get(), thread });
+                return subPage;
+            default:
+                subPage = await Home({ system, parent: view.get(), thread });
+                return subPage;
             }
 
         };
@@ -70,7 +72,7 @@ function login({ system }) {
         };
 
         return obj;
-    }
+    };
 }
 
 plugin(login);

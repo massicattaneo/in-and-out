@@ -28,11 +28,11 @@ function bonusCards({ system }) {
                 }, card);
             })
             .sort(function (a, b) {
-                if (sortByDate('desde')(a,b) === 0) {
+                if (sortByDate('desde')(a, b) === 0) {
                     if (!a.treatments.length || !b.treatments.length) return -1;
                     return a.treatments[0].tipo.toString().localeCompare(b.treatments[0].tipo.toString());
                 }
-                return sortByDate('desde')(a,b)
+                return sortByDate('desde')(a, b);
             })
             .forEach(item => {
                 const { treatments } = item;
@@ -53,9 +53,8 @@ function bonusCards({ system }) {
             system.store.cart.push(id);
         };
 
-        const disconnect = ({ orientation: () => system.deviceInfo().orientation })
-            .reactive()
-            .connect(function ({ orientation }) {
+        const disconnect =
+            window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
                 view.style(orientation);
             });
 

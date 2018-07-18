@@ -1,8 +1,8 @@
-import {plugin} from 'gml-system';
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { plugin } from 'gml-system';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './index.html';
 import * as styles from './index.scss';
-import {RetryRequest} from "gml-http-request";
+import { RetryRequest } from 'gml-http-request';
 
 function products({ system }) {
     return async function ({ parent, db }) {
@@ -15,14 +15,14 @@ function products({ system }) {
         system.store.bonusCards.forEach(item => {
             const treatments = item.tratamientos.length ?
                 item.tratamientos.split('|')
-                .map(i => i.trim())
-                .map(i=> {
-                    const arr = i.match(/(\d*)xID-(\d*)/);
-                    return {
-                        id: Number(arr[2]),
-                        count: Number(arr[1])
-                    }
-                }) : [];
+                    .map(i => i.trim())
+                    .map(i => {
+                        const arr = i.match(/(\d*)xID-(\d*)/);
+                        return {
+                            id: Number(arr[2]),
+                            count: Number(arr[1])
+                        };
+                    }) : [];
 
             view.get('products').appendChild(Node(`
                 <div class="box">
@@ -42,17 +42,14 @@ function products({ system }) {
             system.store.cart.push(id);
         };
 
-        const disconnectResize = ({ orientation: () => system.deviceInfo().orientation })
-            .reactive()
-            .connect(function ({ orientation }) {
+        const disconnectResize =
+            window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
                 view.style(orientation);
             });
 
-        const disconnectCart = ({ cart: () => system.store.cart })
-            .reactive()
-            .connect(function ({ cart }) {
-                view.get('cart').innerHTML = `TIENES ${cart.length} PRODUCTOS`
-            });
+        const disconnectCart = window.rx.connect({ cart: () => system.store.cart }, function ({ cart }) {
+            view.get('cart').innerHTML = `TIENES ${cart.length} PRODUCTOS`;
+        });
 
         obj.destroy = function () {
             disconnectResize();
@@ -62,7 +59,7 @@ function products({ system }) {
         parent.appendChild(view.get());
 
         return obj;
-    }
+    };
 }
 
 plugin(products);

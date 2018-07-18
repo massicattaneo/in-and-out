@@ -1,7 +1,7 @@
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './home.html';
 import * as styles from './home.scss';
-import {RetryRequest} from "gml-http-request";
+import { RetryRequest } from 'gml-http-request';
 
 export default async function ({ system, parent }) {
     let obj = {};
@@ -15,11 +15,9 @@ export default async function ({ system, parent }) {
     form.login = system.navigateTo.partial(`entrar`);
     form.recover = system.navigateTo.partial(`recuperar`);
 
-    const disconnect = ({ orientation: () => system.deviceInfo().orientation })
-        .reactive()
-        .connect(function ({ orientation }) {
-            view.style(orientation);
-        });
+    const disconnect = window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
+        view.style(orientation);
+    });
 
     obj.destroy = function () {
         disconnect();

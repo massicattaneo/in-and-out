@@ -1,4 +1,4 @@
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './recover.html';
 import * as styles from './recover.scss';
 import recoverDone from './recover-done.html';
@@ -16,9 +16,8 @@ export default async function ({ system, parent, thread }) {
         view.clear().appendTo('', recoverDone, [], locale.get());
     };
 
-    const disconnect = ({ orientation: () => system.deviceInfo().orientation })
-        .reactive()
-        .connect(function ({ orientation }) {
+    const disconnect =
+        window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
             view.style(orientation);
         });
 

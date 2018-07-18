@@ -14,12 +14,10 @@ export default async function ({ system, parent, thread }) {
     const view = HtmlView(template, styles, locale.get());
     const form = view.get('wrapper');
 
-    const disconnect = ({
+    const disconnect = window.rx.connect({
         orientation: () => system.deviceInfo().orientation,
         bookings: () => system.store.bookings
-    })
-        .reactive()
-        .connect(function ({ orientation, bookings }) {
+    }, function ({ orientation, bookings }) {
             view.style(orientation);
             view.get('appointments').innerHTML = locale.get('logged.emptyAppointments');
             if (bookings.length) {

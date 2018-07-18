@@ -36,10 +36,10 @@ function bookings({ system }) {
 
         const model = system.book;
 
-        const disc1 = ({
+        const disc1 = window.rx.connect({
             logged: () => system.store.logged,
             trt: () => system.store.treatments
-        }).reactive().connect(({ logged, trt }) => {
+        }, ({ logged, trt }) => {
             parentView.clear();
             if (!logged) {
                 view = parentView.appendTo('', createAnAccountTemplate, [], locale.get());
@@ -127,7 +127,7 @@ function bookings({ system }) {
             }
         }
 
-        const disconnect = ({
+        const disconnect = window.rx.connect({
             deviceType: () => system.deviceInfo().deviceType,
             orientation: () => system.deviceInfo().orientation,
             progress: () => model.progress,
@@ -137,37 +137,35 @@ function bookings({ system }) {
             logged: () => system.store.logged,
             trt: () => system.store.treatments,
             mTrt: () => model.treatments
-        })
-            .reactive()
-            .connect(async function ({ orientation, date, trt, center, logged, mTrt }) {
-                if (logged && trt.filter(t => t.favourite).length) {
-                    view.style(orientation);
-                    const centers = getCenters(system.store, date);
-                    const treatments = getTreatments(system.store, date, center, trt);
-                    const selTreatments = mTrt.filter(id => {
-                        const t = treatments.find(t => t.identificador === id);
-                        return t && t.available;
-                    });
-                    view.get('date').innerText = new Date(date).formatDay('dddd dd/mm', dayNames);
-                    refreshButtons();
-                    appendCenters(centers);
-                    appendTreatments(treatments);
-                    view.clear('hours').appendTo('hours', '<div>SELECIONA UNO O MAS TRATAMIENTOS</div>', []);
-                    view.get('book').setAttribute('disabled', 'disabled');
-                    if (selTreatments.length && centers.filter(c => c === center).length) {
-                        view.clear('hours').appendTo('hours', '<div style="text-align: center; width: 100%"><img style="width: 33px" src="/assets/images/loading.gif" /></div>', []);
-                        const freeBusy = await thread.execute('booking/get-hours',
-                            { date, treatments: selTreatments, center });
-                        const hours = getAvailableHours(system.store, date, center, treatments, selTreatments, freeBusy)
-                            .map(h => decimalToTime(h).splice(0, 2).map(i => i.toString().padLeft(2, '0')).join(':'));
-                        if (hours.length) {
-                            view.clear('hours').appendTo('hours', hoursTemplate, [], { hours });
-                        } else {
-                            view.clear('hours').appendTo('hours', '<div>NO HAY TRABAJADORES DISPONIBLES</div>', [], {});
-                        }
+        }, async function ({ orientation, date, trt, center, logged, mTrt }) {
+            if (logged && trt.filter(t => t.favourite).length) {
+                view.style(orientation);
+                const centers = getCenters(system.store, date);
+                const treatments = getTreatments(system.store, date, center, trt);
+                const selTreatments = mTrt.filter(id => {
+                    const t = treatments.find(t => t.identificador === id);
+                    return t && t.available;
+                });
+                view.get('date').innerText = new Date(date).formatDay('dddd dd/mm', dayNames);
+                refreshButtons();
+                appendCenters(centers);
+                appendTreatments(treatments);
+                view.clear('hours').appendTo('hours', '<div>SELECIONA UNO O MAS TRATAMIENTOS</div>', []);
+                view.get('book').setAttribute('disabled', 'disabled');
+                if (selTreatments.length && centers.filter(c => c === center).length) {
+                    view.clear('hours').appendTo('hours', '<div style="text-align: center; width: 100%"><img style="width: 33px" src="/assets/images/loading.gif" /></div>', []);
+                    const freeBusy = await thread.execute('booking/get-hours',
+                        { date, treatments: selTreatments, center });
+                    const hours = getAvailableHours(system.store, date, center, treatments, selTreatments, freeBusy)
+                        .map(h => decimalToTime(h).splice(0, 2).map(i => i.toString().padLeft(2, '0')).join(':'));
+                    if (hours.length) {
+                        view.clear('hours').appendTo('hours', hoursTemplate, [], { hours });
+                    } else {
+                        view.clear('hours').appendTo('hours', '<div>NO HAY TRABAJADORES DISPONIBLES</div>', [], {});
                     }
                 }
-            });
+            }
+        });
 
         obj.destroy = function () {
             disconnect();

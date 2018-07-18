@@ -15,11 +15,6 @@ function toCurrency(number) {
 }
 
 export function printBills(startNumber = 1, expression, items, system) {
-    const oldReactive = Object.prototype.reactive;
-    const oldConnect = Object.prototype.connect;
-    delete Object.prototype.reactive;
-    delete Object.prototype.connect;
-
     var doc = new jsPDF('p', 'mm', [297, 210]);
     // var cashIds = newTot(params.cashMaximum, Object.keys(transactionsData)
     // 	.map(function (k) {return transactionsData[k];})
@@ -89,6 +84,4 @@ export function printBills(startNumber = 1, expression, items, system) {
 
     doc.output('save', 'facturas.pdf');
 
-    Object.prototype.reactive = oldReactive;
-    Object.prototype.connect = oldConnect;
 }

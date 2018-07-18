@@ -32,7 +32,7 @@ function photoMeasure({ system }) {
         const startEvent = system.deviceInfo().deviceType === 'desktop' ? 'mousedown' : 'touchstart';
         const listeners = [];
 
-        const state = ({
+        const state = window.rx.create({
             hor: 100,
             ver: 0,
             offsetHor: 30,
@@ -40,9 +40,9 @@ function photoMeasure({ system }) {
             photoWidth: 1,
             takingPhoto: true,
             camera: 'user' //user | environment
-        }).reactive();
+        });
 
-        const disconnect = ({
+        const disconnect = window.rx.connect({
             deviceType: () => system.deviceInfo().deviceType,
             orientation: () => system.deviceInfo().orientation,
             hor: () => state.hor,
@@ -52,9 +52,7 @@ function photoMeasure({ system }) {
             photoWidth: () => state.photoWidth,
             camera: () => state.camera,
             takingPhoto: () => state.takingPhoto
-        })
-            .reactive()
-            .connect(function ({ orientation, deviceType, hor, ver, offsetHor, offsetVer, takingPhoto, photoWidth, camera }) {
+        }, function ({ orientation, deviceType, hor, ver, offsetHor, offsetVer, takingPhoto, photoWidth, camera }) {
                 view.style(deviceType, {
                     imagecontainer: { display: !takingPhoto ? 'block' : 'none' },
                     videocontainer: { display: takingPhoto ? 'block' : 'none' },
@@ -184,7 +182,7 @@ function photoMeasure({ system }) {
             });
         }
 
-        ({ logged: () => system.store.logged }).reactive().connect(function({ logged }) {
+        window.rx.connect({ logged: () => system.store.logged }, function({ logged }) {
             setTimeout(start, 0);
         });
 

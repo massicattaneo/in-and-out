@@ -11,9 +11,8 @@ function news({ system }) {
         await locale.load('/localization/static.json');
         const view = HtmlView(template, styles, locale.get());
         const newsList = system.store.news.slice(0);
-        const disconnect = ({ orientation: () => system.deviceInfo().orientation })
-            .reactive()
-            .connect(function ({ orientation }) {
+        const disconnect =
+            window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
                 view.style(orientation);
             });
 

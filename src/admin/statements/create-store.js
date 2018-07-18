@@ -1,8 +1,8 @@
-export default async function({ system, thread }) {
+export default async function ({ system, thread }) {
     let status = await getStatus();
     const req = RetryRequest('/api/public-db', { headers: { 'Content-Type': 'application/json' } });
     const publicDb = JSON.parse((await req.get()).responseText);
-    publicDb.bonusCards = publicDb.bonusCards.map(function(b) {
+    publicDb.bonusCards = publicDb.bonusCards.map(function (b) {
         const from = new Date(b.desde.split('/')[2], b.desde.split('/')[1], b.desde.split('/')[0]);
         from.setHours(0, 0, 0);
         from.setMonth(from.getMonth() - 1);
@@ -22,7 +22,7 @@ export default async function({ system, thread }) {
                     .map(i => i.trim())
                     .map(t => {
                         const arr = t.split('x');
-                        return `${arr[0]} ${publicDb.treatments.find(t => t.identificador === arr[1]).titulo}`
+                        return `${arr[0]} ${publicDb.treatments.find(t => t.identificador === arr[1]).titulo}`;
                     })
                 : [],
             treatments: typeof b.tratamientos === 'string'
@@ -30,14 +30,14 @@ export default async function({ system, thread }) {
                     .map(i => i.trim())
                     .map(t => {
                         const arr = t.split('x');
-                        return (new Array(Number(arr[0]))).fill(0).map(i => arr[1])
+                        return (new Array(Number(arr[0]))).fill(0).map(i => arr[1]);
                     }).reduce((arr, t) => arr.concat(t), [])
                 : []
-        }
+        };
     });
     system.publicDb = publicDb;
 
-    system.store = ({
+    system.store = window.rx.create({
         logged: status.logged,
         adminLevel: status.adminLevel,
         loading: false,
@@ -49,15 +49,13 @@ export default async function({ system, thread }) {
         users: [...((decodeURI(system.cookies.getItem('users')) || '')).split('|')],
         date: Date.now(),
         keysPressed: []
-    }).reactive();
+    });
 
     system.initStorage({});
 
-    ({ cart: () => system.store.cart })
-        .reactive()
-        .connect(function({ cart }) {
-            system.setStorage({ cart: cart })
-        });
+    window.rx.connect({ cart: () => system.store.cart }, function ({ cart }) {
+        system.setStorage({ cart: cart });
+    });
 
     async function getStatus() {
         const reqStatus = RetryRequest('/api/login/adminStatus');
@@ -69,7 +67,7 @@ export default async function({ system, thread }) {
                 logged: false,
                 idAdmin: false,
                 email: ''
-            }
+            };
         }
     }
 
@@ -87,9 +85,7 @@ export default async function({ system, thread }) {
         }
     }
 
-    ({ logged: () => system.store.logged })
-        .reactive()
-        .connect(whenLogged);
+    window.rx.connect({ logged: () => system.store.logged }, whenLogged);
 
     await whenLogged(system.store).catch(e => e);
 

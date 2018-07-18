@@ -51,6 +51,7 @@ img {width: 100%}
 .fa-arrow-circle-left:before {content: "\f0a8"}
 .fa-arrow-circle-right:before {content: "\f0a9"}
 .fa-whatsapp:before {content: "\f232"}
+.fa-google:before {content: "\f1a0"}
 
 /** html tags */
 hr {margin: 10px 0;}

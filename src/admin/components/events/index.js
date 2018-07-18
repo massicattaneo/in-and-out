@@ -1,4 +1,4 @@
-import { HtmlView } from "gml-html";
+import { HtmlView } from 'gml-html';
 import template from './template.html';
 import * as style from './style.scss';
 import miniCalTpl from './mini-calendar.html';
@@ -9,7 +9,7 @@ import processTpl from './process.html';
 import editEvent from './edit-event.html';
 import editNote from './edit-note.html';
 import eventTpl from './event.html';
-import { createModal } from "../../utils";
+import { createModal } from '../../utils';
 import { getCalendar } from '../../../../web-app-deploy/shared';
 
 const stepHeight = 13;
@@ -21,7 +21,7 @@ let clipboard;
 
 function timeToDecimal(t) {
     const arr = t.split(':');
-    return parseFloat(parseInt(arr[0], 10) + '.' + parseInt((arr[1]/6)*10, 10));
+    return parseFloat(parseInt(arr[0], 10) + '.' + parseInt((arr[1] / 6) * 10, 10));
 }
 
 function sameDay(d1, d2) {
@@ -52,7 +52,7 @@ function createEvent(params) {
     return assign;
 }
 
-export default async function({ locale, system, thread }) {
+export default async function ({ locale, system, thread }) {
     const params = Object.assign({}, locale.get());
     const view = HtmlView(template, style, params);
     const form = view.get('wrapper');
@@ -66,45 +66,45 @@ export default async function({ locale, system, thread }) {
 
 
     if (system.deviceInfo().deviceType === 'desktop')
-        system.publicDb.processes.forEach(function(p) {
+        system.publicDb.processes.forEach(function (p) {
             view.appendTo('processes', processTpl, [], p);
         });
     else
         view.get('processes').parentNode.removeChild(view.get('processes'));
 
-    form.changeDate = function() {
+    form.changeDate = function () {
         const d = new Date(system.store.date);
         d.setDate(window.event.target.value);
         system.store.date = d.getTime();
     };
-    form.back = function() {
+    form.back = function () {
         const d = new Date(system.store.date);
         d.setMonth(d.getMonth() - 1);
         system.store.date = d.getTime();
     };
-    form.forward = function() {
+    form.forward = function () {
         const d = new Date(system.store.date);
         d.setMonth(d.getMonth() + 1);
         system.store.date = d.getTime();
     };
-    form.dragEnter = function() {
-        window.event.target.classList.add('hover')
+    form.dragEnter = function () {
+        window.event.target.classList.add('hover');
     };
-    form.dragLeave = function() {
-        window.event.target.classList.remove('hover')
+    form.dragLeave = function () {
+        window.event.target.classList.remove('hover');
     };
-    form.dragOver = function() {
+    form.dragOver = function () {
         window.event.preventDefault();
     };
-    form.drop = function({ worker }, config) {
+    form.drop = function ({ worker }, config) {
         const target = window.event.target;
         target.classList.remove('hover');
-        const params = config || JSON.parse(window.event.dataTransfer.getData("config"));
+        const params = config || JSON.parse(window.event.dataTransfer.getData('config'));
         if (params.userAction === 'move') {
             thread.execute('booking/delete', {
                 eventId: params.id,
                 calendarId: system.publicDb.workers.find(c => c.column === worker).googleId
-            })
+            });
         }
 
         const date = new Date(params.date || system.store.date);
@@ -136,7 +136,7 @@ export default async function({ locale, system, thread }) {
                 await thread.execute('booking/delete', {
                     eventId: e.id,
                     calendarId: dbWorker.googleId
-                })
+                });
             }
             const evt = createEvent(Object.assign({}, e, {
                 summary: this.summary.value,
@@ -157,42 +157,42 @@ export default async function({ locale, system, thread }) {
 
         modalView.get('form').save = saveForm;
         modalView.get('form').close = close;
-        modalView.get('form').delete = function(worker, eventId) {
+        modalView.get('form').delete = function (worker, eventId) {
             thread.execute('booking/delete', {
                 eventId: eventId,
                 calendarId: system.publicDb.workers.find(i => i.column === worker).googleId
             });
-            close()
+            close();
         };
 
         function enterKey(event) {
-            if (event.key === "Enter") {
+            if (event.key === 'Enter') {
                 event.preventDefault();
-                saveForm.call(modalView.get('form'))
+                saveForm.call(modalView.get('form'));
             }
         }
 
-        window.addEventListener("keydown", enterKey);
+        window.addEventListener('keydown', enterKey);
 
         function close() {
             modal.close();
-            window.removeEventListener("keydown", enterKey)
+            window.removeEventListener('keydown', enterKey);
         }
     };
-    form.dragStart = function(params, type = 'new') {
+    form.dragStart = function (params, type = 'new') {
         params.userAction = type;
-        window.event.dataTransfer.setData("config", JSON.stringify(params));
+        window.event.dataTransfer.setData('config', JSON.stringify(params));
     };
-    form.clipboard = function(d) {
+    form.clipboard = function (d) {
         clipboard = d;
         if (system.store.keysPressed.indexOf('x') !== -1) {
             thread.execute('booking/delete', {
                 eventId: d.id,
                 calendarId: system.publicDb.workers.find(i => i.column === d.worker).googleId
-            })
+            });
         }
     };
-    form.paste = function({ worker }) {
+    form.paste = function ({ worker }) {
         const target = window.event.target;
         const date = new Date(system.store.date);
         const hour = target.innerText.split(':').map(i => Number(i));
@@ -209,12 +209,12 @@ export default async function({ locale, system, thread }) {
             });
         }
     };
-    form.editNote = function({ worker }) {
+    form.editNote = function ({ worker }) {
         const noteDate = new Date(system.store.date);
         noteDate.setHours(20, 30, 0, 0);
         const items = system.publicDb.workers.find(c => c.column === worker).items || [];
         const event = items.find(i => i.start.dateTime.indexOf('T20:30:00+02:00') !== -1) || {};
-        const { modalView } = createModal(editNote, { note: event.summary || '' }, async function(close) {
+        const { modalView } = createModal(editNote, { note: event.summary || '' }, async function (close) {
             if (event.id) {
                 await thread.execute('booking/delete', {
                     eventId: event.id,
@@ -230,9 +230,9 @@ export default async function({ locale, system, thread }) {
                 description: '',
                 label: ''
             });
-            close()
+            close();
         });
-        modalView.get('form').delete = async function() {
+        modalView.get('form').delete = async function () {
             if (event.id) {
                 await thread.execute('booking/delete', {
                     eventId: event.id,
@@ -242,47 +242,38 @@ export default async function({ locale, system, thread }) {
             modalView.get('close').click();
         };
     };
-    view.destroy = function() {
+    view.destroy = function () {
 
     };
 
-    ({
-        search: () => system.store.search
-    }).reactive()
-        .connect(function({ search }) {
-            if (system.store.logged)
-                drawCalendars(search, false);
-        });
+    window.rx.connect({ search: () => system.store.search }, function ({ search }) {
+        if (system.store.logged)
+            drawCalendars(search, false);
+    });
 
-    ({
-        date: () => system.store.date
-    }).reactive()
-        .connect(function({ date }) {
-            changeMiniCalendarDate(new Date(date));
-            if (system.store.logged)
-                drawCalendars(system.store.search);
-        });
+    window.rx.connect({ date: () => system.store.date }, function ({ date }) {
+        changeMiniCalendarDate(new Date(date));
+        if (system.store.logged)
+            drawCalendars(system.store.search);
+    });
 
-    ({
-        keys: () => system.store.keysPressed
-    }).reactive()
-        .connect(function({ keys }) {
-            if (keys.indexOf('ArrowRight') !== -1 && keys.indexOf('Shift') !== -1) {
-                system.store.date += 24 * 60 * 60 * 1000;
-            }
-            if (keys.indexOf('ArrowLeft') !== -1 && keys.indexOf('Shift') !== -1) {
-                system.store.date -= 24 * 60 * 60 * 1000;
-            }
-            if (keys.indexOf('ArrowUp') !== -1 && keys.indexOf('Shift') !== -1) {
-                system.store.date -= 7 * 24 * 60 * 60 * 1000;
-            }
-            if (keys.indexOf('ArrowDown') !== -1 && keys.indexOf('Shift') !== -1) {
-                system.store.date += 7 * 24 * 60 * 60 * 1000;
-            }
-        });
+    window.rx.connect({ keys: () => system.store.keysPressed }, function ({ keys }) {
+        if (keys.indexOf('ArrowRight') !== -1 && keys.indexOf('Shift') !== -1) {
+            system.store.date += 24 * 60 * 60 * 1000;
+        }
+        if (keys.indexOf('ArrowLeft') !== -1 && keys.indexOf('Shift') !== -1) {
+            system.store.date -= 24 * 60 * 60 * 1000;
+        }
+        if (keys.indexOf('ArrowUp') !== -1 && keys.indexOf('Shift') !== -1) {
+            system.store.date -= 7 * 24 * 60 * 60 * 1000;
+        }
+        if (keys.indexOf('ArrowDown') !== -1 && keys.indexOf('Shift') !== -1) {
+            system.store.date += 7 * 24 * 60 * 60 * 1000;
+        }
+    });
 
     function isWorkDay(date) {
-        return date.getDay() !== 0
+        return date.getDay() !== 0;
     }
 
     async function getServerDayEvents(callServer, c) {
@@ -303,7 +294,7 @@ export default async function({ locale, system, thread }) {
             dayView.style();
             c.items = await getServerDayEvents(callServer, c);
 
-            (new Array(43)).fill(0).forEach(function(zero, index) {
+            (new Array(43)).fill(0).forEach(function (zero, index) {
                 const d = new Date(system.store.date);
                 d.setHours(startHour, startMinutes, 0, 0);
                 d.setTime(d.getTime() + (index * minPeriod * 60 * 1000));
@@ -322,7 +313,7 @@ export default async function({ locale, system, thread }) {
                 }
             });
 
-            c.items.forEach(function({ id, start, end, description, summary, extendedProperties, attendees }) {
+            c.items.forEach(function ({ id, start, end, description, summary, extendedProperties, attendees }) {
                 const processId = extendedProperties && extendedProperties.private && extendedProperties.private.processId;
                 const label = extendedProperties && extendedProperties.private && extendedProperties.private.label;
                 const startTime = new Date(start.dateTime).getTime();
@@ -354,12 +345,12 @@ export default async function({ locale, system, thread }) {
         let day = 1;
 
         let date = new Date(`${year}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}`);
-        console.warn(year, month,day);
+        console.warn(year, month, day);
         const today = new Date();
         miniView.get('month').innerText = (new Date(`${year}-${month.toString().padLeft(2, '0')}-${d.toString().padLeft(2, '0')}`)).formatDay('mmm yy', [], monthNames);
         today.setHours(0, 0, 0, 0);
-        [1, 2, 3, 4, 5, 6].forEach(function(r) {
-            [0, 1, 2, 3, 4, 5, 6].forEach(function(c) {
+        [1, 2, 3, 4, 5, 6].forEach(function (r) {
+            [0, 1, 2, 3, 4, 5, 6].forEach(function (c) {
                 const node = miniView.get(`${r}_${c}`);
                 node.innerText = '';
                 node.classList.remove('work');
@@ -377,11 +368,11 @@ export default async function({ locale, system, thread }) {
                     node.setAttribute('data-day', date.getDate());
                     date = new Date(`${year}-${month.toString().padLeft(2, '0')}-${(++day).toString().padLeft(2, '0')}`);
                 }
-            })
-        })
+            });
+        });
     }
 
-    view.remove = function(calendarId, eventId) {
+    view.remove = function (calendarId, eventId) {
 
         const dbWorker = system.publicDb.workers.find(c => c.googleId === calendarId);
         if (!dayViews[dbWorker.column]) return;
@@ -390,7 +381,7 @@ export default async function({ locale, system, thread }) {
         item.parentNode.removeChild(item);
     };
 
-    view.add = function(ev) {
+    view.add = function (ev) {
         const dbWorker = system.publicDb.workers.find(c => c.googleId === ev.calendarId);
         if (!dayViews[dbWorker.column]) return;
         if (!sameDay(new Date(system.store.date), new Date(ev.start))) return;
