@@ -63,6 +63,7 @@ function map(template, google, posts) {
     const homeHtml = template
         .replace('{{body}}', fs.readFileSync(__dirname + '/es/home.html', 'utf8'))
         .replace(/{{title}}/g, getTitle('Tu centro de belleza en Malaga'))
+        .replace(/{{image}}/g, 'https://www.inandoutbelleza.es/assets/images/manzana.png')
         .replace(/{{description}}/g, description);
 
     urls.push({ url: '', html: homeHtml });
@@ -135,6 +136,7 @@ function map(template, google, posts) {
             const html = template
                 .replace('{{body}}', fs.readFileSync(__dirname + `/es/${name}.html`, 'utf8'))
                 .replace(/{{title}}/g, getTitle(app.windowTitle))
+                .replace(/{{image}}/g, 'https://www.inandoutbelleza.es/assets/images/manzana.png')
                 .replace(/{{description}}/g, app.windowDescription);
             const url = `/es/${app.url}`;
             urls.push({ url: url, html: html });
@@ -148,6 +150,7 @@ function map(template, google, posts) {
         const html = template
             .replace('{{body}}', createHtmlList(name))
             .replace(/{{title}}/g, getTitle(es.apps[name].windowTitle))
+            .replace(/{{image}}/g, 'https://www.inandoutbelleza.es/assets/images/manzana.png')
             .replace(/{{description}}/g, es.apps[name].windowDescription);
         urls.push({
             url: `/es/${es.apps[name].url}`,
@@ -205,6 +208,7 @@ function map(template, google, posts) {
                             <img style="width: 100% !important;" data-src="${imageUrl}" alt="${item.titulo}" title="${item.titulo}"/>
                             <p>${item.descripcion}</p>${jsonD}`)
                     .replace(/{{title}}/g, `${getTitle(es.apps[name].windowTitle)} - ${item.titulo}`)
+                    .replace(/{{image}}/g, `${webSiteUrl}${linkUrl}`)
                     .replace(/{{description}}/g, striptags(item.descripcion).substr(0,150))
             };
         }));
@@ -216,6 +220,7 @@ function map(template, google, posts) {
         const html = template
             .replace('{{body}}', createHtmlList('bonusCards'))
             .replace(/{{title}}/g, getTitle(es.apps.bonusCards.windowTitle))
+            .replace(/{{image}}/g, 'https://www.inandoutbelleza.es/assets/images/manzana.png')
             .replace(/{{description}}/g, es.apps.bonusCards.windowDescription);
         urls.push({
             url: `/es/${es.apps.bonusCards.url}`,
@@ -301,6 +306,7 @@ function map(template, google, posts) {
                     return `<img style="width: 100% !important;" data-src="${url}" alt="${name}" title="${name}" />`;
                 }).join('')}`)
             .replace(/{{title}}/g, getTitle(es.apps.photos.windowTitle))
+            .replace(/{{image}}/g, 'https://www.inandoutbelleza.es/assets/images/manzana.png')
             .replace(/{{description}}/g, es.apps.photos.windowDescription)
     });
 
@@ -320,6 +326,7 @@ function map(template, google, posts) {
                         ${images.map(img => `<img data-src="${img.guid}" alt="${img.post_title}" title="${img.post_title}" />`).join('<br/>')}
                         `)
                     .replace(/{{title}}/g, getTitle(post.post_title))
+                    .replace(/{{image}}/g, (images[0] || {}).guid)
                     .replace(/{{description}}/g, getTitle(striptags(post.post_excerpt || post.post_content.substr(0, 150))))
             });
         });

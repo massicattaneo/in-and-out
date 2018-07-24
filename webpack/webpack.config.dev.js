@@ -79,6 +79,7 @@ const config = {
             body: '{{body}}',
             description: '{{description}}',
             title: '{{title}}',
+            image: '{{image}}',
             breadcrumb: '{{breadcrumb}}',
             style: '{{style}}'
         }),

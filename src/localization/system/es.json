@@ -9,85 +9,85 @@
     "bookings": {
       "iconText": "CITAS",
       "windowTitle": "PIDE TU CITA",
-      "windowDescription": "Pide cita en nuestros centros de Málaga, somos especialistas en depilación con hilo y microblading de cejas",
+      "windowDescription": "Salón de belleza,  os ofrece el servicio de coger vuestra hora y día online para vuestros taratamientos faciales, corporales, masajes, uñas, maquillaje. ",
       "url": "citas"
     },
     "treatments": {
       "iconText": "TRATAMIENTOS",
       "windowTitle": "TRATAMIENTOS",
-      "windowDescription": "Todos los tratamientos de belleza para tus cejas, tus manos, tus piés y tu cuerpo. Llama a nuestros centros en Málaga",
+      "windowDescription": "Salón de belleza, ofrece servicios tales cómo tratamientos faciales, tratamientos corporales, masajes, uñas, maquillaje y organizaciones de Beauty Party. ",
       "url": "tratamientos"
     },
     "bonusCards": {
       "iconText": "TARJETAS",
       "windowTitle": "TARJETAS",
-      "windowDescription": "Compra nuestros tratamientos online, aquí puedes encontrar todos lo que necessita para ponerte guapa en Málaga",
+      "windowDescription": "Salón de belleza, ofrece adquirir los tratamientos faciales, corporales, masajes, uñas, maquillaje... que necesite en sesiones sueltas o en un bono el que se beneficia de un precio más económico. ",
       "url": "tarjetas"
     },
     "products": {
       "iconText": "PRODUCTOS",
       "windowTitle": "PRODUCTOS",
-      "windowDescription": "",
+      "windowDescription": "Salón de belleza, realiza servicios tales cómo tratamientos faciales, tratamientos corporales, uñas, maquillaje con las mejores marcas cosméticas del mercado: Carita, Decléor, Fedua, Opi, Biologique Recherche, Channel, Yves Saint Lauren. ",
       "url": "productos"
     },
     "beautyparties": {
       "iconText": "BEAUTY PARTIES",
       "windowTitle": "BEAUTY PARTIES",
-      "windowDescription": "Para organizar una Beauty Party en Málaga sólo debes ponerte en contacto con In&Out, indicarnos la fecha en la que estáis interesadas",
+      "windowDescription": "Salón de belleza, ofrece reunirte con tus amigas, compañeras de trabajo, familiares... y organizar vuestra propia fiesta. Consejos, maquillaje, uñas, tratamientos faciales de belleza... y muchas risas! ",
       "url": "beauty-parties"
     },
     "inandoutgo": {
       "iconText": "IN&OUT GO",
       "windowTitle": "IN&OUT GO",
-      "windowDescription": "Para tener tu propio servicio estético a domicilio en Málaga y Marbella",
+      "windowDescription": "Salón de belleza, ofrece trasladar sus centros de estética al salón de tu casa, el tiempo ya no será excusa para mimarte y cuidarte (faciales, uñas, maquillaje, masajes...).  ",
       "url": "inandout-go"
     },
     "team": {
       "iconText": "EQUIPO",
       "windowTitle": "NUESTRO EQUIPO",
-      "windowDescription": "Discubre las profesionales que trabajan en nuestros centros",
+      "windowDescription": "Salón de belleza, encontrarás grandes profesionales del mundo de la estética y el cuidado de la imagen personal. Cada una de ellas es especialista en un área y entre sus manos te sentirás como en casa. ",
       "url": "equipo"
     },
     "news": {
       "iconText": "NOVEDADES",
       "windowTitle": "NOVEDADES",
-      "windowDescription": "Todas las novedades para el mundo de la belleza en Málaga",
+      "windowDescription": "Salón de belleza, ofrece en este apartado estar informad@s en todo momento de las últimas novedades en tratamientos faciales, tratamientos corporales, masajes, uñas, maquillaje. ",
       "url": "novedades"
     },
     "promotions": {
       "iconText": "PROMOCIONES",
       "windowTitle": "PROMOCIONES",
-      "windowDescription": "Discubre las promociones que In&Out Málaga te ofrece. Cada mes llevate un descuento diferente.",
+      "windowDescription": "Salón de belleza, mensualmente realiza promociones en tratamientos faciales, tratamientos corporales, masajes, uñas a modo de fidelización para sus clientes. ",
       "url": "promociones"
     },
     "photos": {
       "iconText": "FOTOS",
       "windowTitle": "LAS FOTOS DE NUESTROS CENTROS",
-      "windowDescription": "Todas nuestra fotos. Productos y tratamientos de belleza en Málaga",
+      "windowDescription": "Salón de belleza, pionero en la técnica de la depilación con hilo en Málaga y con una larga trayectoria que nos avalan en los tratamientos faciales, tratamientos corporales, masajes, uñas, maquillaje y organizadores de Beauty Parties. ",
       "url": "fotos"
     },
     "hours": {
       "iconText": "HORARIOS",
       "windowTitle": "NUESTRO HORARIO",
-      "windowDescription": "Discubre los horarios de nuestros centros. Málaga - Calle Salitre, 11 | Calle Compania, 42",
+      "windowDescription": "Salón de belleza que os ofrece servicios de tratamientos faciales, tratamientos corporales, masajes, uñas, maquillaje en horario ininterrumpido de lunes a sábado. ",
       "url": "horario"
     },
     "location": {
       "iconText": "COMO LLEGAR",
       "windowTitle": "COMO LLEGAR",
-      "windowDescription": "Nuestros centros y como llegar: Málaga - Calle Salitre, 11 | Calle Compania, 42",
+      "windowDescription": "Salones de belleza ubicados en la provincia de Málaga donde ofrecemos tratamientos faciales, tratamientos corporales, masajes, uñas, maquillaje. Uno se encuentra en Calle Salitre y otro en Calle Compañía. ",
       "url": "como-llegar"
     },
     "callUs": {
       "iconText": "LLAMANOS",
       "windowTitle": "LLAMANOS",
-      "windowDescription": "Málaga - Calle Salitre, 11 - Movil: 633 90 91 03 | Calle Compania, 42 - Movil: 695 685 291",
+      "windowDescription": "Quieres cita o quieres una valoración facial, corporal, maquillaje, uñas... no dudes en ponerte en contacto con nosotros en los teléfonos 951131460 o 951387919. ",
       "url": "llmanos"
     },
     "questions": {
       "iconText": "PREGUNTAS",
       "windowTitle": "COOKIES, PRIVACIDAD Y MAS ...",
-      "windowDescription": "Todo sobres los cookies y tu privacidad",
+      "windowDescription": "No sabes que tipo de tratamiento facial o corporal realizarte, no sabes como maquillarte... todas estas preguntas te las podemos resolver a través de este apartado. ¿A qué esperas? ",
       "url": "preguntas"
     },
     "login": {
@@ -99,31 +99,31 @@
     "cart": {
       "iconText": "",
       "windowTitle": "MI CESTA",
-      "windowDescription": "Tu cesta donde comprar tratamientos y productos en In&Out Málaga",
+      "windowDescription": "Tu cesta donde comprar tratamientos y productos In&Out Málaga",
       "url": "cesta"
     },
     "beautycorner": {
       "iconText": "BEAUTY CORNER",
       "windowTitle": "BEAUTY CORNER",
-      "windowDescription": "Con Beauty Corner te ofrecemos la posibilidad de que puedas regalarle a tus invitadas un retoque de maquillaje para el día de tu boda. Málaga, Marbella y alrededor",
+      "windowDescription": "Salón de belleza, ofrece para el día más importante de tu vida la posibilidad de que puedas regalarle a tus invitadas un retoque de maquillaje para el día de tu boda, además de un momento \"refresh\". ",
       "url": "beauty-corner"
     },
     "press": {
       "iconText": "EN LOS MEDIOS",
       "windowTitle": "EN LOS MEDIOS",
-      "windowDescription": "Los medios de Málaga y Espanoles hablan de nuestros centros de belleza en Málaga",
+      "windowDescription": "Apartado en el qué puedes consultar las últimas novedades, promociones, premios recibidos, notas de prensa... ",
       "url": "en-los-medios"
     },
     "reviews": {
       "iconText": "COMENTARIOS",
       "windowTitle": "COMENTARIOS",
-      "windowDescription": "La reseñas de lo que visitan y utilizan nuestra pagna web. Discubre que dice la gente sobre In&Out belleza en Málaga.",
+      "windowDescription": "Desde In and Out siempre pensamos en vosotr@s de hay que todos vuestros comentarios nos servirán para nuestra mejora. No dudes en dejarnos el tuyo. ",
       "url": "comentarios"
     },
     "photoMeasure": {
       "iconText": "MEDIDOR",
       "windowTitle": "MIDE TU CEJAS",
-      "windowDescription": "Quieres medir tu cejas ante de pasar en nuestros centros de Málaga? Hatze una foto y luego llamanos ",
+      "windowDescription": "Aplicación que In and Out pone a vuestra disposisicón para saber cómo tiene sus cejas y cúal debería ser la forma adecuada en función de su visagismo. ",
       "url": "medidor"
     },
     "blog": {
