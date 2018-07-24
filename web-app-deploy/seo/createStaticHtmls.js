@@ -289,7 +289,7 @@ function map(template, google, posts) {
                         <p>${item.descripcion}</p>
                         ${createTreatmentSchema(item, url)}
                         `)
-                    .replace(/{{title}}/g, `${getTitle(es.apps['treatments'].windowTitle)} - ${item.titulo}`)
+                    .replace(/{{title}}/g, `${getTitle(es.apps['treatments'].windowTitle)} - ${item.tipo}: ${item.titulo}`)
                     .replace(/{{description}}/g, striptags(item.descripcion))
             };
         }));
