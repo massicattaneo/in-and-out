@@ -90,6 +90,7 @@ export default async function ({ system, wait, thread }) {
         press: system.store.press.map(i => i.identificador),
         promotions: system.store.promotions.map(i => i.identificador),
         bonusCards: system.store.bonusCards.map(i => i.identificador),
+        products: system.store.products.map(i => i.identificador),
         treatments: system.store.treatments.map(i => i.identificador),
         beautyparties: system.store.beautyparties.map(i => i.identificador),
         reviews: system.store.reviews,
