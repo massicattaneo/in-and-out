@@ -525,7 +525,7 @@ const shared = require('./shared');
                 if (req.isSpider()) {
                     console.log('***** CRAWLER: requesting:', req.path);
                 }
-                res.write(createStaticHtmls.addCss(htmls[req.path] || htmls[''], false));
+                res.write(createStaticHtmls.addCss(htmls[req.path] || htmls[''], req.isSpider()));
                 res.end();
             }
         };
