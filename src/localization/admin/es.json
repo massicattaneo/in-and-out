@@ -42,11 +42,6 @@
       "title": "HISTORICO CLIENTE",
       "menu": "HISTORICO CLIENTE"
     },
-    "calculator": {
-      "href": "/admin/es/calculadora",
-      "title": "CALCULADORA",
-      "menu": "CALCULADORA"
-    },
     "bonuses": {
       "href": "/admin/es/bonos",
       "title": "BONOS",
@@ -91,6 +86,7 @@
   "errors": {
     "wrongEmail": "El correo no corresponde a ninguna cuenta.",
     "generic": "Algo no salió bien. Inténtalo de nuevo en breve.",
+    "send-email-error": "Ha occurido un problema con el envio del correo. Ententalo otra vez.",
     "wrongPassword": "TU PASSWORD NO ES CORRECTA.",
     "inactiveUser": "AUN NO HAS ACTIVADO TU CUENTA. SI NO TE HA LLEGADO EL CORREO PULSA AQUI PARA RECIBIRNE OTRO",
     "missingEmail": "añade tu correo",

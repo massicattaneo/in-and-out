@@ -8,6 +8,8 @@ function reviews({ system }) {
     return async function ({ parent, thread }) {
         let obj = {};
         const locale = await system.locale(`/localization/reviews/es.json`);
+        locale.load('/localization/static.json');
+
         const view = HtmlView(template, styles, locale.get());
 
         const addReviewEl = view.get('addreview');

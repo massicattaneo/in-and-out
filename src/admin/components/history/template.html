@@ -1,7 +1,26 @@
 <form #wrapper class="mdl-grid cgt-content">
-    <div style="line-height: 35px;padding: 0 10px;"
+    <div style="line-height: 35px;padding: 10px;"
             class="mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         {{client.surname}} {{client.name}}, {{client.email}} - {{client.tel}}
+
+        <button style="float: right;" type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="clienthdrbtn">
+            <i class="material-icons">more_vert</i>
+        </button>
+        <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="clienthdrbtn">
+            <li class="mdl-menu__item"><output
+                    onclick="this.form.sendGoogleReviewEmail(0)"
+                    class="mdl-color-text--grey-700"
+                    style="display: block;"
+                    href="{{urls.about.href}}">
+                <i style="vertical-align: middle;" class="material-icons">email</i>
+                VALORACION GOOGLE (SALITRE)</output></li>
+            <li class="mdl-menu__item"><output
+                    onclick="this.form.sendGoogleReviewEmail(2)"
+                    class="mdl-color-text--grey-700"
+                    style="display: block;">
+                    <i style="vertical-align: middle;" class="material-icons">email</i>
+                VALORACION GOOGLE (BUENAVENTURA)</output></li>
+        </ul>
 
         <button type="button"
                 style="float: right;"
@@ -14,6 +33,7 @@
                         <span class="mdl-ripple"></span>
             </span>
         </button>
+
         <div style="clear:both;"></div>
     </div>
     <div class="cgt-graphs mdl-shadow--2dp mdl-cell mdl-cell--8-col" style="position: relative;">

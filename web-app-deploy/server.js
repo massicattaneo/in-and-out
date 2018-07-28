@@ -147,7 +147,7 @@ const shared = require('./shared');
 
     app.get('/api/search/suggestion', function (req, res) {
         const word = req.query.q.toLowerCase();
-        res.send(google.suggestions.filter(i => i.indexOf(word) !== -1).sort((a,b) => a.startsWith(word) ? -1 : 1))
+        res.send(google.suggestions.filter(i => i.indexOf(word) !== -1).sort((a, b) => a.startsWith(word) ? -1 : 1));
     });
 
     app.get('/api/search/result', function (req, res) {
@@ -504,6 +504,15 @@ const shared = require('./shared');
         }
     );
 
+    app.post('/api/email/:type',
+        requiresAdmin,
+        async function (req, res) {
+            const emailTemplate = createTemplate(req.params.type, Object.assign({
+                bcc: 'info@inandoutbelleza.com'
+            }, req.body));
+            mailer.send(emailTemplate);
+            res.send('ok');
+        });
 
     let callback;
     if (isDeveloping) {

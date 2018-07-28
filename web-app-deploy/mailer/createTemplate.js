@@ -4,6 +4,7 @@ const newsletter = require('./templates/newsletter');
 const recover = require('./templates/recover');
 const confirm = require('./templates/confirm');
 const orderConfirm = require('./templates/orderConfirm');
+const googleReview = require('./templates/googleReview');
 
 module.exports = function (type, emailParams) {
     const email = emailParams.email;
@@ -37,6 +38,14 @@ module.exports = function (type, emailParams) {
                 subject: emailParams.subject, // Subject line
                 text: '', // plain text body
                 html: newsletter(params)
+            };
+        case 'googleReview':
+            return {
+                to: emailParams.email,
+                bcc: emailParams.bcc,
+                subject: '¿COMO LO HICIMOS', // Subject line
+                text: '', // plain text body
+                html: googleReview(params)
             };
     }
 };

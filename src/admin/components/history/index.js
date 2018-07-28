@@ -1,18 +1,19 @@
-import { HtmlView, HandlebarParse } from "gml-html";
+import { HtmlView, HandlebarParse } from 'gml-html';
 import template from './template.html';
 import bonusTpl from './bonus.html';
 import giftNewTpl from './gift-new.html';
 import bonusNewTpl from './bonus-new.html';
 import * as style from './style.scss';
-import { createModal } from "../../utils";
+import { createModal } from '../../utils';
+import staticLoc from '../../../localization/static.json';
 
-export default async function({ locale, system, thread, wait }) {
+export default async function ({ locale, system, thread, wait }) {
     const view = HtmlView('<div>{{templates.loading}}</div>', [], locale.get());
     const dayNames = new Array(7).fill(0).map((v, i) => locale.get(`day_${i}`));
     let selectedTab = 0;
     view.style();
 
-    view.update = async function({ id }) {
+    view.update = async function ({ id }) {
         system.store.loading = true;
         view.clear();
         const client = system.store.clients.find(c => c._id === id);
@@ -28,6 +29,7 @@ export default async function({ locale, system, thread, wait }) {
             method: 'get',
             api: `orders?email=${system.store.clients.find(c => c._id === id).email}`
         });
+        console.log(client.googleReview);
         const v = view.clear()
             .appendTo('', template, style, Object.assign({
                 client,
@@ -38,7 +40,7 @@ export default async function({ locale, system, thread, wait }) {
                         description: t.description,
                         date: (new Date(t.date)).formatDay('dd-mm-yy'),
                         amount: system.toCurrency(t.amount)
-                    }
+                    };
                 }),
                 finished: bonuses
                     .sort((a, b) => b.created - a.created)
@@ -48,21 +50,21 @@ export default async function({ locale, system, thread, wait }) {
                             list: b.transactions
                                 .map(i => `<li>(${new Date(i.created).formatDay('dd-mm-yy')}) ${i.note || ''} <strong>${system.toCurrency(i.amount || 0)}</strong></li>`)
                                 .join('')
-                        }
+                        };
                     }),
                 orders: orders
                     .map(o => {
-                        const used = o.cart.filter(i => i.used)
+                        const used = o.cart.filter(i => i.used);
                         return {
                             date: new Date(o.created).formatDay('dd/mm/yyyy'),
                             payed: o.payed ? 'SI' : 'NO',
-                            used: used.length === 0 ? 'NO' : (o.cart.length === used.length ? 'SI' : 'EN PARTE' ),
+                            used: used.length === 0 ? 'NO' : (o.cart.length === used.length ? 'SI' : 'EN PARTE'),
                             amount: system.toCurrency(o.amount / 100)
-                        }
+                        };
                     })
             }, locale.get()));
 
-        bonuses.filter(b => !b.finished).forEach(function(b, i) {
+        bonuses.filter(b => !b.finished).forEach(function (b, i) {
             v.get(`bonus_${b._id}`).setIndex = () => selectedTab = i;
         });
 
@@ -71,13 +73,29 @@ export default async function({ locale, system, thread, wait }) {
         if (document.getElementById('history_bonus_tabs') && document.getElementById('history_bonus_tabs').children[selectedTab])
             document.getElementById('history_bonus_tabs').children[selectedTab].click();
 
-
-        v.get('wrapper').writeCard = function() {
-            system.nfc.send(id)
+        v.get('wrapper').writeCard = function () {
+            system.nfc.send(id);
         };
 
-        v.get('wrapper').addBonus = function() {
-            const { modalView } = createModal(bonusNewTpl, {}, async function(close) {
+        v.get('wrapper').sendGoogleReviewEmail = async function (centerIndex) {
+            if (client.emails && client.emails.filter(e => e.centerIndex === centerIndex).length) {
+                const items = client.emails
+                    .filter(e => e.centerIndex === centerIndex)
+                    .map(e => (new Date(e.sent).formatDay('dd-mm-yy')));
+                return alert(`Ya enviaste el correo por ${system.publicDb.centers[centerIndex].label} en estas fechas: ${items.join(',')}`)
+            }
+            if (confirm(`Quieres enviar un correo a este usuario para pedirle que deje su valoracion sobre el centro de ${system.publicDb.centers[centerIndex].label}?`)) {
+                const req = RetryRequest('/api/email/googleReview', { headers: { 'Content-Type': 'application/json' } });
+                const res = await req.post(JSON.stringify({ name: client.name, email: client.email, centerIndex }));
+                if (res.responseText !== 'ok') system.throw('send-email-error');
+                const emails = client.emails || [];
+                emails.push({ centerIndex, sent: new Date().toISOString(), type: 'googleReview' });
+                await thread.execute('rest-api', { api: `users/${id}`, method: 'put', emails });
+            }
+        };
+
+        v.get('wrapper').addBonus = function () {
+            const { modalView } = createModal(bonusNewTpl, {}, async function (close) {
                 if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR PAGADO' });
                 if (!this.type.value) system.throw('custom', { message: 'TARJETA o EFECTIVO?' });
                 const bonus = system.publicDb.bonusCards.find(i => i.id === this.bonus.value);
@@ -108,7 +126,7 @@ export default async function({ locale, system, thread, wait }) {
                     treatments: bonus.treatments
                 });
 
-                close()
+                close();
             });
             modalView.get('bonus').innerHTML = system.publicDb.bonusCards
                 .filter(b => b.credit === 0)
@@ -127,8 +145,8 @@ export default async function({ locale, system, thread, wait }) {
             setValue();
         };
 
-        v.get('wrapper').addGift = function() {
-            const { modalView } = createModal(giftNewTpl, { title: 'Tarjeta regalo' }, async function(close) {
+        v.get('wrapper').addGift = function () {
+            const { modalView } = createModal(giftNewTpl, { title: 'Tarjeta regalo' }, async function (close) {
                 if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
                 if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
                 if (!this.type.value) system.throw('custom', { message: 'TARJETA o EFECTIVO?' });
@@ -159,10 +177,10 @@ export default async function({ locale, system, thread, wait }) {
                 });
                 close();
             });
-            modalView.get('amount').focus()
+            modalView.get('amount').focus();
         };
 
-        v.get('wrapper').useGift = async function(id) {
+        v.get('wrapper').useGift = async function (id) {
             const value = document.getElementById(`amount_${id}`).value;
             const note = document.getElementById(`note_${id}`).value || '';
             if (!value) system.throw('custom', { message: 'FALTA EL VALOR' });
@@ -178,7 +196,7 @@ export default async function({ locale, system, thread, wait }) {
             });
         };
 
-        v.get('wrapper').useBonus = async function(id, trId, title, icon) {
+        v.get('wrapper').useBonus = async function (id, trId, title, icon) {
             if (icon === 'cancel' && confirm(`Quieres utilizar la sesion de "${title.toUpperCase()}"?`)) {
                 const bonus = bonuses.find(b => b._id === id);
                 const trs = bonus.transactions.concat([
@@ -193,7 +211,7 @@ export default async function({ locale, system, thread, wait }) {
             }
         };
 
-        v.get('wrapper').payRemainingBonus = async function(bonusId) {
+        v.get('wrapper').payRemainingBonus = async function (bonusId) {
             const value = document.getElementById(`bonus_pay_amount_${bonusId}`).value;
             const type = this[`type_${bonusId}`].value;
             if (!value) system.throw('custom', { message: 'FALTA EL VALOR' });
@@ -223,7 +241,7 @@ export default async function({ locale, system, thread, wait }) {
             await thread.execute('rest-api', p2);
         };
 
-        v.get('wrapper').deleteBonus = async function(bonusId) {
+        v.get('wrapper').deleteBonus = async function (bonusId) {
             const bonus = bonuses.find(b => b._id === bonusId);
             if (confirm(`Estas Seguro de eliminar este bono "${bonus.title}"`)) {
                 const trs = bonus.transactionId.split(',').map(i => i.trim());
@@ -238,7 +256,7 @@ export default async function({ locale, system, thread, wait }) {
                     method: 'delete'
                 });
             }
-        }
+        };
 
     };
 
@@ -246,7 +264,7 @@ export default async function({ locale, system, thread, wait }) {
         const used = bonus.transactions
             .filter(i => i.treatmentId)
             .map((i) => {
-                return { id: i.treatmentId, created: i.created }
+                return { id: i.treatmentId, created: i.created };
             });
         const b = {
             _id: bonus._id,
@@ -258,7 +276,7 @@ export default async function({ locale, system, thread, wait }) {
             isBonus: bonus.credit === 0 ? 'block' : 'none',
             showCompleteBuy: bonus.price > bonus.payed ? 'block' : 'none',
             treatments: bonus.treatments
-                .map(function(trId) {
+                .map(function (trId) {
                     const find = used.find(i => i.id === trId);
                     const icon = !find ? 'cancel' : 'done';
                     if (find) {
@@ -269,7 +287,7 @@ export default async function({ locale, system, thread, wait }) {
                         icon,
                         date: find ? (new Date(find.created)).formatDay('dddd, dd-mm-yyyy', dayNames) : '',
                         title: system.publicDb.treatments.find(t => t.identificador === trId).titulo,
-                    }
+                    };
                 }),
             transactions: bonus.transactions
                 .map(t => {
@@ -278,14 +296,14 @@ export default async function({ locale, system, thread, wait }) {
                         amount: system.toCurrency(t.amount || 0),
                         note: t.note || '',
                         treatmentId: t.treatmentId || ''
-                    }
+                    };
                 }),
             remainig: system.toCurrency(bonus.credit + bonus.transactions.reduce((tot, t) => tot + t.amount || 0, 0))
         };
-        return HandlebarParse(bonusTpl, b)
+        return HandlebarParse(bonusTpl, b);
     }
 
-    view.destroy = function() {
+    view.destroy = function () {
 
     };
 
