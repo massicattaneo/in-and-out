@@ -5,7 +5,7 @@ export default async function ({ system, wait }) {
     try {
         return JSON.parse((await req.post(body)).responseText);
     } catch(e) {
-        system.throw('booking-retrieve', e.responseText)
+        system.throw('booking-retrieve', 'anonymous')
     }
     return {};
 }
