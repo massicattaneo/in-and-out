@@ -40,6 +40,10 @@ export default async function ({ locale, system, thread }) {
 
     view.style();
 
+    window.rx.connect({ width: () => system.deviceInfo().width }, function({ width }) {
+        view.style('', { footer: { left: width > 1024 ? 240 : 0 } });
+    });
+
     window.rx.connect({
         search: () => system.store.search,
         orders: () => system.store.orders
@@ -80,6 +84,13 @@ export default async function ({ locale, system, thread }) {
                 })
         });
         v.style();
+        const date = new Date();
+        date.setDate(1);
+        date.setHours(0,0,0,0);
+        console.log(date)
+        view.get('month').innerText = `ESTE MESE: ${system.toCurrency(orders.filter(o => new Date(o.created).getTime() >= date.getTime()).reduce((tot, o) => tot + o.amount,0)/100)}`;
+        view.get('count').innerText = `NUMERO: ${orders.length}`;
+        view.get('total').innerText = `TOTAL: ${system.toCurrency(orders.reduce((tot, o) => tot + o.amount,0)/100)}`
     });
 
     view.get('wrapper').use = async function (orderId, index) {
