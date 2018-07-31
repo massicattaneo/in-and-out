@@ -32,6 +32,13 @@ export default async function ({ system, parent, thread }) {
                         view.appendTo('appointments', appointmentTemplate, [], variables);
                     });
             }
+            if (system.info().status.hasBonusCards) {
+                view.get('qrcode').innerHTML = `
+                <img style="width: 200px;" src="/api/qr-code/${system.info().status.id}" />
+                `
+            } else {
+                view.get('noqrcode').innerHTML = `Activala en uno de nuestros centros.`
+            }
         });
 
     parent.appendChild(view.get());
@@ -47,12 +54,14 @@ export default async function ({ system, parent, thread }) {
 
     form.logout = async function () {
         await thread.execute('user/logout');
+        system.store.hasLogged = false;
         system.store.logged = false;
         system.navigateTo(locale.get('urls.home'));
     };
 
     form.deleteAccount = async function () {
         await thread.execute('user/delete', { password: view.get('password').value });
+        system.store.hasLogged = false;
         system.store.logged = false;
         view.clear().appendTo('', deleteDone, [], locale.get());
     };

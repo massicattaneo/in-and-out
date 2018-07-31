@@ -16,6 +16,7 @@ export default async function ({ system, wait, thread }) {
 
     const staticStore = {
         logged: status.logged,
+        hasLogged: status.logged,
         email: status.email,
         bookings: status.bookings || [],
         photos: publicDb.photos ? publicDb.photos
@@ -106,16 +107,19 @@ export default async function ({ system, wait, thread }) {
     }
 
     async function getStatus() {
+        let status;
         const reqStatus = RetryRequest('/api/login/status');
         try {
-            return JSON.parse((await reqStatus.get()).responseText);
+            status = JSON.parse((await reqStatus.get()).responseText);
         } catch (e) {
-            return status = {
+            status = {
                 logged: false,
                 email: '',
                 favourites: []
             };
         }
+        system.info().status = status;
+        return status;
     }
 
     window.rx.connect({ cart: () => system.store.cart }, function ({ cart }) {
@@ -133,7 +137,7 @@ export default async function ({ system, wait, thread }) {
             isFirstTime = !isFirstTime;
             return !firstTime;
         })
-        .subscribe(async function () {
+        .subscribe(async function ({ logged }) {
             const { bookings = [], favourites, email } = await getStatus();
             system.store.bookings.splice(0, system.store.bookings.length);
             system.store.bookings.push(...bookings);
@@ -142,6 +146,7 @@ export default async function ({ system, wait, thread }) {
             updateFavourites(favourites);
             const old = system.store.treatments.splice(0, system.store.treatments.length);
             system.store.treatments.push(...old);
+            system.store.hasLogged = logged;
         });
 
     system.addFileManifest(system.store.photos.map(function ({ url }) {

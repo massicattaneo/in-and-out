@@ -182,7 +182,7 @@ function photoMeasure({ system }) {
             });
         }
 
-        window.rx.connect({ logged: () => system.store.logged }, function({ logged }) {
+        window.rx.connect({ logged: () => system.store.hasLogged }, function({ logged }) {
             setTimeout(start, 0);
         });
 

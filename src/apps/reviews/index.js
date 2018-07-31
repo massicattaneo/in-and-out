@@ -51,7 +51,7 @@ function reviews({ system }) {
 
         const disconnect = window.rx.connect({
             orientation: () => system.deviceInfo().orientation,
-            logged: () => system.store.logged
+            logged: () => system.store.hasLogged
         }, function ({ orientation, logged }) {
             view.style(orientation, { add: { display: logged ? 'block' : 'none' } });
         });

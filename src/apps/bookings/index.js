@@ -37,7 +37,7 @@ function bookings({ system }) {
         const model = system.book;
 
         const disc1 = window.rx.connect({
-            logged: () => system.store.logged,
+            logged: () => system.store.hasLogged,
             trt: () => system.store.treatments
         }, ({ logged, trt }) => {
             parentView.clear();
@@ -134,7 +134,7 @@ function bookings({ system }) {
             workerId: () => model.workerId,
             date: () => model.date,
             center: () => model.center,
-            logged: () => system.store.logged,
+            logged: () => system.store.hasLogged,
             trt: () => system.store.treatments,
             mTrt: () => model.treatments
         }, async function ({ orientation, date, trt, center, logged, mTrt }) {

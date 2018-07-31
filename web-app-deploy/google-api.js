@@ -66,7 +66,7 @@ function formatGoogleSheet({ value, format }) {
 function parseHref(item) {
     return item.toLowerCase().trim()
         .replace(/&/g, ' and ')
-        .replace(/[`~!@#$%^&*()´_|+=?;:'",<>\{\}\[\]\\\/]/gi, '')
+        .replace(/[`~!¡@#$%^&*()´_|+=?¿;:'",<>\{\}\[\]\\\/]/gi, '')
         .replace(/à/g, 'a')
         .replace(/ä/g, 'a')
         .replace(/á/g, 'a')

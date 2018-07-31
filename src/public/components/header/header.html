@@ -5,7 +5,9 @@
     </div>
     <a #user
        href="{{loginUrl}}" onclick="window.navigate(this, event)"
-       class="clickable flaticon-profile dark-grey-border-color medium-grey-color"></a>
+       class="clickable flaticon-profile dark-grey-border-color medium-grey-color">
+        <span #notifybook class="icon-notify"></span>
+    </a>
     <span #divider></span>
     <a #cart
          href="{{cartUrl}}" onclick="window.navigate(this, event)"

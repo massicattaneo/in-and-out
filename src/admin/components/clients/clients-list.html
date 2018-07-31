@@ -23,8 +23,8 @@
                     data-upgraded=",MaterialButton,MaterialRipple">
                 <i class="material-icons">create</i>
                 <span class="mdl-button__ripple-container">
-            <span class="mdl-ripple"></span>
-            </span>
+                    <span class="mdl-ripple"></span>
+                </span>
             </button>
             <a type="button"
                onclick="window.navigate(this, event)"
@@ -33,9 +33,18 @@
                data-upgraded=",MaterialButton,MaterialRipple">
                 <i class="material-icons">query_builder</i>
                 <span class="mdl-button__ripple-container">
-            <span class="mdl-ripple"></span>
-            </span>
+                    <span class="mdl-ripple"></span>
+                </span>
             </a>
+            <button type="button"
+                    onclick="this.form.sendEmail('{{this.email}}')"
+                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                    data-upgraded=",MaterialButton,MaterialRipple">
+                <i class="material-icons">email</i>
+                <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+                    </span>
+            </button>
         <div style="clear: both"></div>
     </li>
     {{/each}}

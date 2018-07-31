@@ -1,5 +1,11 @@
 <form #wrapper>
     <div #clients></div>
+    <button #scanqr
+            type="button"
+            onclick="this.form.scanqr()"
+            class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+        <i class="material-icons">camera</i>
+    </button>
     <button #add
             type="button"
             onclick="this.form.add()"

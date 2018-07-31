@@ -43,7 +43,7 @@
     "enter-button": "ENTRA",
     "create-message": "Quiero crear una cuenta:",
     "create-button": "CREAR",
-    "recover-message": "He olvidado mi contraseña:",
+    "recover-message": "He olvidado/<strong>NO TENGO</strong> una contraseña:",
     "recover-button": "RECUPERAR"
   },
   "recover": {

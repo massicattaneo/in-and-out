@@ -7,6 +7,13 @@
   right: 0;
 }
 
+#scanqr {
+  position: fixed;
+  right: 90px;
+  bottom: 68px;
+  z-index: 1;
+}
+
 #add {
   position: fixed;
   right: 10px;

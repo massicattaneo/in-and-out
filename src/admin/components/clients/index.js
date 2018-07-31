@@ -48,6 +48,12 @@ export default async function({ locale, system, thread }) {
         }
     };
 
+    view.get('wrapper').sendEmail = async function(email) {
+        if (confirm('Quieres enaviar un correo para restablecer/crear la contraseña?')) {
+            thread.execute('user/recover', { email: email });
+        }
+    };
+
     view.get('wrapper').update = async function(id) {
         const p = system.store.clients.find(i => i._id === id);
         const { modalView, modal } = createModal(editClient, Object.assign({}, p, { disabled: p.hash ? 'disabled' : '' }),
@@ -83,6 +89,23 @@ export default async function({ locale, system, thread }) {
         });
         modalView.get('name').focus();
         modalView.get('name').setSelectionRange(0, modalView.get('name').value.length);
+    };
+
+    view.get('wrapper').scanqr = function() {
+        const scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+        scanner.addListener('scan', function (content) {
+            scanner.stop();
+            system.navigateTo(`${locale.get('urls.history.href')}?id=${content}`)
+        });
+        Instascan.Camera.getCameras().then(function (cameras) {
+            if (cameras.length > 0) {
+                scanner.start(cameras[0]);
+            } else {
+                console.error('No cameras found.');
+            }
+        }).catch(function (e) {
+            console.error(e);
+        });
     };
 
     view.destroy = function() {

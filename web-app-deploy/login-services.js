@@ -23,12 +23,14 @@ module.exports = function ({
         requiresLogin,
         async function (req, res) {
             const userId = req.session.userId;
-            const { email, anonymous } = await mongo.getUser({ _id: getObjectId(userId) });
+            const { email, anonymous, _id } = await mongo.getUser({ _id: getObjectId(userId) });
             if (anonymous) {
                 res.send({});
             } else {
                 const data = {
+                    id: _id,
                     favourites: await mongo.getUserData(userId),
+                    hasBonusCards: (await mongo.rest.get('bonus', `clientId=${userId}`)).length > 0,
                     bookings: await google.getBookings(email)
                 };
                 Object.assign(data, { logged: true, email: req.session.email });
