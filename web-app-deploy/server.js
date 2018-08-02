@@ -38,7 +38,12 @@ const shared = require('./shared');
 
 (async function () {
     const { store, db } = await mongo.connect();
-    const bruteforce = new ExpressBrute(store);
+    const bruteforce = new ExpressBrute(store, {
+        freeRetries: 6,
+        minWait: 500,
+        maxWait: 60 * 1000, //milliseconds
+        lifetime: 2 * 60 //seconds
+    });
 
     app.use(detector.middleware());
     app.use(bodyParser.json());
