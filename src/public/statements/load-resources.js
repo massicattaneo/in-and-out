@@ -5,6 +5,7 @@ export default async function ({ system, wait }) {
     this.redirectUrl = location.pathname === '/' ? '/'+lang : location.pathname;
     system.initStorage({ lang });
 
+    system.loadStageFiles('fonts').start();
     await wait.all([
         system.loadStageFiles('system').start(),
         system.navigateTo(`/${lang}`, {}, false, true)
