@@ -54,14 +54,12 @@ export default async function ({ system, parent, thread }) {
 
     form.logout = async function () {
         await thread.execute('user/logout');
-        system.store.hasLogged = false;
         system.store.logged = false;
         system.navigateTo(locale.get('urls.home'));
     };
 
     form.deleteAccount = async function () {
         await thread.execute('user/delete', { password: view.get('password').value });
-        system.store.hasLogged = false;
         system.store.logged = false;
         view.clear().appendTo('', deleteDone, [], locale.get());
     };

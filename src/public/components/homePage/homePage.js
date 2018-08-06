@@ -33,7 +33,6 @@ export default async function ({ system, parent, context, thread }) {
             error.innerText = msg;
             error.style.top = '10px';
             if (params === 'anonymous') {
-                system.store.hasLogged = false;
                 system.store.logged = false;
                 error.innerText = context.locale.get(`errors.session-expired`);
                 system.navigateTo('/es/cuenta/entrar');

@@ -134,7 +134,7 @@ export default async function ({ system, wait, thread }) {
         .partial({ logged: () => system.store.logged })
         .filter(() => {
             const firstTime = isFirstTime;
-            isFirstTime = !isFirstTime;
+            isFirstTime = false;
             return !firstTime;
         })
         .subscribe(async function ({ logged }) {
