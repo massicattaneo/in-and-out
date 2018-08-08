@@ -1,0 +1,19 @@
+#wrapper {
+  width: 100%;
+  font-size: 13px;
+  text-align: justify;
+  position: relative;
+}
+
+#video {
+  transform: scaleX(-1);
+  width: 100%;
+}
+
+#canvas {
+  transform: scaleX(-1);
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}

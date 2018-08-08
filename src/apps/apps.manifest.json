@@ -20,5 +20,6 @@
   { "color":"#000000", "showCartIcon": false, "icon": "flaticon-question" , "name": "questions", "url": "/questions.bundle.js", "stage": ["questions"], "type": "application", "desktop": true, "size": 200000  },
   { "color":"#000000", "showCartIcon": false, "icon": "flaticon-antenna" , "name": "press", "url": "/press.bundle.js", "stage": ["press"], "type": "application", "desktop": true, "size": 200000  },
   { "color":"#000000", "showCartIcon": false, "icon": "flaticon-antenna" , "name": "blog", "url": "/blog.bundle.js", "stage": ["blog"], "type": "application", "desktop": false, "size": 200000  },
+  { "color":"#000000", "showCartIcon": false, "icon": "flaticon-woman-face" , "name": "eyebrowsStudy", "url": "/eyebrowsStudy.bundle.js", "stage": ["eyebrowsStudy"], "type": "application", "desktop": true, "size": 200000  },
   { "color":"#000000", "showCartIcon": false, "icon": "flaticon-search" , "name": "search", "url": "/search.bundle.js", "stage": ["search"], "type": "application", "desktop": true, "size": 200000  }
 ]

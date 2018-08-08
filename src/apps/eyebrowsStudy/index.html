@@ -1,0 +1,11 @@
+<div #wrapper>
+    <video #video id="inputVideo" autoplay loop></video>
+    <canvas #canvas id="drawCanvas"></canvas>
+    <script type="text/javascript">
+        var videoInput = document.getElementById('inputVideo');
+
+        var ctracker = new clm.tracker();
+        ctracker.init();
+        ctracker.start(videoInput);
+    </script>
+</div>

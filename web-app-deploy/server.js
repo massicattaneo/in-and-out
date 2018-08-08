@@ -547,14 +547,14 @@ const shared = require('./shared');
     app.get('*', callback);
 
 
-    const server = http.createServer(app).listen(port, () => {
-        console.log('http server running at ' + port);
-    });
-
-    // const httpsPort = 8091;
-    // const server = https.createServer(httpsOptions, app).listen(httpsPort, () => {
-    //     console.log('https server running at ' + httpsPort)
+    // const server = http.createServer(app).listen(port, () => {
+    //     console.log('http server running at ' + port);
     // });
+
+    const httpsPort = 8091;
+    const server = https.createServer(httpsOptions, app).listen(httpsPort, () => {
+        console.log('https server running at ' + httpsPort)
+    });
 
     function noop() {
     }

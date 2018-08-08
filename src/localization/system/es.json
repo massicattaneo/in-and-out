@@ -137,6 +137,12 @@
       "windowTitle": "BUSCAR EN EL SITIO",
       "windowDescription": "Encuentre fácilmente el tratamiento o el producto de belleza adecuado para usted y, sobre todo, descubra que somos pioneros en la depilación con hilo y microblading de cejas",
       "url": "buscar"
+    },
+    "eyebrowsStudy": {
+      "iconText": "ESTUDIO DE CEJAS",
+      "windowTitle": "ESTUDIO DE CEJAS",
+      "windowDescription": "",
+      "url": "estudio-de-cejas"
     }
   },
   "treatmentsTypes": [

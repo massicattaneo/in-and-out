@@ -19,7 +19,8 @@ export default async function ({ system, wait }) {
         .addFileManifest(spriteManifest)
         .addFileManifest(appsManifest)
         .addFileManifest([
-            {stage: 'system', type: 'script', url: 'https://js.stripe.com/v3/'}
+            {stage: 'system', type: 'script', url: 'https://js.stripe.com/v3/'},
+            {stage: 'faceModelingScript', type: 'script', url: '/assets/vendor/clmtrackr.js'}
         ])
         .addFileLoader(['image'], ImageLoader())
         .addFileLoader(['font'], FontLoader())
