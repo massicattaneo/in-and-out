@@ -10,7 +10,7 @@ import {
     getCenters,
     getTreatments,
     decimalToTime,
-    getAvailableHours
+    getAvailableHours, isCenterClosed
 } from '../../../web-app-deploy/shared';
 
 function bookings({ system }) {
@@ -26,7 +26,7 @@ function bookings({ system }) {
         const monthNames = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => locale.get(`month_${i}`));
 
         let view;
-        const maximumDays = 10;
+        const maximumDays = 14;
         const oneDayMs = 1000 * 60 * 60 * 24;
         const today = (function () {
             const d = new Date(system.store.timestamp);
@@ -140,7 +140,7 @@ function bookings({ system }) {
         }, async function ({ orientation, date, trt, center, logged, mTrt }) {
             if (logged && trt.filter(t => t.favourite).length) {
                 view.style(orientation);
-                const centers = getCenters(system.store, date);
+                const centers = getCenters(system.store, date).filter(c => c !== undefined);
                 const treatments = getTreatments(system.store, date, center, trt);
                 const selTreatments = mTrt.filter(id => {
                     const t = treatments.find(t => t.identificador === id);
@@ -148,6 +148,11 @@ function bookings({ system }) {
                 });
                 view.get('date').innerText = new Date(date).formatDay('dddd dd/mm', dayNames);
                 refreshButtons();
+                if (isCenterClosed(system.store, center, date)) {
+                    view.clear('hours').appendTo('hours', `<div>CERRADO</div>`);
+                    view.clear('treatments');
+                    return;
+                }
                 appendCenters(centers);
                 appendTreatments(treatments);
                 view.clear('hours').appendTo('hours', '<div>SELECIONA UNO O MAS TRATAMIENTOS</div>', []);

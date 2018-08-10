@@ -90,9 +90,9 @@ module.exports = {
         const wks = getWorkers({ calendars }, date, center);
         return treatments
             .filter(t => t.favourite)
-            .filter(t => day.filter(arr => Number(t[workers[arr[1]].column]) > 0).length)
+            .filter(t => day.filter(arr => arr.length && Number(t[workers[arr[1]].column]) > 0).length)
             .map(t => Object.assign({
-                available: day.filter(arr => Number(t[workers[arr[1]].column]) > 0 && wks.indexOf(arr[1]) !== -1).length > 0
+                available: day.filter(arr => arr.length && Number(t[workers[arr[1]].column]) > 0 && wks.indexOf(arr[1]) !== -1).length > 0
             }, t));
     },
     getTreatmentsDuration: getTreatmentsDuration,
