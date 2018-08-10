@@ -73,6 +73,17 @@ module.exports = {
     },
     getWorkers: getWorkers,
     getWorkersByHour: getWorkersByHour,
+    isCenterClosed: function isCenterClosed({ calendars }, centerIndex, date) {
+        const end = new Date(date);
+        end.setHours(23, 59, 59);
+        const start = new Date(date);
+        start.setHours(0,0,0);
+        const res = calendars
+            .filter(c => end.getTime() > new Date(c.from))
+            .filter(c => start.getTime() <= new Date(c.to))
+            .map(c => Object.assign(c, {closed: c.week.filter(day => day.filter(worker => worker[0] === centerIndex).length).length === 0}));
+        return res.length && res[0].closed;
+    },
     getTreatments: function ({ calendars, workers }, date, center, treatments) {
         const calendar = getCalendar({ calendars }, date);
         const day = calendar.week[new Date(date).getDay()];
