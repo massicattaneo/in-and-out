@@ -239,7 +239,7 @@ module.exports = function (isDeveloping, utils) {
     obj.buy = function ({ cart = [], userId, amount, email, sendTo }) {
         return new Promise(function (resolve, reject) {
             const doc = {
-                userId, sendTo, cart, email, amount, payed: false
+                userId, sendTo, cart, email, amount, payed: false, created: (new Date()).toISOString()
             };
             db.collection('orders').insertOne(doc, function (err, res) {
                 if (err)
@@ -258,7 +258,7 @@ module.exports = function (isDeveloping, utils) {
                 .collection('orders')
                 .findOneAndUpdate(
                     { _id: id },
-                    { $set: { payed: true, stripeId, amount, last4, created: (new Date()).toISOString() } },
+                    { $set: { payed: true, stripeId, amount, last4 } },
                     { returnOriginal: false },
                     function (err, r) {
                         if (err) return reject(new Error('generic'));
