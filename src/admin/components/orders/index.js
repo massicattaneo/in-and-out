@@ -116,7 +116,7 @@ export default async function ({ locale, system, thread }) {
                 });
             }
         } else if (typeIndex === 1) {
-            const { modalView } = createModal(bonusTpl, { clients: system.store.clients }, async function (close) {
+            const { modalView } = createModal(bonusTpl, { clients: system.store.clients.sort((a,b) => a.surname.localeCompare(b.surname) || a.name.localeCompare(b.name)) }, async function (close) {
                 if (!this.clientId.value) system.throw('custom', { message: 'SELCIONA UN CLIENTE' });
                 const { id } = order.cart[index];
                 const bonus = system.publicDb.bonusCards.find(d => d.id === id);

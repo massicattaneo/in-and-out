@@ -6,7 +6,7 @@
                 <select #client id="clientId" name="clientId" class="mdl-selectfield__select">
                     <option value=""></option>
                     {{#each clients}}
-                    <option value="{{this._id}}">{{this.surname}} {{this.name}}</option>
+                    <option value="{{this._id}}">{{this.surname}} {{this.name}} ({{this.email}})</option>
                     {{/each}}
                 </select>
                 <label class="mdl-selectfield__label" for="clientId">CLIENTE:</label>
