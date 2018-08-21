@@ -116,11 +116,14 @@ export default async function ({ locale, system, thread }) {
                 });
             }
         } else if (typeIndex === 1) {
-            const { modalView } = createModal(bonusTpl, { clients: system.store.clients.sort((a,b) => a.surname.localeCompare(b.surname) || a.name.localeCompare(b.name)) }, async function (close) {
+            const { id } = order.cart[index];
+            const bonus = system.publicDb.bonusCards.find(d => d.id === id);
+            const amount = Number(bonus.price);
+            const { modalView } = createModal(bonusTpl, {
+                bonus, amount: system.toCurrency(amount),
+                clients: system.store.clients.sort((a,b) => a.surname.localeCompare(b.surname) || a.name.localeCompare(b.name))
+            }, async function (close) {
                 if (!this.clientId.value) system.throw('custom', { message: 'SELCIONA UN CLIENTE' });
-                const { id } = order.cart[index];
-                const bonus = system.publicDb.bonusCards.find(d => d.id === id);
-                const amount = Number(bonus.price);
                 if (order.cart[index].used === true) {
                     system.throw('generic')
                 }

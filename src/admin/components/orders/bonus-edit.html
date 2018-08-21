@@ -2,6 +2,7 @@
     <form #form>
         <div class="mdl-dialog__content">
             <p>
+            <div><strong>CREA UN BONO:</strong> <br/>{{bonus.title}} - {{amount}}</div>
             <div class="mdl-selectfield mdl-js-selectfield">
                 <select #client id="clientId" name="clientId" class="mdl-selectfield__select">
                     <option value=""></option>
@@ -11,6 +12,7 @@
                 </select>
                 <label class="mdl-selectfield__label" for="clientId">CLIENTE:</label>
             </div>
+            <em style="color: red; font-size: 10px">ACUERDATE DE DESCONTAR LA SESSION QUE HA UTILIZADO DESDE EL HISTORIAL DEL CLIENTE</em>
             </p>
         </div>
         <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
