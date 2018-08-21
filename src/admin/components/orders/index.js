@@ -121,6 +121,9 @@ export default async function ({ locale, system, thread }) {
                 const { id } = order.cart[index];
                 const bonus = system.publicDb.bonusCards.find(d => d.id === id);
                 const amount = Number(bonus.price);
+                if (order.cart[index].used === true) {
+                    system.throw('generic')
+                }
                 await thread.execute('rest-api', {
                     api: 'bonus',
                     method: 'post',
