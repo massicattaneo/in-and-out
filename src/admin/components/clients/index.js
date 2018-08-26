@@ -6,11 +6,19 @@ import * as listStyle from './list.scss';
 import editClient from './edit-client.html';
 import { createModal } from "../../utils";
 
+function isInside(string = '', find) {
+    return string.toLowerCase().indexOf(find.toLowerCase()) !== -1;
+}
+
 function filterClients(find) {
     return function(item) {
         if (item.deleted === true) return false;
         if (find === '') return true;
-        return `${item.surname} ${item.name}`.toLowerCase().indexOf(find) !== -1;
+        if (item.email.indexOf(find) !== -1) return true;
+        const words = find.split(' ');
+        return words.filter(function (word) {
+            return isInside(item.name, word) || isInside(item.surname, word)
+        }).length === words.length;
     }
 }
 
@@ -25,7 +33,7 @@ export default async function({ locale, system, thread }) {
     window.rx.connect({ search: () => system.store.search, clients: () => system.store.clients }, function({ search, clients }) {
             const filter = clients
                 .filter(filterClients(search))
-                .sort((a, b) => a.surname.localeCompare(b.surname))
+                .sort((a, b) => a.name.localeCompare(b.name))
                 .map(c => Object.assign(c, {
                     deleteDisabled: c.hash ? 'disabled' : '',
                     online: `<span class="circle-indicator ${c.hash && 'mdl-color--primary'}"></span>`
@@ -76,12 +84,14 @@ export default async function({ locale, system, thread }) {
         const { modalView, modal } = createModal(editClient, {}, async function(close) {
             if (!this.name.value) system.throw('custom', { message: 'FALTA EL NOMBRE' });
             if (!this.surname.value) system.throw('custom', { message: 'FALTA EL APPELIDO' });
+            const existing = await thread.execute('rest-api', {method: 'get', api: `users?email=${this.email.value.toLowerCase()}`});
+            if (existing.length > 0) system.throw('custom', { message: 'CORREO YA EXISTE' });
             await thread.execute('rest-api', {
                 api: 'users',
                 method: 'post',
                 name: this.name.value,
                 surname: this.surname.value,
-                email: this.email.value,
+                email: this.email.value.toLowerCase(),
                 user: system.store.users[0],
                 tel: this.tel.value
             });

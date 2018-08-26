@@ -60,7 +60,10 @@ module.exports = function (isDeveloping, utils) {
                 const activationCode = bcrypt.hashSync(password, 4);
                 const hash = bcrypt.hashSync(password, 10);
                 const created = Date.now();
-                const insert = { created, hash, surname, activationCode, name, tel, email, active: false, lang, user };
+                const insert = {
+                    created, hash, surname, activationCode, name, tel,
+                    email: email.toLowerCase(), active: false, lang, user
+                };
                 db.collection('users').insertOne(insert, function (err, res) {
                     if (err)
                         rej(new Error('dbError'));
@@ -96,7 +99,7 @@ module.exports = function (isDeveloping, utils) {
     obj.getEmails = function () {
         return new Promise(function (resolve, reject) {
             db.collection('users')
-                .find({ email: { $exists: true, $not: {$size: 0} }, deleted: { $exists: false } })
+                .find({ email: { $exists: true, $not: { $size: 0 } }, deleted: { $exists: false } })
                 .toArray(function (err, res) {
                     resolve(res.map(i => i.email));
                 });

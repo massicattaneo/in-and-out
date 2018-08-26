@@ -87,7 +87,6 @@ export default async function ({ locale, system, thread }) {
         const date = new Date();
         date.setDate(1);
         date.setHours(0,0,0,0);
-        console.log(date)
         view.get('month').innerText = `ESTE MESE: ${system.toCurrency(orders.filter(o => new Date(o.created).getTime() >= date.getTime()).reduce((tot, o) => tot + o.amount,0)/100)}`;
         view.get('count').innerText = `NUMERO: ${orders.length}`;
         view.get('total').innerText = `TOTAL: ${system.toCurrency(orders.reduce((tot, o) => tot + o.amount,0)/100)}`
