@@ -2,8 +2,8 @@ function getCalendar({ calendars }, date) {
     const d = new Date(date).getTime();
     return calendars.find(c => {
         const end = new Date(c.to);
-        end.setUTCHours(23,59,59,99);
-        return new Date(c.from).getTime() < d && end.getTime() > d
+        end.setUTCHours(23, 59, 59, 99);
+        return new Date(c.from).getTime() < d && end.getTime() > d;
     });
 }
 
@@ -25,8 +25,10 @@ function getWorkersByHour({ calendars }, date, center) {
         .filter(d => d[0] === center)
         .filter(d => {
             const dt = new Date(date);
-            const from = new Date(date); from.setUTCHours(...decimalToTime(d[2], -2));
-            const to = new Date(date); to.setUTCHours(...decimalToTime(d[3], -2));
+            const from = new Date(date);
+            from.setUTCHours(...decimalToTime(d[2], -2));
+            const to = new Date(date);
+            to.setUTCHours(...decimalToTime(d[3], -2));
             return from.getTime() <= dt.getTime() && to.getTime() > dt.getTime();
         })
         .reduce(function (ret, d) {
@@ -59,7 +61,48 @@ function decimalToTime(decimalTimeString, utcOffset = 0) {
 }
 
 const minimumTime = 15;
+const storeTypes = {
+    'TRT': 'treatments',
+    'TAR': 'bonusCards',
+    'PRD': 'products'
+};
 
+function newArray(length, item = '') {
+    return Array.apply(null, Array(length)).map(i => item);
+}
+
+function roundDiscount(price, discount) {
+    return Math.round(price * discount * 100) / 100;
+}
+function getDiscountsItems(discounts) {
+    return discounts.reduce((a1, d) => a1.concat(...d.items.map(i => newArray(i.count, i.id))), []);
+}
+function sortByDate(field) {
+    return function (a, b) {
+        return (new Date(b[field].split('/').reverse().join('-'))).getTime() -
+            (new Date(a[field].split('/').reverse().join('-'))).getTime();
+    };
+}
+function getPromotionDiscounts(promotion) {
+    return (promotion.discounts || '').split(',').map(d => {
+        const discount = Number(d.split('=')[1]);
+        const items = d.split('=')[0].split('|').map(i => {
+            return { count: Number(i.split('x')[0]), id: i.split('x')[1], type: i.split('x')[1].substr(0, 3) };
+        });
+        return { discount, items };
+    });
+}
+
+function activePromotions(promotions) {
+    return promotions.filter(function (i) {
+        const date = Date.now();
+        const from = (new Date(i.desde.split('/').reverse().join('-')));
+        const to = (new Date(i.hasta.split('/').reverse().join('-')));
+        from.setHours(0, 0, 0, 0);
+        to.setHours(23, 59, 59, 59);
+        return date >= from.getTime() && date <= to.getTime();
+    }).sort(sortByDate('creacion'))
+}
 
 module.exports = {
     getCalendar: getCalendar,
@@ -77,11 +120,11 @@ module.exports = {
         const end = new Date(date);
         end.setHours(23, 59, 59);
         const start = new Date(date);
-        start.setHours(0,0,0);
+        start.setHours(0, 0, 0);
         const res = calendars
             .filter(c => end.getTime() > new Date(c.from))
             .filter(c => start.getTime() <= new Date(c.to))
-            .map(c => Object.assign(c, {closed: c.week.filter(day => day.filter(worker => worker[0] === centerIndex).length).length === 0}));
+            .map(c => Object.assign(c, { closed: c.week.filter(day => day.filter(worker => worker[0] === centerIndex).length).length === 0 }));
         return res.length && res[0].closed;
     },
     getTreatments: function ({ calendars, workers }, date, center, treatments) {
@@ -148,5 +191,50 @@ module.exports = {
                 return end.getTime() > bookDate.getTime();
             });
         return filter.length ? db.centers.find(c => c.index === filter[0][0]) : 'NO LOCATION';
-    }
+    },
+    getPromotionDiscounts: getPromotionDiscounts,
+    getDiscountsPrice: function (store, discounts) {
+        return discounts
+            .reduce((t1, d) => t1 + d.items
+                .reduce((t2, i) => {
+                    const price = i.count * store[storeTypes[i.type]].find(o => o.identificador === i.id).precio;
+                    return t2 + roundDiscount(price, d.discount);
+                }, 0), 0);
+    },
+    getDiscountsItems: getDiscountsItems,
+    getCartTotal: function cartTotal(store, cart) {
+        const items = activePromotions(store.promotions).reduce(function ({ discounted, notDiscounted }, p) {
+            const dis = getPromotionDiscounts(p);
+            const it = getDiscountsItems(dis);
+            while (it.filter(i => notDiscounted.indexOf(i) !== -1).length === it.length) {
+                it.forEach(function (i) {
+                    if (notDiscounted.indexOf(i) !== -1) {
+                        discounted.push({
+                            id: (notDiscounted.splice(notDiscounted.indexOf(i), 1))[0],
+                            discount: dis.find(oo => oo.items.filter(ii => ii.id === i).length > 0).discount
+                        });
+                    }
+                });
+            }
+            return { discounted, notDiscounted };
+        }, { discounted: [], notDiscounted: cart.slice(0) });
+        const notDiscounted = items.notDiscounted.reduce((t, id) => {
+            const type = storeTypes[id.substr(0, 3)];
+            const it = store[type].find(i => i.identificador === id);
+            return t + Number(it.precio);
+        }, 0);
+        const discounted = items.discounted.reduce((t, { id, discount }) => {
+            const type = storeTypes[id.substr(0, 3)];
+            const it = store[type].find(i => i.identificador === id);
+            return t + roundDiscount(Number(it.precio), discount);
+        }, 0);
+        const real = cart.reduce((t, id) => {
+            const type = storeTypes[id.substr(0, 3)];
+            const it = store[type].find(i => i.identificador === id);
+            return t + Number(it.precio);
+        }, 0);
+        return { total: notDiscounted + discounted, discount: real - notDiscounted - discounted, real };
+    },
+    sortByDate: sortByDate,
+    activePromotions: activePromotions
 };

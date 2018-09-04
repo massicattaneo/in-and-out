@@ -8,7 +8,9 @@
                 <i class="material-icons">search</i>
             </label>
             <div class="mdl-textfield__expandable-holder">
-                <input class="mdl-textfield__input" autocomplete="off" type="text" id="search" onkeyup="this.form.change()">
+                <input class="mdl-textfield__input" autocomplete="off" type="text" id="search"
+                       onkeydown="event.key === 'Enter' && event.preventDefault()"
+                       onkeyup="this.form.change(event)">
                 <label class="mdl-textfield__label" for="search">Enter your query...</label>
             </div>
         </div>

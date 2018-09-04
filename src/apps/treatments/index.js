@@ -4,6 +4,7 @@ import template from './index.html';
 import treatmentTemplate from './treatment.html';
 import * as styles from './index.scss';
 import Menu from '../../public/components/menu/Menu';
+import { getPromotionDiscounts, getCartTotal } from '../../../web-app-deploy/shared';
 
 function treatments({ system }) {
     return async function ({ parent, thread }) {
@@ -78,7 +79,19 @@ function treatments({ system }) {
                     const favouriteDisplay = (system.store.logged && isBookable) ? 'block' : 'none';
                     const checked = item.favourite ? 'checked' : '';
                     const variables = { newItem, bookDisplay, addToCartDisplay, callDisplay, favouriteDisplay, checked, item };
-                    view.appendTo('treatments', treatmentTemplate, [], Object.assign({}, variables, locale.get()));
+                    const ps = system.store.promotions.map(getPromotionDiscounts)
+                        .reduce((a,i) => a.concat(i), [])
+                        .filter(i => i.items.filter(o => o.id === item.identificador).length === i.items.length).length;
+                    const itemOverride = {
+                        item: Object.assign({} ,item,{
+                            price: system.toCurrency(item.precio),
+                            discounted: system.toCurrency(getCartTotal(system.store, [item.identificador]).total),
+                            showDiscount: ps ? '' : 'none',
+                            bgColor: !ps ? '' : '#ffe1e1',
+                            textDecoration: !ps ? '' : 'line-through'
+                        })
+                    };
+                    view.appendTo('treatments', treatmentTemplate, [], Object.assign({}, variables, itemOverride, locale.get()));
                 });
         }
 

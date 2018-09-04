@@ -1,4 +1,4 @@
-<div class="box">
+<div class="box" style="background-color: {{item.bgColor}}">
     <span style="float: right; display: {{favouriteDisplay}}" class="text-checkbox">
         <input type="checkbox" {{checked}}
         id="x-treatment-{{item.identificador}}"
@@ -8,7 +8,9 @@
     <h2 class="green-color">{{item.titulo}}</h2>
     {{newItem}}
     <div style="font-size: 12px;margin: 10px;text-align: justify;">{{item.descripcion}}</div>
-    <div>{{item.precio_texto}}</div>
+    <span style="text-decoration: {{item.textDecoration}};">{{item.price}}</span>
+    <span style="color: #daa520;display: {{item.showDiscount}}">{{item.discounted}}</span>
+    <br/>
     <input onclick="this.form.add('{{item.identificador}}');"
             style="position: absolute;right: 9px;bottom: 5px; display:{{addToCartDisplay}};"
             class="clickable button green-bg-color white-color"

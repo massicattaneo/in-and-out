@@ -90,7 +90,7 @@ export default async function ({ system, parent, context, thread }) {
         error.style.top = '-90px';
         items.forEach(function (item) {
             const number = Math.min(4, Math.floor(visibleWidth / 300));
-            const howMuch = number - (number % 2);
+            const howMuch = Math.max(1, number - (number % 2));
             item.style('', { wrapper: { width: (visibleWidth / howMuch) - 50 } });
         });
     });

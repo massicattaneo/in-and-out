@@ -20,3 +20,13 @@ duplicati:
 aggiungere pulsante per fare merge (solo admin)
 
 rimuovere email con uppercase
+
+TODO:
+
+BONO CUSTOM ADDING TRATAMIENTOS (!!!)
+BONO 1 sesiones maderoterapia - descuento promo
+BONO 10 sesiones maderoterapia
+Promiciones no se veen cuanda han caducato
+remove phone duplicates
+
+

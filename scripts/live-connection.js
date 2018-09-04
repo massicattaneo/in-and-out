@@ -8,6 +8,15 @@ const url = `mongodb://${config.mongo.user}:${encodeURIComponent(access.password
 MongoClient.connect(url, function (err, db) {
     if (err) return;
 
+    /** DUPLICATE PHONE */
+    db.collection('users').aggregate(
+        { '$group': { '_id': '$tel', 'count': { '$sum': 1 } } },
+        { '$match': { '_id': { '$ne': null }, 'count': { '$gt': 1 } } },
+        { '$project': { 'tel': '$_id', '_id': 0 } }
+    ).forEach(function (doc) {
+        console.log(doc)
+    });
+
     /** LOWERCASE EMAILS */
     // db.collection('users').find( {}, { 'email': 1 } ).forEach(function(doc) {
     //     db.collection('users').update(
@@ -18,8 +27,8 @@ MongoClient.connect(url, function (err, db) {
     // });
 
     /** MERGE CLIENTS */
-    // const oldClient = '5b55e6c98556f5001f316cc6';
-    // const newClient = '5b7fe7f703c35a001fa3d399';
+    // const oldClient = '5aef7fcbf28e19001f9f1910';
+    // const newClient = '5b87e7ae734486001fe39480';
     // db.collection('bonus').find({ clientId: ObjectId(oldClient) }).forEach(function (doc) {
     //     db.collection('bonus').update(
     //         { _id: doc._id },
@@ -35,7 +44,7 @@ MongoClient.connect(url, function (err, db) {
     //     console.log(doc);
     // });
 
-    // /** CSV OF NO ACTIVE USERS */
+    /** CSV OF NO ACTIVE USERS */
     // db.collection('users').find({ active: false }).toArray(function (err, users) {
     //     if (err) return console.log('error');
     //     fs.writeFileSync('./db-scripts/temp.csv', users.map(doc => `${doc.name},${doc.email},${doc.tel}`).join('\n'));

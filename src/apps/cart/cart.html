@@ -28,6 +28,18 @@
                     <hr/>
                 </td>
             </tr>
+            <tr style="display: {{showDiscount}}">
+                <td style="text-align: right">TOTAL:</td>
+                <td colspan="2" style="text-align: right; text-decoration: line-through;">
+                    {{totalReal}}
+                </td>
+            </tr>
+            <tr style="display: {{showDiscount}}; font-size: 11px;">
+                <td style="text-align: right">DESCUENTO PROMOCION:</td>
+                <td colspan="2" style="text-align: right">
+                    {{totalDiscount}}
+                </td>
+            </tr>
             <tr>
                 <td style="text-align: right">TOTAL A PAGAR:</td>
                 <td colspan="2" style="text-align: right">

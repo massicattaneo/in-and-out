@@ -4,7 +4,7 @@ import template from './index.html';
 import cardTemplate from './card.html';
 import treatmentTemplate from './treatment.html';
 import * as styles from './index.scss';
-import { sortByDate } from '../../public/utils';
+import { getCartTotal, getPromotionDiscounts, sortByDate } from '../../../web-app-deploy/shared';
 
 function bonusCards({ system }) {
     return async function ({ parent, db }) {
@@ -38,8 +38,17 @@ function bonusCards({ system }) {
                 const { treatments } = item;
                 const newItem = system.getStorage('bonusCards').indexOf(item.identificador) === -1
                     ? locale.get('newItemTemplate') : '';
+                const ps = system.store.promotions.map(getPromotionDiscounts)
+                    .reduce((a,i) => a.concat(i), [])
+                    .filter(i => i.items.filter(o => o.id === item.identificador).length === i.items.length).length;
                 const card = view.appendTo('products', cardTemplate, null, Object.assign({
-                    card: item,
+                    card: Object.assign({}, item, {
+                        price: system.toCurrency(item.precio),
+                        discounted: system.toCurrency(getCartTotal(system.store, [item.identificador]).total),
+                        showDiscount: ps ? '' : 'none',
+                        bgColor: !ps ? '' : '#ffe1e1',
+                        textDecoration: !ps ? '' : 'line-through'
+                    }),
                     newItem
                 }, locale.get()));
                 treatments.forEach(function (t) {

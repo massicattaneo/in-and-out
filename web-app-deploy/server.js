@@ -216,21 +216,9 @@ const shared = require('./shared');
     app.post('/api/stripe/pay',
         async function (req, res) {
             const { token, email, sendTo } = req.body;
-            const cart = req.body.cart.map(id => {
-                return { id, used: false };
-            });
-            const pos = { 'TAR': 'bonusCards', 'TRT': 'treatments', 'PRD': 'products' };
-            const cartAmount = cart
-                .map(({ id }) => {
-                    return google.publicDb()[pos[id.substr(0, 3)]].filter(c => c.identificador === id)[0];
-                })
-                .reduce((tot, { precio }) => tot + Number(precio), 0);
-            const productsAmount = cart
-                .filter(({ id }) => id.substr(0, 3) === 'PRD')
-                .map(({ id }) => {
-                    return google.publicDb()[pos[id.substr(0, 3)]].filter(c => c.identificador === id)[0];
-                })
-                .reduce((tot, { precio }) => tot + Number(precio), 0);
+            const cart = req.body.cart.map(id => Object.assign({ id, used: false }));
+            const cartAmount = shared.getCartTotal(google.publicDb(), req.body.cart).total;
+            const productsAmount = shared.getCartTotal(google.publicDb(), req.body.cart.filter(id => id.substr(0, 3) === 'PRD')).total;
             const freeChargeLimit = google.publicDb().settings.freeChargeLimit;
             const sendingCharge = google.publicDb().settings.sendingCharge;
             const amount = Math.floor((cartAmount + ((productsAmount < freeChargeLimit && productsAmount !== 0) ? sendingCharge : 0)) * 100);

@@ -6,4 +6,5 @@ web-app-deploy/google/*
 web-app-deploy/extras/*
 web-app-deploy/order-qr-codes/*.png
 backup/fb2b86b1ef42eee47e65ce27fc320948/
+scripts/*.csv
 src/assets/uploads/*

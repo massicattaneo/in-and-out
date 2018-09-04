@@ -8,6 +8,7 @@ import cartTemplate from './cart.html';
 import buyTemplate from './buy.html';
 import Icon from '../../public/components/icon/icon';
 import stripeStyle from './stripeStyle';
+import { getCartTotal } from '../../../web-app-deploy/shared';
 
 const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const telRegEx = /^(\+34|0034|34)?[\s|\-|\.]?[6|7|9][\s|\-|\.]?([0-9][\s|\-|\.]?){8}$/;
@@ -26,7 +27,7 @@ function cart({ system }) {
         await locale.load(`/localization/common/es.json`);
         await locale.load(`/localization/cart/es.json`);
         const view = HtmlView(template, styles, locale.get());
-        const stored = {
+        const storeTypes = {
             'TRT': 'treatments',
             'TAR': 'bonusCards',
             'PRD': 'products'
@@ -59,7 +60,7 @@ function cart({ system }) {
                     if (filter.length) {
                         filter[0].count++;
                     } else {
-                        const type = stored[id.substr(0, 3)];
+                        const type = storeTypes[id.substr(0, 3)];
                         const t = system.store[type].filter(i => i.identificador == id)[0];
                         arr.push({
                             id,
@@ -87,20 +88,22 @@ function cart({ system }) {
             hasTreatments = items.filter(i => i.type === 'treatments').length > 0;
             hasBonusCards = items.filter(i => i.type === 'bonusCards').length > 0;
             hasProducts = items.filter(i => i.type === 'products').length > 0;
-            const totalProducts = groupItems(cart)
-                .filter(i => i.type === 'products')
-                .reduce((tot, i) => tot + (i.count * i.price), 0);
-            const total = groupItems(cart).reduce((tot, i) => tot + (i.count * i.price), 0);
+            const totalProducts = getCartTotal(system.store, cart.filter(i => i.startsWith('PRD'))).total;
+            const total = getCartTotal(system.store, cart).total;
             const costs = (totalProducts >= freeChargeLimit || !hasProducts) ? 0 : sendingCharge;
             const userEmail = system.store.email;
+            window.getCartTotal = a => getCartTotal(system.store, a);
             cartView = view.clear('products')
                 .appendTo('products', cartTemplate, [], {
                     total: system.toCurrency(total + costs),
                     userEmail,
+                    showDiscount: getCartTotal(system.store, cart).discount > 0 ? '' : 'none',
+                    totalReal: system.toCurrency(getCartTotal(system.store, cart).real),
+                    totalDiscount: system.toCurrency(getCartTotal(system.store, cart).discount),
                     freeChargeLimit: system.toCurrency(freeChargeLimit),
                     totalProducts: system.toCurrency(totalProducts),
                     costs: system.toCurrency(costs),
-                    hasProducts: hasProducts ? '': 'none',
+                    hasProducts: hasProducts ? '' : 'none',
                     showPartialGift: hasTreatments || hasBonusCards ? 'inline-block' : 'none'
                 });
             items.map(item => {

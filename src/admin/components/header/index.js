@@ -10,8 +10,8 @@ export default async function ({ system, locale, thread }) {
         view.get('progress').style.opacity = loading ? 1 : 0;
     });
 
-    view.get('wrapper').change = function () {
-        window.event.preventDefault();
+    view.get('wrapper').change = function (event) {
+        (event || window.event).preventDefault();
         system.store.search = this.search.value.toLowerCase();
     };
 

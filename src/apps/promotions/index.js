@@ -4,6 +4,7 @@ import template from './index.html';
 import * as styles from './index.scss';
 import promotionTemplate from './promotion.html';
 import buyTpl from './buyTpl.html';
+import { getDiscountsItems, getDiscountsPrice, getPromotionDiscounts } from '../../../web-app-deploy/shared';
 
 function promotions({ system }) {
     return async function ({ parent, db }) {
@@ -38,15 +39,15 @@ function promotions({ system }) {
         obj.loadContent = async function () {
             if (promotionsList.length) {
                 const item = promotionsList.splice(0, 1)[0];
-                const newItem = system.getStorage('promotions').indexOf(item.identificador) === -1
-                    ? locale.get('newItemTemplate') : '';
-                const card = system.store.bonusCards.find(i => i.identificador === item.tarjeta);
-                const bonusBuy = card ? buyTpl.replace('{{price}}', card.precio_texto).replace('{{id}}', card.identificador) : '';
+                const newItem = system.getStorage('promotions').indexOf(item.identificador) === -1 ? locale.get('newItemTemplate') : '';
+                const discounts = getPromotionDiscounts(item);
+                const price = getDiscountsPrice(system.store, discounts);
+                const cartIds = getDiscountsItems(discounts);
+                const bonusBuy = item.discounts ? buyTpl.replace('{{price}}', system.toCurrency(price)).replace('{{ids}}', JSON.stringify(cartIds)) : '';
                 view.appendTo('promotions', promotionTemplate, [], Object.assign({
                     item,
                     newItem,
-                    bonusBuy,
-                    card
+                    bonusBuy
                 }, locale.get()));
             } else {
                 view.get('loading').style.display = 'none';
@@ -54,8 +55,8 @@ function promotions({ system }) {
             }
         };
 
-        view.get('promotions').add = function (id) {
-            system.store.cart.push(id);
+        view.get('promotions').add = function (ids) {
+            system.store.cart.push(...ids);
         };
 
         obj.navigateTo = function (subpath) {

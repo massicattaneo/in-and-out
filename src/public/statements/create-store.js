@@ -1,4 +1,4 @@
-import { sortByDate } from '../utils';
+import { sortByDate, activePromotions } from '../../../web-app-deploy/shared';
 
 function addDescription(i) {
     return Object.assign(i, { descripcion: i.descripcion || '' });
@@ -27,18 +27,7 @@ export default async function ({ system, wait, thread }) {
         allPhotos: publicDb.photos || [],
         cart: system.getStorage('cart') || [],
         treatments: publicDb.treatments || [],
-        promotions: publicDb.promotions ?
-            publicDb.promotions
-                .filter(function (i) {
-                    const date = Date.now();
-                    const from = (new Date(i.desde.split('/').reverse().join('-')));
-                    const to = (new Date(i.hasta.split('/').reverse().join('-')));
-                    from.setHours(0, 0, 0, 0);
-                    to.setHours(23, 59, 59, 59);
-                    return date >= from.getTime() && date <= to.getTime();
-                })
-                .sort(sortByDate('creacion'))
-            : [],
+        promotions: publicDb.promotions ? activePromotions(publicDb.promotions) : [],
         news: publicDb.news ? publicDb.news.sort(sortByDate('fecha')) : [],
         press: publicDb.press ? publicDb.press.sort(sortByDate('fecha')) : [],
         products: publicDb.products || [],
