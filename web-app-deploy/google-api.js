@@ -481,7 +481,7 @@ module.exports = function (utils, posts) {
             return {
                 url: `/es/tarjetas/${item.href}`,
                 changefreq: 'monthly',
-                priority: 0.6,
+                priority: 1,
                 lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-02`)
             };
         }));
@@ -505,7 +505,7 @@ module.exports = function (utils, posts) {
             return {
                 url: `/es/en-los-medios/${item.href}`,
                 changefreq: 'monthly',
-                priority: 0.8,
+                priority: 1,
                 lastmodISO: getLastmodISO(item.fecha)
             };
         }));
@@ -513,7 +513,7 @@ module.exports = function (utils, posts) {
             return {
                 url: `/es/buscar/${item}`,
                 changefreq: 'monthly',
-                priority: 0.8
+                priority: 0.1
             };
         }));
 
