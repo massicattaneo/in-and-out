@@ -9,13 +9,13 @@ MongoClient.connect(url, function (err, db) {
     if (err) return;
 
     /** DUPLICATE PHONE */
-    db.collection('users').aggregate(
-        { '$group': { '_id': '$tel', 'count': { '$sum': 1 } } },
-        { '$match': { '_id': { '$ne': null }, 'count': { '$gt': 1 } } },
-        { '$project': { 'tel': '$_id', '_id': 0 } }
-    ).forEach(function (doc) {
-        console.log(doc)
-    });
+    // db.collection('users').aggregate(
+    //     { '$group': { '_id': '$tel', 'count': { '$sum': 1 } } },
+    //     { '$match': { '_id': { '$ne': null }, 'count': { '$gt': 1 } } },
+    //     { '$project': { 'tel': '$_id', '_id': 0 } }
+    // ).forEach(function (doc) {
+    //     console.log(doc)
+    // });
 
     /** LOWERCASE EMAILS */
     // db.collection('users').find( {}, { 'email': 1 } ).forEach(function(doc) {

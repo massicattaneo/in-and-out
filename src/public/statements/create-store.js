@@ -30,7 +30,7 @@ export default async function ({ system, wait, thread }) {
         promotions: publicDb.promotions ? activePromotions(publicDb.promotions) : [],
         news: publicDb.news ? publicDb.news.sort(sortByDate('fecha')) : [],
         press: publicDb.press ? publicDb.press.sort(sortByDate('fecha')) : [],
-        products: publicDb.products || [],
+        products: (publicDb.products || []).filter(i => i.online === 'si'),
         bonusCards: publicDb.bonusCards ?
             publicDb.bonusCards
                 .filter(function (i) {

@@ -100,19 +100,21 @@ function parseSheet(sht) {
                 if (sh[index].textFormatRuns)
                     return formatGoogleSheet({ value: sh[index].formattedValue, format: sh[index].textFormatRuns });
                 return sh[index].formattedValue;
-            })
-                .filter(i => i)
-                .reduce((ret, item, index) => {
-                    const col = cols[index];
-                    if (col === 'titulo') {
-                        ret['href'] = parseHref(item);
-                    }
-                    if (col === 'marca' || col === 'tipo') {
-                        ret['menuhref'] = parseHref(item);
-                    }
-                    ret[col] = item;
+            }).reduce((ret, item, index) => {
+                const col = cols[index];
+                if (!item) {
+                    ret[col] = '';
                     return ret;
-                }, {});
+                }
+                if (col === 'titulo') {
+                    ret['href'] = parseHref(item);
+                }
+                if (col === 'marca' || col === 'tipo') {
+                    ret['menuhref'] = parseHref(item);
+                }
+                ret[col] = item;
+                return ret;
+            }, {});
         });
 }
 
