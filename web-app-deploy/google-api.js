@@ -195,21 +195,24 @@ module.exports = function (utils, posts) {
             }
 
             drive.files.list({}, async function (err, list) {
-                if (list.nextPageToken) {
+                let pageToken = list.nextPageToken;
+                while (pageToken) {
                     await new Promise(function (resolve) {
-                        drive.files.list({
-                            pageToken: list.nextPageToken
-                        }, (err, l) => {
+                        drive.files.list({ pageToken }, (err, l) => {
                             list.items.push(...l.items);
+                            pageToken = l.nextPageToken;
                             resolve();
                         });
                     });
                 }
 
+
                 const folders = list.items
                     .filter(item => item.mimeType === 'application/vnd.google-apps.folder')
                     .filter(item => item.title !== 'website')
+                    .filter(item => item.title !== 'uploads')
                     .map(item => {
+                        console.log(item.title);
                         if (!fs.existsSync(`${__dirname}/google/drive/${item.title}`)) {
                             fs.mkdirSync(`${__dirname}/google/drive/${item.title}`);
                         }
