@@ -212,7 +212,6 @@ module.exports = function (utils, posts) {
                     .filter(item => item.title !== 'website')
                     .filter(item => item.title !== 'uploads')
                     .map(item => {
-                        console.log(item.title);
                         if (!fs.existsSync(`${__dirname}/google/drive/${item.title}`)) {
                             fs.mkdirSync(`${__dirname}/google/drive/${item.title}`);
                         }
