@@ -7,9 +7,9 @@
   max-width: 600px;
   right: 0;
   margin: auto;
-  box-shadow: -11px 0px 15px rgba(0,0,0,0.5);
+  box-shadow: -4px 0px 15px rgba(0,0,0,0.5);
   z-index: 20;
-  overflow: hidden;
+  overflow: scroll;
 }
 
 
@@ -17,13 +17,14 @@
   position: fixed;
   width: 400px;
   height: 400px;
-  overflow: scroll;
+  overflow: auto;
   right: auto;
   left: 0;
   top: 0;
   bottom: auto;
   resize: both;
-  border: 4px outset grey;
+  border: 2px solid #56ab2a;
+  border-radius: 11px;
   max-width: initial;
 }
 
