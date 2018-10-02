@@ -131,7 +131,7 @@ export default async function ({ locale, system, thread, wait }) {
             modalView.get('bonus').innerHTML = system.publicDb.bonusCards
                 .filter(b => b.credit === 0)
                 .filter(b => Date.now() >= b.from && Date.now() <= b.to)
-                .map(b => `<option value="${b.id}">${b.title.trim()}</option>`)
+                .map(b => `<option value="${b.id}">${b.title.trim()} (${system.toCurrency(b.price)})</option>`)
                 .join('');
 
             modalView.get('form').setValue = setValue;

@@ -58,6 +58,12 @@ export function HandlebarParse(markup, variables) {
             let ret = str.replace(/\{{#each [^}}]*}}/, '').replace('{{/each}}', '').trim();
             if (item instanceof Object) {
                 Object.keys(item).forEach(key => {
+                    if (item[key] instanceof Object) {
+                        Object.keys(item[key]).forEach(key1 => {
+                            let regEx = new RegExp(`{{this.${key}.${key1}}}`, 'g');
+                            ret = ret.replace(regEx, item[key][key1])
+                        });
+                    }
                     let regEx = new RegExp(`{{this.${key}}}`, 'g');
                     ret = ret.replace(regEx, item[key])
                 });

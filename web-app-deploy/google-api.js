@@ -122,6 +122,13 @@ function getLastmodISO(string) {
     return new Date(string.split('/').reverse().join('-')).toISOString();
 }
 
+async function resizeUpload(ext, resource) {
+    if (ext === '.jpg' || ext === '.png' || ext === '.jpeg') {
+        return await sharp(resource).resize(1200).toBuffer();
+    }
+    return resource;
+}
+
 module.exports = function (utils, posts) {
     const obj = {};
     const calendars = {};
@@ -223,6 +230,7 @@ module.exports = function (utils, posts) {
                 promises.push(...list.items
                     .filter(item => item.mimeType === 'image/jpeg')
                     .map(function (item, index) {
+                        if (item.parents.length === 0) return () => Promise.resolve();
                         const fold = folders.filter(f => f.id === item.parents[0].id)[0];
                         if (fold) {
                             return async function () {
@@ -265,7 +273,7 @@ module.exports = function (utils, posts) {
             processes,
             settings: {
                 freeChargeLimit: 60,
-                sendingCharge: 4.99,
+                sendingCharge: 4.99
             }
         });
         return ret;
@@ -683,6 +691,52 @@ module.exports = function (utils, posts) {
                     };
                 })
             ).map(i => Object.assign(i, { description: i.description ? striptags(i.description.substr(0, 140)) : '' }));
+    };
+
+    obj.upload = function (title, resource, ext) {
+        return new Promise(async function (resolve, reject) {
+            drive.files.insert({
+                resource: {
+                    title,
+                    parents: [{ id: googleDb.uploadFolderId }]
+                },
+                media: {
+                    body: await resizeUpload(ext, resource)
+                }
+            }, function (err, file) {
+                if (err) return reject(err);
+                if (!file) return reject('generic');
+                resolve(file.id);
+            });
+        });
+    };
+
+    obj.delete = function (fileId) {
+        return new Promise(function (resolve, reject) {
+            drive.files.trash({ fileId }, function (err, done) {
+                if (err) reject(new Error('generic'));
+                resolve(done);
+            });
+        });
+    };
+
+    obj.download = async function (fileId) {
+        return new Promise(function (resolve, reject) {
+            drive.files.get({ fileId, alt: 'media' }, function (err, done) {
+                if (err) reject(new Error('generic'));
+                resolve(done);
+            });
+        });
+    };
+
+    obj.shareFile = function (fileId) {
+        return new Promise(function (resolve, reject) {
+            drive.files.get({ fileId }, function (err, done) {
+                if (err) resolve('generic ' + fileId);
+                if (!done) return resolve('MISSING');
+                resolve(done.alternateLink);
+            });
+        });
     };
 
     function getTreatmentsList() {

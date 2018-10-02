@@ -23,7 +23,7 @@ const config = {
         path: path.join(__dirname, '/dist/'),
         filename: '[name].bundle.js'
     },
-    devtool: 'eval-source-map',
+    devtool: 'source-map',
     resolveLoader: {
         modules: ['modules/', 'node_modules']
     },

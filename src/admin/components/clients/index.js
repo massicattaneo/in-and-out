@@ -101,6 +101,10 @@ export default async function({ locale, system, thread }) {
         modalView.get('name').setSelectionRange(0, modalView.get('name').value.length);
     };
 
+    view.get('wrapper').resetCard = function() {
+        system.nfc.send('empty');
+    };
+
     view.get('wrapper').scanqr = function() {
         const scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
         scanner.addListener('scan', function (content) {

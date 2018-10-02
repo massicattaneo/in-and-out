@@ -1,5 +1,11 @@
 <form #wrapper>
     <div #clients></div>
+    <button #resetcard
+            type="button"
+            onclick="this.form.resetCard()"
+            class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
+        <i class="material-icons">move_to_inbox</i>
+    </button>
     <button #scanqr
             type="button"
             onclick="this.form.scanqr()"

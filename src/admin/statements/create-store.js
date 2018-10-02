@@ -45,6 +45,7 @@ export default async function ({ system, thread }) {
         clients: [],
         orders: [],
         cash: [],
+        bills: [],
         cart: system.getStorage('cart') || [],
         users: [...((decodeURI(system.cookies.getItem('users')) || '')).split('|')],
         date: Date.now(),
@@ -79,6 +80,8 @@ export default async function ({ system, thread }) {
         system.store.clients.push(...data.clients);
         system.store.orders.splice(0, system.store.orders.length);
         system.store.orders.push(...data.orders);
+        system.store.bills.splice(0, system.store.bills.length);
+        system.store.bills.push(...data.bills);
         system.store.users.splice(0, system.store.users.length);
         if (logged) {
             system.store.users.push(...((decodeURI(system.cookies.getItem('users')) || '')).split('|'));

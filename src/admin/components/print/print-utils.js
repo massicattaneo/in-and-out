@@ -2,18 +2,6 @@ const txtImage =`data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAZABkAAD/2wBDAAMCAgMC
 
 const IVA = 21;
 
-function toCurrency(number) {
-    const string = parseFloat(number).toFixed(2);
-    const integer = string.split('.')[0].split('').reverse().reduce((array, item, index) => {
-        const number = Math.floor(index / 3);
-        array[number] = array[number] || [];
-        array[number].push(item)
-        return array;
-    }, []).map(a => a.reverse()).reverse().join('.').replace(/,/g, '');
-    const decimals = string.split('.')[1];
-    return `Euro ${integer},${decimals}`
-}
-
 export function printBills(startNumber = 1, expression, items, system) {
     var doc = new jsPDF('p', 'mm', [297, 210]);
     // var cashIds = newTot(params.cashMaximum, Object.keys(transactionsData)

@@ -1,6 +1,6 @@
 import { HtmlView } from 'gml-html';
-import admin2Tpl from './admin-2.html';
-import admin0Tpl from './admin-0.html';
+import admin2Tpl from './level2.html';
+import admin0Tpl from './level1.html';
 import * as style from './style.scss';
 
 export default async function ({ system, thread, locale }) {
@@ -21,7 +21,6 @@ export default async function ({ system, thread, locale }) {
                 method: 'get'
             });
             model.cash.push(...cash);
-        } else if (system.store.adminLevel >= 0) {
             const date = new Date();
             date.setHours(0, 0, 0, 0);
             const bonus = await thread.execute('rest-api', {
@@ -29,14 +28,10 @@ export default async function ({ system, thread, locale }) {
                 method: 'get'
             });
             model.bonus.push(...bonus);
-            model.cash.push(...system.store.cash);
         }
     };
 
-    window.rx.connect({ adminLevel: () => system.store.adminLevel }, async function ({ adminLevel }) {
-        htmlView.refresh();
-    });
-
+    window.rx.connect({ adminLevel: () => system.store.adminLevel }, htmlView.refresh);
     window.rx.connect({ cash: () => model.cash, adminLevel: () => system.store.adminLevel }, ({ cash, adminLevel }) => {
         if (adminLevel === 2) {
             const monthNames = new Array(12).fill(0).map((v, i) => locale.get(`month_${i}`).toUpperCase());
@@ -132,11 +127,9 @@ export default async function ({ system, thread, locale }) {
             });
         }
     });
-
-
     window.rx.connect({ cash: () => model.cash, bonus: () => model.bonus, adminLevel: () => system.store.adminLevel },
         ({ cash, bonus, adminLevel }) => {
-            if (adminLevel === 1 || adminLevel === 2) {
+            if (adminLevel === 2) {
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
 

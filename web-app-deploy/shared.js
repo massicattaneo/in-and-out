@@ -74,15 +74,18 @@ function newArray(length, item = '') {
 function roundDiscount(price, discount) {
     return Math.round(price * discount * 100) / 100;
 }
+
 function getDiscountsItems(discounts) {
     return discounts.reduce((a1, d) => a1.concat(...d.items.map(i => newArray(i.count, i.id))), []);
 }
+
 function sortByDate(field) {
     return function (a, b) {
         return (new Date(b[field].split('/').reverse().join('-'))).getTime() -
             (new Date(a[field].split('/').reverse().join('-'))).getTime();
     };
 }
+
 function getPromotionDiscounts(promotion) {
     return (promotion.discounts || '').split(',').map(d => {
         const discount = Number(d.split('=')[1]);
@@ -101,7 +104,7 @@ function activePromotions(promotions) {
         from.setHours(0, 0, 0, 0);
         to.setHours(23, 59, 59, 59);
         return date >= from.getTime() && date <= to.getTime();
-    }).sort(sortByDate('creacion'))
+    }).sort(sortByDate('creacion'));
 }
 
 module.exports = {
@@ -127,15 +130,18 @@ module.exports = {
             .map(c => Object.assign(c, { closed: c.week.filter(day => day.filter(worker => worker[0] === centerIndex).length).length === 0 }));
         return res.length && res[0].closed;
     },
-    getTreatments: function ({ calendars, workers }, date, center, treatments) {
+    getTreatments: function ({ calendars, workers, centers }, date, center, treatments) {
         const calendar = getCalendar({ calendars }, date);
         const day = calendar.week[new Date(date).getDay()];
         const wks = getWorkers({ calendars }, date, center);
+        const centerId = centers[center].id;
         return treatments
             .filter(t => t.favourite)
             .filter(t => day.filter(arr => arr.length && Number(t[workers[arr[1]].column]) > 0).length)
             .map(t => Object.assign({
-                available: day.filter(arr => arr.length && Number(t[workers[arr[1]].column]) > 0 && wks.indexOf(arr[1]) !== -1).length > 0
+                available: day.filter(arr => arr.length && Number(t[workers[arr[1]].column]) > 0
+                    && wks.indexOf(arr[1]) !== -1).length > 0
+                    && t[centerId] !== '0'
             }, t));
     },
     getTreatmentsDuration: getTreatmentsDuration,

@@ -17,6 +17,7 @@ const MongoStore = require('connect-mongo')(session);
 const LoginServices = require('./login-services');
 const fs = require('fs');
 const compression = require('compression');
+const fileUpload = require('express-fileupload');
 const stripe = require('./stripe')();
 const createTemplate = require('./mailer/createTemplate');
 const QRCode = require('qrcode');
@@ -45,6 +46,7 @@ const shared = require('./shared');
         lifetime: 2 * 60 //seconds
     });
 
+    app.use(fileUpload());
     app.use(detector.middleware());
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({
@@ -386,7 +388,9 @@ const shared = require('./shared');
         async function (req, res) {
             res.send({
                 clients: await mongo.getAll('users'),
-                orders: await mongo.getAll('orders')
+                orders: await mongo.getAll('orders'),
+                reminders: await mongo.getAll('reminders'),
+                bills: await mongo.getAll('bills')
             });
         });
 
@@ -505,6 +509,35 @@ const shared = require('./shared');
             }, req.body));
             mailer.send(emailTemplate);
             res.send('ok');
+        });
+
+    app.get('/api/upload/*',
+        requiresLogin,
+        async function (req, res) {
+            const path = decodeURIComponent(req.url.replace('/api/upload/', ''));
+            // const file = await dropbox.download(path);
+            // res.type('pdf');
+            // res.end(file.fileBinary, 'binary');
+        });
+
+    app.post('/api/upload',
+        requiresLogin,
+        async function (req, res) {
+            const name = req.files.fileUpload.name;
+            const ext = path.extname(name);
+            google.upload(name, req.files.fileUpload.data, ext).then(async function (googleRef) {
+                const file = await mongo.rest.insert('uploads', {name, ext, googleRef});
+                res.send(file);
+            }).catch(console.log);
+        });
+
+    app.delete('/api/upload/:id',
+        requiresLogin,
+        async function (req, res) {
+            const id = req.params.id;
+            const file = await mongo.rest.delete('uploads', id);
+            await google.delete(file.googleRef);
+            res.send(file);
         });
 
     let callback;

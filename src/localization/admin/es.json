@@ -24,8 +24,8 @@
     },
     "orders": {
       "href": "/admin/es/pedidos",
-      "title": "PEDIDOS",
-      "menu": "PEDIDOS"
+      "title": "COMPRAS ONLINE",
+      "menu": "COMPRAS ONLINE"
     },
     "events": {
       "href": "/admin/es/citas",
@@ -42,11 +42,6 @@
       "title": "HISTORICO CLIENTE",
       "menu": "HISTORICO CLIENTE"
     },
-    "bonuses": {
-      "href": "/admin/es/bonos",
-      "title": "BONOS",
-      "menu": "BONOS"
-    },
     "print": {
       "href": "/admin/es/imprimir",
       "title": "IMPRIMIR",
@@ -56,6 +51,16 @@
       "href": "/admin/es/newsletter",
       "title": "NEWSLETTER",
       "menu": "NEWSLETTER"
+    },
+    "summary": {
+      "href": "/admin/es/somario",
+      "title": "SOMARIO CAJA",
+      "menu": "SOMARIO CAJA"
+    },
+    "bills": {
+      "href": "/admin/es/facturas",
+      "title": "FACTURAS",
+      "menu": "FACTURAS"
     }
   },
   "menuHeader": {
