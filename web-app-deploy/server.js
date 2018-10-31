@@ -181,7 +181,7 @@ const shared = require('./shared');
                 rate: req.body.rate,
                 lang: req.body.lang,
                 description: req.body.description,
-                userId: req.session.userId,
+                userId: req.session.userId
             })
                 .then(function (review) {
                     res.send(review);
@@ -199,7 +199,7 @@ const shared = require('./shared');
             const timeMin = new Date(date);
             timeMin.setUTCHours(7, 0, 0, 0);
             const timeMax = new Date(date);
-            timeMax.setUTCHours(18, 0, 0, 0);
+            timeMax.setUTCHours(20, 0, 0, 0);
             const items = shared.getWorkers(googleDb, date, center)
                 .map(w => {
                     return { id: googleDb.workers[w].googleId };
@@ -274,7 +274,6 @@ const shared = require('./shared');
             const { name, tel, email } = await mongo.getUser({ _id: new ObjectId(req.session.userId) });
             const workers = shared.getWorkersByHour(googleDb, start, locationIndex);
             const all = google.publicDb().treatments;
-            const durations = workers.map(w => shared.getTreatmentsDuration(googleDb, all, treatments, w));
             const dateMin = new Date(start);
             const items = workers
                 .filter(w => shared.getTreatmentsDuration(googleDb, all, treatments, w) > 0)
@@ -526,7 +525,7 @@ const shared = require('./shared');
             const name = req.files.fileUpload.name;
             const ext = path.extname(name);
             google.upload(name, req.files.fileUpload.data, ext).then(async function (googleRef) {
-                const file = await mongo.rest.insert('uploads', {name, ext, googleRef});
+                const file = await mongo.rest.insert('uploads', { name, ext, googleRef });
                 res.send(file);
             }).catch(console.log);
         });
@@ -619,5 +618,5 @@ const shared = require('./shared');
     //     console.log('error', e)
     // }
 
-    console.log('finish');
+    console.log('finish - timezone offset:', (new Date().getTimezoneOffset() / 60));
 })();

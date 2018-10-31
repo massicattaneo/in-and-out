@@ -1,3 +1,4 @@
+const timeZoneOffset = (new Date().getTimezoneOffset() / 60);
 function getCalendar({ calendars }, date) {
     const d = new Date(date).getTime();
     return calendars.find(c => {
@@ -26,9 +27,9 @@ function getWorkersByHour({ calendars }, date, center) {
         .filter(d => {
             const dt = new Date(date);
             const from = new Date(date);
-            from.setUTCHours(...decimalToTime(d[2], -2));
+            from.setUTCHours(...decimalToTime(d[2], timeZoneOffset));
             const to = new Date(date);
-            to.setUTCHours(...decimalToTime(d[3], -2));
+            to.setUTCHours(...decimalToTime(d[3], timeZoneOffset));
             return from.getTime() <= dt.getTime() && to.getTime() > dt.getTime();
         })
         .reduce(function (ret, d) {
@@ -163,9 +164,9 @@ module.exports = {
                     .filter(wh => wh[0] === center)
                     .forEach(function (wh) {
                         for (let h = wh[2]; h <= (wh[3] - duration); h += 0.25) {
-                            dt.setUTCHours(...decimalToTime(h, -2));
+                            dt.setUTCHours(...decimalToTime(h, timeZoneOffset));
                             const hStart = new Date(dt);
-                            dt.setUTCHours(...decimalToTime(h + duration, -2));
+                            dt.setUTCHours(...decimalToTime(h + duration, timeZoneOffset));
                             const hEnd = new Date(dt);
                             const filter = busy.filter(function ({ start, end }) {
                                 const bStart = new Date(start);
@@ -188,12 +189,12 @@ module.exports = {
             .filter(a => a[1] === workerIndex)
             .filter(a => {
                 const start = new Date(date);
-                start.setUTCHours(...decimalToTime(a[2], -2));
+                start.setUTCHours(...decimalToTime(a[2], timeZoneOffset));
                 return start.getTime() <= bookDate.getTime();
             })
             .filter(a => {
                 const end = new Date(date);
-                end.setUTCHours(...decimalToTime(a[3], -2));
+                end.setUTCHours(...decimalToTime(a[3], timeZoneOffset));
                 return end.getTime() > bookDate.getTime();
             });
         return filter.length ? db.centers.find(c => c.index === filter[0][0]) : 'NO LOCATION';

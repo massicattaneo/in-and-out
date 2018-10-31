@@ -16,7 +16,7 @@ export default async function ({ system, wait }) {
         const res = await req.post(body);
         return JSON.parse(res.responseText)
     } catch(e) {
-        system.throw('booking-insert', 'anonymous')
+        system.throw('booking-insert')
     }
     return {};
 }
