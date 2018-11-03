@@ -10,7 +10,8 @@ export default async function ({ system, wait }) {
     const body = JSON.stringify({
         locationIndex: model.center,
         start: date.toISOString(),
-        treatments: model.treatments
+        treatments: model.treatments,
+        offset: date.getTimezoneOffset() / 60
     });
     try {
         const res = await req.post(body);

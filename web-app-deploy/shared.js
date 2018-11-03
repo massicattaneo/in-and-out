@@ -19,7 +19,7 @@ function getWorkers({ calendars }, date, center) {
         }, []);
 }
 
-function getWorkersByHour({ calendars }, date, center) {
+function getWorkersByHour({ calendars }, date, center, offset = -1) {
     const calendar = getCalendar({ calendars }, date);
     const day = calendar.week[new Date(date).getDay()];
     return day
@@ -27,9 +27,9 @@ function getWorkersByHour({ calendars }, date, center) {
         .filter(d => {
             const dt = new Date(date);
             const from = new Date(date);
-            from.setUTCHours(...decimalToTime(d[2], timeZoneOffset));
+            from.setUTCHours(...decimalToTime(d[2], offset));
             const to = new Date(date);
-            to.setUTCHours(...decimalToTime(d[3], timeZoneOffset));
+            to.setUTCHours(...decimalToTime(d[3], offset));
             return from.getTime() <= dt.getTime() && to.getTime() > dt.getTime();
         })
         .reduce(function (ret, d) {
@@ -181,7 +181,7 @@ module.exports = {
             });
         return hours.filter((h, i, a) => a.indexOf(h) === i).sort();
     },
-    getLocation: function (db, date, googleId) {
+    getLocation: function (db, date, googleId, offset) {
         const cal = getCalendar(db, date);
         const workerIndex = db.workers.find(w => w.googleId === googleId).index;
         const bookDate = new Date(date);
@@ -189,12 +189,12 @@ module.exports = {
             .filter(a => a[1] === workerIndex)
             .filter(a => {
                 const start = new Date(date);
-                start.setUTCHours(...decimalToTime(a[2], timeZoneOffset));
+                start.setUTCHours(...decimalToTime(a[2], offset));
                 return start.getTime() <= bookDate.getTime();
             })
             .filter(a => {
                 const end = new Date(date);
-                end.setUTCHours(...decimalToTime(a[3], timeZoneOffset));
+                end.setUTCHours(...decimalToTime(a[3], offset));
                 return end.getTime() > bookDate.getTime();
             });
         return filter.length ? db.centers.find(c => c.index === filter[0][0]) : 'NO LOCATION';

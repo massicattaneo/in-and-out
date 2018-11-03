@@ -104,7 +104,7 @@ export default async function ({ system, wait, thread }) {
                 }
                 if (!compare(old, event, 2)) {
                     const focus = context.focuses.find(w => w.url === appBaseUrl);
-                    focus && focus.navigateTo(event.split('/')[3]);
+                    focus && focus.navigateTo(event.split('/')[3], event.split('/')[4]);
                 }
                 system.store.windowOpened = true;
             }

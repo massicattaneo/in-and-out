@@ -35,7 +35,7 @@ function cart({ system }) {
 
         if (system.info().addCart) {
             system.store.cart.splice(0, system.store.cart.length);
-            system.store.cart.push(system.info().addCart);
+            system.store.cart.push(...system.info().addCart.split('|'));
             system.info().addCart = null;
         }
 

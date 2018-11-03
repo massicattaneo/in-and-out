@@ -32,7 +32,6 @@ export default async function (container, { system, table, column }) {
     };
 
     obj.close = async function (href) {
-        console.log(href)
         children.forEach(function (c, i) {
             c.style.transform = `translate(0px,-${50 * i}px)`;
             c.style.zIndex = (c.getAttribute('href').indexOf(href) !== -1) ? 2 : 1;

@@ -6,6 +6,12 @@ import bonusNewTpl from './bonus-new.html';
 import * as style from './style.scss';
 import { createModal } from '../../utils';
 import staticLoc from '../../../localization/static.json';
+import {
+    activePromotions,
+    getDiscountsItems,
+    getDiscountsPrice,
+    getPromotionDiscounts
+} from '../../../../web-app-deploy/shared';
 
 export default async function ({ locale, system, thread, wait }) {
     const view = HtmlView('<div>{{templates.loading}}</div>', [], locale.get());
@@ -82,7 +88,7 @@ export default async function ({ locale, system, thread, wait }) {
                 const items = client.emails
                     .filter(e => e.centerIndex === centerIndex)
                     .map(e => (new Date(e.sent).formatDay('dd-mm-yy')));
-                return alert(`Ya enviaste el correo por ${system.publicDb.centers[centerIndex].label} en estas fechas: ${items.join(',')}`)
+                return alert(`Ya enviaste el correo por ${system.publicDb.centers[centerIndex].label} en estas fechas: ${items.join(',')}`);
             }
             if (confirm(`Quieres enviar un correo a este usuario para pedirle que deje su valoracion sobre el centro de ${system.publicDb.centers[centerIndex].label}?`)) {
                 const req = RetryRequest('/api/email/googleReview', { headers: { 'Content-Type': 'application/json' } });
@@ -92,6 +98,46 @@ export default async function ({ locale, system, thread, wait }) {
                 emails.push({ centerIndex, sent: new Date().toISOString(), type: 'googleReview' });
                 await thread.execute('rest-api', { api: `users/${id}`, method: 'put', emails });
             }
+        };
+
+        v.get('wrapper').addPromotion = async function () {
+            const item = activePromotions(system.publicDb.promotions)[0];
+            const discounts = getPromotionDiscounts(item);
+            const amount = getDiscountsPrice(system.publicDb, discounts);
+            const cartIds = getDiscountsItems(discounts);
+
+            const { modalView } = createModal(giftNewTpl, { title: item.titulo, amount }, async function (close) {
+                if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
+                if (!this.type.value) system.throw('custom', { message: 'TARJETA o EFECTIVO?' });
+                const date = Date.now();
+                const payed = Number(this.amount.value);
+                const t = await thread.execute('rest-api', {
+                    api: 'cash',
+                    method: 'post',
+                    amount: payed,
+                    clientId: id,
+                    date: date,
+                    type: this.type.value,
+                    user: system.store.users[0],
+                    description: `COMPRA ${item.titulo} (${system.toCurrency(payed)})`
+                });
+                await thread.execute('rest-api', {
+                    api: 'bonus',
+                    method: 'post',
+                    clientId: id,
+                    created: date,
+                    credit: 0,
+                    payed: payed,
+                    price: amount,
+                    finished: false,
+                    title: item.titulo,
+                    transactionId: t._id,
+                    transactions: [],
+                    treatments: cartIds
+                });
+                close();
+            });
+            modalView.get('amount').focus();
         };
 
         v.get('wrapper').addBonus = function () {
@@ -147,7 +193,6 @@ export default async function ({ locale, system, thread, wait }) {
 
         v.get('wrapper').addGift = function () {
             const { modalView } = createModal(giftNewTpl, { title: 'Tarjeta regalo' }, async function (close) {
-                if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
                 if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
                 if (!this.type.value) system.throw('custom', { message: 'TARJETA o EFECTIVO?' });
                 const date = Date.now();
@@ -231,7 +276,6 @@ export default async function ({ locale, system, thread, wait }) {
                 description: `PAGO PARTE BONO ${bonus.title}`
             };
             const t = await thread.execute('rest-api', p1);
-            debugger;
             const p2 = {
                 api: `bonus/${bonusId}`,
                 method: 'put',
@@ -286,7 +330,7 @@ export default async function ({ locale, system, thread, wait }) {
                         id: trId,
                         icon,
                         date: find ? (new Date(find.created)).formatDay('dddd, dd-mm-yyyy', dayNames) : '',
-                        title: system.publicDb.treatments.find(t => t.identificador === trId).titulo,
+                        title: system.publicDb.treatments.find(t => t.identificador === trId).titulo
                     };
                 }),
             transactions: bonus.transactions

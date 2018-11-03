@@ -60,15 +60,16 @@ function promotions({ system }) {
         };
 
         obj.navigateTo = function (subpath) {
-            const item = system.store.promotions.find(i => i.href === subpath);
-            if (item) {
-                const newItem = system.getStorage('promotions').indexOf(item.identificador) === -1
-                    ? locale.get('newItemTemplate') : '';
-                view.clear('promotions').appendTo('promotions', promotionTemplate, [], Object.assign({
-                    item,
-                    newItem
-                }, locale.get()));
-            }
+            obj.loadContent();
+            // const item = system.store.promotions.find(i => i.href === subpath);
+            // if (item) {
+            //     const newItem = system.getStorage('promotions').indexOf(item.identificador) === -1
+            //         ? locale.get('newItemTemplate') : '';
+            //     view.clear('promotions').appendTo('promotions', promotionTemplate, [], Object.assign({
+            //         item,
+            //         newItem
+            //     }, locale.get()));
+            // }
         };
 
         return obj;

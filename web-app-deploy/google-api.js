@@ -359,9 +359,9 @@ module.exports = function (utils, posts) {
             .join(' - ');
     };
 
-    obj.calendarInsert = function ({ id, from, to, label, description = '', summary, processId = 97 }) {
+    obj.calendarInsert = function ({ id, from, to, label, description = '', summary, processId = 97, offset = -1 }) {
         return new Promise(function (resolve, reject) {
-            const location = shared.getLocation(googleDb, from, id).address;
+            const location = shared.getLocation(googleDb, from, id, offset).address;
             const params = {
                 calendarId: id,
                 resource: {

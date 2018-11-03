@@ -49,7 +49,7 @@ function treatments({ system }) {
             system.navigateTo(locale.get('urls.bookings'));
         };
 
-        obj.navigateTo = async function (e) {
+        obj.navigateTo = async function (e, treatment) {
             switch (e) {
             case undefined:
                 await menu.open();
@@ -57,14 +57,15 @@ function treatments({ system }) {
                 break;
             default:
                 await menu.close(e);
-                addTreatments(menu.path(e));
+                addTreatments(menu.path(e), treatment);
                 return;
             }
         };
 
-        function addTreatments(type) {
+        function addTreatments(type, only) {
             system.store.treatments
                 .filter(item => item.tipo === type)
+                .filter(item => !only || item.href === only)
                 .forEach(item => {
                     const isBookable = Object.keys(system.store.centers)
                         .map(key => system.store.centers[key].workers)

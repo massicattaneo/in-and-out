@@ -13,7 +13,10 @@ function bonusCards({ system }) {
         const locale = await system.locale(`/localization/bonusCards/es.json`);
         await locale.load(`/localization/common/es.json`);
 
+        const only = location.pathname.split('/')[3];
+
         system.store.bonusCards
+            .filter(item => !only || item.href === only)
             .map(card => {
                 return Object.assign({
                     treatments: card.tratamientos.length ?

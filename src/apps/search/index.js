@@ -71,7 +71,7 @@ function search({ system }) {
         };
 
         obj.navigateTo = function (a = '') {
-            system.store.search = a.replace('/feed/', '').split('-').join(' ');
+            system.store.search = system.store.search || a.replace('/feed/', '').split('-').join(' ');
             view.get('searchfield').value = system.store.search;
         };
 

@@ -65,8 +65,8 @@ export default async function ({ thread, system, context, parent, title, showCar
         });
     };
 
-    obj.navigateTo = function (subpage) {
-        app.navigateTo && app.navigateTo(subpage);
+    obj.navigateTo = function (...args) {
+        app.navigateTo && app.navigateTo(...args);
     };
 
     obj.url = url;
