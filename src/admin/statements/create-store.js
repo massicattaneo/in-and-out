@@ -9,7 +9,7 @@ export default async function ({ system, thread }) {
         const to = new Date(b.hasta.split('/')[2], b.hasta.split('/')[1], b.hasta.split('/')[0]);
         to.setHours(23, 59, 59);
         to.setMonth(to.getMonth() - 1);
-        return {
+        return Object.assign(b, {
             id: b.identificador,
             credit: Number(b.credito),
             description: b.descripcion.trim(),
@@ -33,7 +33,7 @@ export default async function ({ system, thread }) {
                         return (new Array(Number(arr[0]))).fill(0).map(i => arr[1]);
                     }).reduce((arr, t) => arr.concat(t), [])
                 : []
-        };
+        });
     });
     system.publicDb = publicDb;
 

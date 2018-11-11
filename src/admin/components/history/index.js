@@ -10,7 +10,8 @@ import {
     activePromotions,
     getDiscountsItems,
     getDiscountsPrice,
-    getPromotionDiscounts
+    getPromotionDiscounts,
+    getCartTotal
 } from '../../../../web-app-deploy/shared';
 
 export default async function ({ locale, system, thread, wait }) {
@@ -101,7 +102,7 @@ export default async function ({ locale, system, thread, wait }) {
         };
 
         v.get('wrapper').addPromotion = async function () {
-            const item = activePromotions(system.publicDb.promotions)[0];
+            const item = activePromotions(system.publicDb.promotions, 1)[0];
             const discounts = getPromotionDiscounts(item);
             const amount = getDiscountsPrice(system.publicDb, discounts);
             const cartIds = getDiscountsItems(discounts);
@@ -164,7 +165,7 @@ export default async function ({ locale, system, thread, wait }) {
                     created: date,
                     credit: 0,
                     payed: amount,
-                    price: bonus.price,
+                    price: getCartTotal(system.publicDb, [this.bonus.value]).total,
                     finished: false,
                     title: bonus.title,
                     transactionId: t._id,
@@ -183,8 +184,10 @@ export default async function ({ locale, system, thread, wait }) {
             modalView.get('form').setValue = setValue;
 
             function setValue() {
-                const bonus = system.publicDb.bonusCards.find(i => i.id === modalView.get('bonus').value);
-                modalView.get('amount').value = bonus.price;
+                const id = modalView.get('bonus').value;
+                if (id) {
+                    modalView.get('amount').value = getCartTotal(system.publicDb, [id]).total;
+                }
                 componentHandler.upgradeDom();
             }
 

@@ -1,4 +1,5 @@
 const timeZoneOffset = (new Date().getTimezoneOffset() / 60);
+
 function getCalendar({ calendars }, date) {
     const d = new Date(date).getTime();
     return calendars.find(c => {
@@ -80,11 +81,22 @@ function getDiscountsItems(discounts) {
     return discounts.reduce((a1, d) => a1.concat(...d.items.map(i => newArray(i.count, i.id))), []);
 }
 
-function sortByDate(field) {
+function sortByDate(field, order = -1) {
     return function (a, b) {
-        return (new Date(b[field].split('/').reverse().join('-'))).getTime() -
-            (new Date(a[field].split('/').reverse().join('-'))).getTime();
+        return (-order * (new Date(b[field].split('/').reverse().join('-'))).getTime()) + (order *
+            (new Date(a[field].split('/').reverse().join('-'))).getTime());
     };
+}
+
+function activePromotions(promotions, order) {
+    return promotions.filter(function (i) {
+        const date = Date.now();
+        const from = (new Date(i.desde.split('/').reverse().join('-')));
+        const to = (new Date(i.hasta.split('/').reverse().join('-')));
+        from.setHours(0, 0, 0, 0);
+        to.setHours(23, 59, 59, 59);
+        return date >= from.getTime() && date <= to.getTime();
+    }).sort(sortByDate('creacion', order));
 }
 
 function getPromotionDiscounts(promotion) {
@@ -97,10 +109,20 @@ function getPromotionDiscounts(promotion) {
     });
 }
 
-function activePromotions(promotions) {
+function getDiscountsPrice(store, discounts) {
+    if (discounts[0].items[0].id.endsWith('*')) return ``;
+    return discounts
+        .reduce((t1, d) => t1 + d.items
+            .reduce((t2, i) => {
+                const price = i.count * store[storeTypes[i.type]].find(o => o.identificador === i.id).precio;
+                return t2 + roundDiscount(price, d.discount);
+            }, 0), 0);
+}
+
+function futurePromotions(promotions) {
     return promotions.filter(function (i) {
         const date = Date.now();
-        const from = (new Date(i.desde.split('/').reverse().join('-')));
+        const from = (new Date(i.creacion.split('/').reverse().join('-')));
         const to = (new Date(i.hasta.split('/').reverse().join('-')));
         from.setHours(0, 0, 0, 0);
         to.setHours(23, 59, 59, 59);
@@ -200,16 +222,28 @@ module.exports = {
         return filter.length ? db.centers.find(c => c.index === filter[0][0]) : 'NO LOCATION';
     },
     getPromotionDiscounts: getPromotionDiscounts,
-    getDiscountsPrice: function (store, discounts) {
-        return discounts
-            .reduce((t1, d) => t1 + d.items
-                .reduce((t2, i) => {
-                    const price = i.count * store[storeTypes[i.type]].find(o => o.identificador === i.id).precio;
-                    return t2 + roundDiscount(price, d.discount);
-                }, 0), 0);
-    },
+    getDiscountsPrice,
     getDiscountsItems: getDiscountsItems,
     getCartTotal: function cartTotal(store, cart) {
+        let discounted = 0;
+        let notDiscounted = 0;
+        let real = 0;
+        let discTypes = [];
+        if (activePromotions(store.promotions).filter(p => p.discounts.indexOf('*') !== -1).length) {
+            const allItemsDiscount = activePromotions(store.promotions).find(p => p.discounts.indexOf('*') !== -1);
+            const typeDiscounted = allItemsDiscount.discounts.split('&').map(d => [d.match(/\d*x(.*)-\*/)[1], Number(d.match(/\d*x\w*-\*=(.*)/)[1])]);
+            discTypes.push(...typeDiscounted.map(i => i[0]));
+            typeDiscounted.forEach(function ([type, disc]) {
+                cart.forEach(function (id) {
+                    const t = storeTypes[id.substr(0, 3)];
+                    const it = store[t].find(i => i.identificador === id);
+                    const tot = Number(it.precio);
+                    const isDisc = (!Number(it.credito) > 0) && (id.match(/(.*)-\d*/)[1] === type);
+                    discounted += isDisc ? tot * disc : 0;
+                    real += isDisc ? tot : 0;
+                });
+            });
+        }
         const items = activePromotions(store.promotions).reduce(function ({ discounted, notDiscounted }, p) {
             const dis = getPromotionDiscounts(p);
             const it = getDiscountsItems(dis);
@@ -224,24 +258,25 @@ module.exports = {
                 });
             }
             return { discounted, notDiscounted };
-        }, { discounted: [], notDiscounted: cart.slice(0) });
-        const notDiscounted = items.notDiscounted.reduce((t, id) => {
+        }, { discounted: [], notDiscounted: cart.filter(c => discTypes.indexOf(c.match(/(.*)-.*/)[1]) === -1) });
+        notDiscounted += items.notDiscounted.reduce((t, id) => {
             const type = storeTypes[id.substr(0, 3)];
             const it = store[type].find(i => i.identificador === id);
             return t + Number(it.precio);
         }, 0);
-        const discounted = items.discounted.reduce((t, { id, discount }) => {
+        discounted += items.discounted.reduce((t, { id, discount }) => {
             const type = storeTypes[id.substr(0, 3)];
             const it = store[type].find(i => i.identificador === id);
             return t + roundDiscount(Number(it.precio), discount);
         }, 0);
-        const real = cart.reduce((t, id) => {
+        real += cart.filter(c => discTypes.indexOf(c.match(/(.*)-.*/)[1]) === -1).reduce((t, id) => {
             const type = storeTypes[id.substr(0, 3)];
             const it = store[type].find(i => i.identificador === id);
             return t + Number(it.precio);
         }, 0);
         return { total: notDiscounted + discounted, discount: real - notDiscounted - discounted, real };
     },
-    sortByDate: sortByDate,
-    activePromotions: activePromotions
+    sortByDate,
+    activePromotions,
+    futurePromotions
 };

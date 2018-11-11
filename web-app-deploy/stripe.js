@@ -12,7 +12,7 @@ module.exports = function() {
                 currency: "eur",
                 description: `Order id: ${orderId}`,
                 // statement_descriptor: "Custom descriptor",
-                metadata: { orderId: `${orderId}`, email, cart: cart.join('|') },
+                metadata: { orderId: `${orderId}`, email, cart: JSON.stringify(cart) },
                 source: token,
             }, function(err, charge) {
                 if (err) {

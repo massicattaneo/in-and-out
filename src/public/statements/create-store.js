@@ -1,4 +1,4 @@
-import { sortByDate, activePromotions } from '../../../web-app-deploy/shared';
+import { sortByDate, futurePromotions } from '../../../web-app-deploy/shared';
 
 function addDescription(i) {
     return Object.assign(i, { descripcion: i.descripcion || '' });
@@ -27,7 +27,7 @@ export default async function ({ system, wait, thread }) {
         allPhotos: publicDb.photos || [],
         cart: system.getStorage('cart') || [],
         treatments: publicDb.treatments || [],
-        promotions: publicDb.promotions ? activePromotions(publicDb.promotions) : [],
+        promotions: publicDb.promotions ? futurePromotions(publicDb.promotions) : [],
         news: publicDb.news ? publicDb.news.sort(sortByDate('fecha')) : [],
         press: publicDb.press ? publicDb.press.sort(sortByDate('fecha')) : [],
         products: (publicDb.products || []).filter(i => i.online === 'si'),

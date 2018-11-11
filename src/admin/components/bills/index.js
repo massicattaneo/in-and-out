@@ -94,7 +94,7 @@ export default async function ({locale, system, thread}) {
         };
 
         form.clearAutofill = function() {
-            setTimeout(() => subView.clear('autofill'), 100);
+            setTimeout(() => subView.clear('autofill'), 300);
         };
 
         form.autofill = function () {

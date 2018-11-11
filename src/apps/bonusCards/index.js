@@ -56,7 +56,7 @@ function bonusCards({ system }) {
                 }, locale.get()));
                 treatments.forEach(function (t) {
                     const title = t.titulo.toUpperCase();
-                    const variables = Object.assign({}, { count: t.count, title }, locale.get());
+                    const variables = Object.assign({}, { count: t.count, title , href: `${t.menuhref}/${t.href}`}, locale.get());
                     card.appendTo('treatments', treatmentTemplate, [], variables);
                 });
             });

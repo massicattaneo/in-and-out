@@ -127,7 +127,7 @@ export default async function ({ locale, system, thread }) {
         document.getElementById('modal').appendChild(modal);
         modal.showModal();
         componentHandler.upgradeDom();
-        modalView.get('date').valueAsNumber = date.getTime() + 2 * 60 * 60 * 1000;
+        modalView.get('date').valueAsNumber = date.getTime() - (new Date().getTimezoneOffset()) * 60 * 1000;
         modalView.get('summary').focus();
         modalView.get('summary').setSelectionRange(0, modalView.get('summary').value.length);
 
@@ -141,7 +141,7 @@ export default async function ({ locale, system, thread }) {
             const evt = createEvent(Object.assign({}, e, {
                 summary: this.summary.value,
                 duration: this.duration.value,
-                date: this.date.valueAsNumber - 2 * 60 * 60 * 1000,
+                date: this.date.valueAsNumber + (new Date().getTimezoneOffset()) * 60 * 1000,
             }));
             await thread.execute('booking/add', {
                 duration: evt.duration * 60 * 1000,

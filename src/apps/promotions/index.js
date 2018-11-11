@@ -15,11 +15,9 @@ function promotions({ system }) {
         const promotionsList = system.store.promotions
             .filter(function (i) {
                 const date = Date.now();
-                const from = (new Date(i.desde.split('/').reverse().join('-')));
                 const to = (new Date(i.hasta.split('/').reverse().join('-')));
-                from.setHours(0, 0, 0, 0);
                 to.setHours(23, 59, 59, 59);
-                return date >= from.getTime() && date <= to.getTime();
+                return date <= to.getTime();
             })
             .slice(0);
 
@@ -43,11 +41,11 @@ function promotions({ system }) {
                 const discounts = getPromotionDiscounts(item);
                 const price = getDiscountsPrice(system.store, discounts);
                 const cartIds = getDiscountsItems(discounts);
-                const bonusBuy = item.discounts ? buyTpl.replace('{{price}}', system.toCurrency(price)).replace('{{ids}}', JSON.stringify(cartIds)) : '';
+                const bonusBuy = item.discounts ? buyTpl.replace('{{price}}', price ? system.toCurrency(price) : '').replace('{{ids}}', JSON.stringify(cartIds)) : '';
                 view.appendTo('promotions', promotionTemplate, [], Object.assign({
                     item,
                     newItem,
-                    bonusBuy
+                    bonusBuy: (Date.now() > (new Date(item.desde.split('/').reverse().join('-')))) && price ? bonusBuy : ''
                 }, locale.get()));
             } else {
                 view.get('loading').style.display = 'none';

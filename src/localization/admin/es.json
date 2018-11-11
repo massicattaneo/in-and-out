@@ -61,6 +61,11 @@
       "href": "/admin/es/facturas",
       "title": "FACTURAS",
       "menu": "FACTURAS"
+    },
+    "cart": {
+      "href": "/admin/es/cesta",
+      "title": "CESTA",
+      "menu": "CESTA"
     }
   },
   "menuHeader": {
