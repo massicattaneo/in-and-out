@@ -9,7 +9,7 @@ export default function ({ system, context, parent, config, autoDisconnect = fal
     const url = `/${system.info().lang}/${context.locale.get(`apps.${config.name}.url`)}`;
     const view = HtmlView(template, styles, { url });
     const iconClass = view.get('icon').className;
-    const notifiers = ['news', 'reviews', 'press', 'promotions', 'bonusCards', 'beautyparties', 'treatments', 'photos'];
+    const notifiers = ['news', 'reviews', 'press', 'promotions', 'products', 'bonusCards', 'beautyparties', 'treatments', 'photos'];
 
     const disconnect = window.rx.connect({
         orientation: () => system.deviceInfo().orientation,

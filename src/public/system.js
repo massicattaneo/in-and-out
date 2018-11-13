@@ -17,8 +17,8 @@ folders.keys().forEach((filename) => {
         statements[filename.replace('./', '').replace('.js', '')] = folders(filename).default;
     }
 });
-if(!window.jsEnabled) {
-    (async function() {
+if (!window.jsEnabled) {
+    (async function () {
         const thread = system.createThread(() => {
             return { statements };
         });
@@ -30,7 +30,7 @@ if(!window.jsEnabled) {
 
         function click() {
             const view = HtmlView(cookiesTpl, [], {});
-            view.get().cookieAccept = function() {
+            view.get().cookieAccept = function () {
                 system.setStorage({ 'in-and-out-accepted-cookies': true });
                 welcomeEl.style.display = 'none';
             };
@@ -48,7 +48,7 @@ if(!window.jsEnabled) {
             welcomeEl.style.display = 'none';
         }
         thread.execute('create-home-page');
-        thread.execute(function() {
+        thread.execute(function () {
             return system.navigateTo(this.redirectUrl, {}, false, true);
         });
     })();
