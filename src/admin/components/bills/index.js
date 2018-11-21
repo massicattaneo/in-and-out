@@ -1,4 +1,4 @@
-import {HtmlView} from 'gml-html';
+import { HtmlView } from 'gml-html';
 import template from './template.html';
 import * as style from './style.scss';
 
@@ -16,20 +16,24 @@ const companyTpl = `
 <div>
     {{#each company}}
     <fieldset class="list-item"
-      onclick="this.form.fill('{{this.emitter.company}}', '{{this.emitter.cif}}', '{{this.emitter.address}}')">
+      onclick="this.form.fill('{{this.emitter.escaped}}', '{{this.emitter.cif}}', '{{this.emitter.address}}')">
       {{this.emitter.company}}
     </fieldset>
     {{/each}}
 </div>`;
 
-export default async function ({locale, system, thread}) {
+function escapeSingleQuote(string) {
+    return string.replace(/'/g, '\\\'');
+}
+
+export default async function ({ locale, system, thread }) {
     const view = HtmlView('<div></div>');
 
-    rx.connect({bills: () => system.store.bills}, function () {
+    rx.connect({ bills: () => system.store.bills }, function () {
         const companies = system.store.bills.filter((o, i, a) => a.indexOf(a.find(e => e.emitter.company === o.emitter.company)) === i);
         const bills = system.store.bills.sort((a, b) => (new Date(b.date)).getTime() - (new Date(a.date)).getTime());
         const files = [];
-        const subView = view.clear().appendTo('', template, style, Object.assign({companies, bills}, locale.get()));
+        const subView = view.clear().appendTo('', template, style, Object.assign({ companies, bills }, locale.get()));
         subView.style();
 
         const form = subView.get();
@@ -57,7 +61,7 @@ export default async function ({locale, system, thread}) {
             const formData = new FormData();
             formData.append('fileUpload', file, newFileName);
 
-            const fileRes = await RetryRequest('/api/upload', {timeout: 60000}).post(formData)
+            const fileRes = await RetryRequest('/api/upload', { timeout: 60000 }).post(formData)
                 .catch(function (e) {
                     system.throw('generic-error');
                     system.store.loading = false;
@@ -65,7 +69,7 @@ export default async function ({locale, system, thread}) {
 
             setTimeout(function () {
                 files.push(JSON.parse(fileRes.responseText));
-                subView.clear('files').appendTo('files', filesTpl, [], {files});
+                subView.clear('files').appendTo('files', filesTpl, [], { files });
                 subView.get('save').removeAttribute('disabled');
                 system.store.loading = false;
             }, 100);
@@ -79,7 +83,7 @@ export default async function ({locale, system, thread}) {
                 setTimeout(function () {
                     files.splice(files.indexOf(file), 1);
                     subView.clear('files');
-                    files.length && subView.appendTo('files', filesTpl, [], {files});
+                    files.length && subView.appendTo('files', filesTpl, [], { files });
                     system.store.loading = false;
                 }, 100);
             }
@@ -93,7 +97,7 @@ export default async function ({locale, system, thread}) {
             }
         };
 
-        form.clearAutofill = function() {
+        form.clearAutofill = function () {
             setTimeout(() => subView.clear('autofill'), 300);
         };
 
@@ -102,8 +106,13 @@ export default async function ({locale, system, thread}) {
             if (!v) return subView.clear('autofill');
             const company = bills
                 .filter(c => c.emitter.company.toLowerCase().indexOf(v) !== -1)
-                .filter((a,b,c) => c.indexOf(c.find(i => i.emitter.company === a.emitter.company)) === b);
-            subView.clear('autofill').appendTo('autofill', companyTpl, [], {company})
+                .filter((a, b, c) => c.indexOf(c.find(i => i.emitter.company === a.emitter.company)) === b)
+                .map(i => Object.assign({}, i, {
+                    emitter: Object.assign(i.emitter, {
+                        escaped: escapeSingleQuote(i.emitter.company)
+                    })
+                }));
+            subView.clear('autofill').appendTo('autofill', companyTpl, [], { company });
         };
 
         form.fill = function (a, b, c) {
@@ -114,8 +123,8 @@ export default async function ({locale, system, thread}) {
         };
 
         form.save = async function () {
-            if (!form.bill_amount.value && isNaN(form.bill_amount.value)) return system.throw('custom', {message: 'FALTA EL TOTAL DE LA FACTURA'});
-            if (!form.bill_type.value) return system.throw('custom', {message: 'COMO HAZ PAGADO?'});
+            if (!form.bill_amount.value && isNaN(form.bill_amount.value)) return system.throw('custom', { message: 'FALTA EL TOTAL DE LA FACTURA' });
+            if (!form.bill_type.value) return system.throw('custom', { message: 'COMO HAZ PAGADO?' });
             system.store.loading = true;
             const res = await thread.execute('rest-api', {
                 api: 'bills',
