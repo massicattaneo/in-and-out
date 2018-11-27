@@ -12,6 +12,9 @@
             <label>{{register.nameLabel}}</label>
             <input #name class="required" type="text"/>
             <br/><br/>
+            <label>{{register.surnameLabel}}</label>
+            <input #surname class="required" type="text"/>
+            <br/><br/>
             <label>{{register.emailLabel}}</label>
             <input #email class="required" type="email"/>
             <br/><br/>
@@ -21,6 +24,12 @@
             <label>{{register.telLabel}}</label>
             <input class="required" #tel type="text"/>
             <br/><br/>
+            <label class="switch" style="float:left;margin-right: 4px">
+                <input #privacy type="checkbox">
+                <span class="slider"></span>
+            </label>
+            <span>{{privacyAccept}}</span>
+            <br/><br/><br/>
             <input #submit type="button" onclick="this.form.register()"
                    class=" white-color green-bg-color button clickable"
                    value="{{register.registerButton}}"/>

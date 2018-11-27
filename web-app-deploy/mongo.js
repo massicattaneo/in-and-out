@@ -52,7 +52,7 @@ module.exports = function (isDeveloping, utils) {
         });
     };
 
-    obj.insertUser = function ({ email, password, surname = '', tel = '', name, lang, user = 'online' }) {
+    obj.insertUser = function ({ email, password, surname = '', tel = '', name, lang, user = 'online', privacy = true }) {
         return new Promise(function (resolve, rej) {
             db.collection('users').find({ email }).toArray(function (err, result) {
                 if (err) return rej(new Error('generic'));
@@ -61,7 +61,7 @@ module.exports = function (isDeveloping, utils) {
                 const hash = bcrypt.hashSync(password, 10);
                 const created = Date.now();
                 const insert = {
-                    created, hash, surname, activationCode, name, tel,
+                    created, hash, surname, activationCode, name, tel, privacy,
                     email: email.toLowerCase(), active: false, lang, user
                 };
                 db.collection('users').insertOne(insert, function (err, res) {
@@ -149,6 +149,22 @@ module.exports = function (isDeveloping, utils) {
                 .findOneAndUpdate(
                     { activationCode },
                     { $set: { hash: bcrypt.hashSync(password, 10), active: true } },
+                    { returnOriginal: false },
+                    function (err, r) {
+                        if (err) return reject(new Error('generic'));
+                        if (r.value === null) return reject(new Error('missingUser'));
+                        resolve(r.value);
+                    });
+        });
+    };
+
+    obj.privacyAccept = function ({ activationCode }) {
+        return new Promise(function (resolve, reject) {
+            db
+                .collection('users')
+                .findOneAndUpdate(
+                    { activationCode },
+                    { $set: { privacy: true } },
                     { returnOriginal: false },
                     function (err, r) {
                         if (err) return reject(new Error('generic'));

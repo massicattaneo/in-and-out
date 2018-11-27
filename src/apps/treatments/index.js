@@ -76,7 +76,7 @@ function treatments({ system }) {
                         ? locale.get('newItemTemplate') : '';
                     const bookDisplay = item.online === 'si' && isBookable ? 'block' : 'none';
                     const callDisplay = item.online !== 'si' ? 'block' : 'none';
-                    const addToCartDisplay = item.online === 'si' ? 'block' : 'none';
+                    const addToCartDisplay = 'block';
                     const favouriteDisplay = (system.store.logged && isBookable) ? 'block' : 'none';
                     const checked = item.favourite ? 'checked' : '';
                     const variables = { newItem, bookDisplay, addToCartDisplay, callDisplay, favouriteDisplay, checked, item };

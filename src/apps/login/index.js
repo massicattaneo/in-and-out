@@ -9,6 +9,7 @@ import Reset from './reset/Reset';
 import Confirm from './confirm/Confirm';
 import Home from './home/Home';
 import Logged from './logged/Logged';
+import PrivacyAccept from './privacyAccept/PrivacyAccept';
 
 function login({ system }) {
     return async function ({ parent, thread }) {
@@ -58,6 +59,9 @@ function login({ system }) {
                 return subPage;
             case 'confirmacion':
                 subPage = await Confirm({ system, parent: view.get(), thread });
+                return subPage;
+            case 'privacyAccept':
+                subPage = await PrivacyAccept({ system, parent: view.get(), thread });
                 return subPage;
             default:
                 subPage = await Home({ system, parent: view.get(), thread });

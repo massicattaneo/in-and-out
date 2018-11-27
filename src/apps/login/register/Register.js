@@ -15,11 +15,13 @@ export default async function ({ system, parent, thread }) {
 
     view.get('mailform').register = async function () {
         if (view.get('name').value === '') error({ text: 'missingName', focus: 'name' });
+        if (view.get('surname').value === '') error({ text: 'missingSurname', focus: 'surname' });
         if (view.get('email').value === '') error({ text: 'missingEmail', focus: 'email' });
         if (!emailRegEx.test(view.get('email').value)) error({ text: 'malformedEmail', focus: 'email' });
         if (view.get('password').value === '') error({ text: 'missingPassword', focus: 'password' });
         if (view.get('tel').value === '') error({ text: 'missingTel', focus: 'tel' });
         if (!telRegEx.test(view.get('tel').value)) error({ text: 'malformedTel', focus: 'tel' });
+        if (!view.get('privacy').checked) error({ text: 'privacyNotAccepted', focus: 'privacy' });
         await register();
     };
 
@@ -38,7 +40,7 @@ export default async function ({ system, parent, thread }) {
             email: view.get('email').value,
             password: view.get('password').value,
             name: view.get('name').value,
-            surname: '',
+            surname: view.get('surname').value,
             tel: view.get('tel').value,
             lang: system.info().lang
         });

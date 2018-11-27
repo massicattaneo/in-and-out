@@ -160,6 +160,7 @@ module.exports = {
         const centerId = centers[center].id;
         return treatments
             .filter(t => t.favourite)
+            .filter(t => t.online === 'si')
             .filter(t => day.filter(arr => arr.length && Number(t[workers[arr[1]].column]) > 0).length)
             .map(t => Object.assign({
                 available: day.filter(arr => arr.length && Number(t[workers[arr[1]].column]) > 0

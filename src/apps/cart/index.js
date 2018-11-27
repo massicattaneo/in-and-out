@@ -94,7 +94,7 @@ function cart({ system }) {
             const userEmail = system.store.email;
             window.getCartTotal = a => getCartTotal(system.store, a);
             cartView = view.clear('products')
-                .appendTo('products', cartTemplate, [], {
+                .appendTo('products', cartTemplate, [], Object.assign({}, locale.get(), {
                     total: system.toCurrency(total + costs),
                     userEmail,
                     showDiscount: getCartTotal(system.store, cart).discount > 0 ? '' : 'none',
@@ -104,8 +104,9 @@ function cart({ system }) {
                     totalProducts: system.toCurrency(totalProducts),
                     costs: system.toCurrency(costs),
                     hasProducts: hasProducts ? '' : 'none',
+                    showPrivacy: system.info().status.privacy ? 'none': 'block',
                     showPartialGift: hasTreatments || hasBonusCards ? 'inline-block' : 'none'
-                });
+                }));
             items.map(item => {
                 const typeTitleDisplay = type === item.type ? 'none' : 'block';
                 const typeTitle = locale.get(`treatmentsTypes.${type = item.type}`);
@@ -156,6 +157,7 @@ function cart({ system }) {
                 event.preventDefault();
                 if (cartView.get('email').value === '') system.throw('missingEmail');
                 if (!emailRegEx.test(cartView.get('email').value)) system.throw('malformedEmail');
+                if (!system.info().status.privacy && !cartView.get('privacy').checked) system.throw('privacyNotAccepted');
                 if (hasProducts) {
                     if (cartView.get('name').value === '') system.throw('missingName');
                     if (cartView.get('address').value === '') system.throw('missingAddress');

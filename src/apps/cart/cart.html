@@ -52,6 +52,15 @@
         <em class="green-color">En el correo te enviaremo un resumen de los gastos y un PDF que podras utilizar como regalo</em><br/>
         <label>ENVIA LA CONFIRMACION A ESTE CORREO:</label>
         <input #email name="email" value="{{userEmail}}" type="email"/>
+        <br/><br/>
+        <div style="display: {{showPrivacy}};">
+            <label class="switch" style="float:left;margin-right: 4px">
+                <input #privacy type="checkbox">
+                <span class="slider"></span>
+            </label>
+            <span>{{privacyAccept}}</span>
+        </div>
+        <div style="clear: both;"></div>
     </div>
     <div class="box" style="display: {{hasProducts}}">
         <em class="green-color">Se hacen envios solo en España</em><br/>

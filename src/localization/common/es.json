@@ -20,6 +20,7 @@
     "products": "/es/productos",
     "promotions": "/es/promociones"
   },
+  "privacyAccept": "He leido y acepto la <a target='blank' href='/es/preguntas'>Cláusula Informativa y la Política de cookies</a>",
   "signature": "Tu equipo de In<span class=\"green-color\">&</span>Out.",
   "newItemTemplate": "<div class=\"new\">NEW</div>",
   "addToCartButton": "AÑADE AL CARRITO",

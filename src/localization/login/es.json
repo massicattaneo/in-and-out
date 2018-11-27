@@ -2,6 +2,7 @@
   "register": {
     "title": "Crea tu cuenta y ...",
     "nameLabel": "nombre",
+    "surnameLabel": "appelido",
     "emailLabel": "correo",
     "passwordLabel": "contraseña",
     "telLabel": "telefono",
@@ -37,6 +38,10 @@
     "title": "AHORA PUEDES UTILIZAR TU CUENTA",
     "message": "Tu cuenta ya esta activada. Pulsa <a href=\"/es/cuenta/entrar\" onclick=\"window.navigate(this, event)\">aquí</a> para entrar en tu cuenta."
   },
+  "privacy": {
+    "title": "GRACIAS POR TU INTERES!",
+    "message": "Si Quieres utilizar tu cuenta online pulsa <a href=\"/es/cuenta/recuperar\" onclick=\"window.navigate(this, event)\">aquí</a> para crear tu contraseña."
+  },
   "home": {
     "title": "DISFRUTA DE TODOS LOS PRIVIGLEGIOS DE TENER UNA CUENTA:",
     "enter-message": "Ya tengo una cuenta:",
@@ -47,12 +52,12 @@
     "recover-button": "RECUPERAR"
   },
   "recover": {
-    "title": "RECUPERA TU CUENTA:",
+    "title": "CREA TU NUEVA CONTRASEÑA:",
     "emailLabel": "correo",
-    "recoverButton": "RECUPERAR"
+    "recoverButton": "ENVIAR"
   },
   "recoverDone": {
-    "title": "Te hemo enviado un correo:",
+    "title": "Te hemos enviado un correo:",
     "text": "Para utilizar tu cuenta entra en tu correo y haz click en el enalce que te hemos enviado. En esa pagina podras poner tu contraseña."
   },
   "reset": {

@@ -2,7 +2,8 @@ const createTemplate = require('./mailer/createTemplate');
 const {
     confirmRegistrationUrl, registerUrl, loginUrl, adminLoginUrl,
     logoutUrl, logAdminStatus, logStatusUrl, recoverUrl,
-    resetUrl, deleteAccountUrl
+    resetUrl, deleteAccountUrl, privacyEmailUrl,
+    privacyAcceptUrl
 } = require('./serverInfo');
 const ObjectId = require('mongodb').ObjectID;
 const adminKeys = require("./private/adminKeys.json");
@@ -23,7 +24,7 @@ module.exports = function ({
         requiresLogin,
         async function (req, res) {
             const userId = req.session.userId;
-            const { email, anonymous, _id } = await mongo.getUser({ _id: getObjectId(userId) });
+            const { email, anonymous, _id, privacy } = await mongo.getUser({ _id: getObjectId(userId) });
             if (anonymous) {
                 res.send({});
             } else {
@@ -31,7 +32,8 @@ module.exports = function ({
                     id: _id,
                     favourites: await mongo.getUserData(userId),
                     hasBonusCards: (await mongo.rest.get('bonus', `clientId=${userId}`)).length > 0,
-                    bookings: await google.getBookings(email)
+                    bookings: await google.getBookings(email),
+                    privacy
                 };
                 Object.assign(data, { logged: true, email: req.session.email });
                 res.send(data);
@@ -57,10 +59,33 @@ module.exports = function ({
         }
     );
 
+    app.post(privacyEmailUrl, function (req, res) {
+        mongo.recoverPassword({ email: req.body.email })
+            .then(function (user) {
+                mailer.send(createTemplate('privacyEmail', user));
+                res.send('ok');
+            })
+            .catch(function (err) {
+                res.status(500);
+                res.send(err.message);
+            })
+    });
+
     app.post(recoverUrl, function (req, res) {
         mongo.recoverPassword({ email: req.body.email })
             .then(function (user) {
                 mailer.send(createTemplate('recoverEmail', user));
+                res.send('ok');
+            })
+            .catch(function (err) {
+                res.status(500);
+                res.send(err.message);
+            })
+    });
+
+    app.post(privacyAcceptUrl, function (req, res) {
+        mongo.privacyAccept(req.body)
+            .then(function () {
                 res.send('ok');
             })
             .catch(function (err) {

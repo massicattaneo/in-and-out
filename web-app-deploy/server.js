@@ -217,7 +217,7 @@ const shared = require('./shared');
 
     app.post('/api/stripe/pay',
         async function (req, res) {
-            const { token, email, sendTo } = req.body;
+            const { token, email, sendTo, privacy } = req.body;
             const cart = req.body.cart.map(id => Object.assign({ id, used: false }));
             const cartAmount = shared.getCartTotal(google.publicDb(), req.body.cart).total;
             const productsAmount = shared.getCartTotal(google.publicDb(), req.body.cart.filter(id => id.substr(0, 3) === 'PRD')).total;
@@ -241,6 +241,10 @@ const shared = require('./shared');
                             amount: stripeRes.amount,
                             last4: stripeRes.source.last4
                         });
+                        if (!privacy) {
+                            const user = await mongo.rest.get('users', `email=${email}`);
+                            if (user.length) await mongo.rest.update('users', user[0]._id, { privacy: true });
+                        }
                         mailer.send(createTemplate('orderConfirmedEmail', emailParams));
                     } catch (e) {
                         console.log('ERROR ON CONFIRM BUY:', emailParams);
@@ -494,7 +498,7 @@ const shared = require('./shared');
                         mailer.send(emailTemplate);
                         console.log('NEWSLETTER SENT', bcc);
                     } catch (e) {
-                        console.log('ERROR NEWSLETTER', bcc);
+                        console.log('ERROR NEWSLETTER', bcc, e);
                     }
                 }, index * 60 * 1000);
             });

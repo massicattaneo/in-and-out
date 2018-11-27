@@ -30,11 +30,11 @@ export default async function ({ system, parent, context, thread }) {
             const errorMessage = context.locale.get(`errors.${errorName}`);
             const errorGeneric = context.locale.get(`errors.generic`);
             const msg = errorName !== 'custom' ? (typeof errorMessage === 'string' ? errorMessage : errorGeneric) : message;
-            error.innerText = msg;
+            error.innerHTML = msg;
             error.style.top = '10px';
             if (params === 'anonymous') {
                 system.store.logged = false;
-                error.innerText = context.locale.get(`errors.session-expired`);
+                error.innerHTML = context.locale.get(`errors.session-expired`);
                 system.navigateTo('/es/cuenta/entrar');
             }
             timer = setTimeout(function () {
