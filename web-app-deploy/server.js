@@ -35,6 +35,7 @@ const httpsOptions = {
 const adminKeys = require('./private/adminKeys');
 const createStaticHtmls = require('./seo/createStaticHtmls');
 const members = require('./extras/members.json');
+const wrongEmails = require('./extras/wrong.json');
 const shared = require('./shared');
 
 (async function () {
@@ -137,7 +138,10 @@ const shared = require('./shared');
     });
 
     app.get('/api/public-db', async function (req, res) {
-        res.send(Object.assign({}, google.publicDb(), { reviews: await mongo.getReviewsInfo() }));
+        res.send(Object.assign({}, google.publicDb(), {
+            reviews: await mongo.getReviewsInfo(),
+            wrongEmails
+        }));
     });
 
     app.get('/api/reviews/*', function (req, res) {
@@ -475,7 +479,9 @@ const shared = require('./shared');
         requiresAdmin,
         async function (req, res) {
             const emails = await mongo.getEmails();
-            const allMembers = members.concat(emails).filter((e, i, a) => a.indexOf(e) === i);
+            const allMembers = members.concat(emails)
+                .filter(e => wrongEmails.indexOf(e) === -1)
+                .filter((e, i, a) => a.indexOf(e) === i);
             const bcc = (req.body.test ? req.body.emails : allMembers);
             if (!req.body.test) {
                 console.log('SENDING NEWSLETTER');

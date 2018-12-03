@@ -1,12 +1,17 @@
 <ul #wrapper>
     {{#each clients}}
     <li class="list-item">
-        <div style="max-width: calc(100% - 200px); display: inline-block;">
+        <output style="max-width: calc(100% - 200px); display: inline-block;" data-id="{{this._id}}"
+                ondragenter="this.form.dragEnter()"
+                ondragleave="this.form.dragLeave()"
+                ondragover="this.form.dragOver()"
+                ondrop="this.form.drop()">
             {{this.online}} {{this.name}} {{this.surname}},
-            <a href="mailto:{{this.email}}">{{this.email}}</a>
+            <a style="    display: inline-block;background-color: {{this.emailBgColor}};padding: 0 4px;
+    border-radius: 7px;height: 22px;line-height: 20px;" href="mailto:{{this.email}}">{{this.email}}</a>
             -
             <a href="tel:{{this.tel}}">{{this.tel}}</a>
-        </div>
+        </output>
             <button type="button"
                     {{this.deleteDisabled}}
                     onclick="this.form.delete('{{this._id}}')"

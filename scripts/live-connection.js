@@ -31,7 +31,7 @@ MongoClient.connect(url, async function (err, db) {
     await google.initDriveSheets();
 
     /** GLOBAL SUMMARY */
-    await BillSummary(db, google, {});
+    // await BillSummary(db, google, {});
 
     /** TRIMESTRAL SUMMARY **/
     // await BankSummary(db, google, {

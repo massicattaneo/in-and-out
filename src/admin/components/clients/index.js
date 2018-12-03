@@ -39,7 +39,8 @@ export default async function ({ locale, system, thread }) {
             .sort((a, b) => a.name.localeCompare(b.name))
             .map(c => Object.assign(c, {
                 deleteDisabled: c.hash ? 'disabled' : '',
-                online: `<span class="circle-indicator ${c.hash && 'mdl-color--primary'}"></span>`
+                emailBgColor: system.publicDb.wrongEmails.indexOf(c.email) !== -1 ? '#ffb4b4' : 'none',
+                online: `<output ondragstart="this.form.dragStart('${c._id}')" draggable="true" class="circle-indicator ${c.hash && 'mdl-color--primary'}"></output>`
             }));
         const p = Object.assign({ clients: filter.filter((a, i) => i < 100) }, locale.get());
         const v = view.clear('clients').appendTo('clients', list, listStyle, p);
@@ -49,8 +50,56 @@ export default async function ({ locale, system, thread }) {
         view.get('withcard').innerText = '';
         v.style();
     });
+    const form = view.get('wrapper');
 
-    view.get('wrapper').delete = async function (id) {
+
+    form.dragStart = function (params) {
+        window.event.dataTransfer.setData('config', JSON.stringify(params));
+    };
+    form.dragEnter = function () {
+        window.event.target.classList.add('hover');
+    };
+    form.dragLeave = function () {
+        window.event.target.classList.remove('hover');
+    };
+    form.dragOver = function () {
+        window.event.preventDefault();
+
+    };
+    form.drop = async function () {
+        const oldClient = window.event.target.getAttribute('data-id');
+        const newClient = JSON.parse(window.event.dataTransfer.getData('config'));
+        if (oldClient && confirm('ESTAS SEGURO? LOS CLIENTES SERAN JUNTADOS!')) {
+            const bonuses = await thread.execute('rest-api', {
+                method: 'get',
+                api: `bonus?clientId=${oldClient}`
+            });
+            const transactions = await thread.execute('rest-api', {
+                method: 'get',
+                api: `cash?clientId=${oldClient}`
+            });
+            for (let b = 0; b < bonuses.length; b++) {
+                await thread.execute('rest-api', {
+                    api: `bonus/${bonuses[b]._id}`,
+                    method: 'put',
+                    clientId: newClient
+                });
+            }
+            for (let t = 0; t < transactions.length; t++) {
+                await thread.execute('rest-api', {
+                    api: `cash/${transactions[t]._id}`,
+                    method: 'put',
+                    clientId: newClient
+                });
+            }
+            await thread.execute('rest-api', {
+                api: `users/${oldClient}`,
+                method: 'delete'
+            });
+        }
+    };
+
+    form.delete = async function (id) {
         if (confirm('seguro?')) {
             await thread.execute('rest-api', {
                 api: `users/${id}`,
@@ -59,13 +108,13 @@ export default async function ({ locale, system, thread }) {
         }
     };
 
-    view.get('wrapper').sendEmail = async function (email) {
+    form.sendEmail = async function (email) {
         if (confirm('Quieres enaviar un correo para restablecer/crear la contraseña?')) {
             thread.execute('user/recover', { email: email });
         }
     };
 
-    view.get('wrapper').update = async function (id) {
+    form.update = async function (id) {
         const p = system.store.clients.find(i => i._id === id);
         const { modalView, modal } = createModal(editClient, Object.assign({}, p, { disabled: p.hash ? 'disabled' : '' }),
             async function (close) {
@@ -83,7 +132,7 @@ export default async function ({ locale, system, thread }) {
             });
     };
 
-    view.get('wrapper').add = function () {
+    form.add = function () {
         const { modalView, modal } = createModal(editClient, {}, async function (close) {
             if (!this.name.value) system.throw('custom', { message: 'FALTA EL NOMBRE' });
             if (!this.surname.value) system.throw('custom', { message: 'FALTA EL APPELIDO' });
@@ -109,11 +158,11 @@ export default async function ({ locale, system, thread }) {
         modalView.get('name').setSelectionRange(0, modalView.get('name').value.length);
     };
 
-    view.get('wrapper').resetCard = function () {
+    form.resetCard = function () {
         system.nfc.send('empty');
     };
 
-    view.get('wrapper').scanqr = function () {
+    form.scanqr = function () {
         const scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
         scanner.addListener('scan', function (content) {
             scanner.stop();
