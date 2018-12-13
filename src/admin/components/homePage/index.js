@@ -3,17 +3,19 @@ import admin2Tpl from './level2.html';
 import admin0Tpl from './level1.html';
 import * as style from './style.scss';
 
+const numberOfMonths = 13;
+
 export default async function ({ system, thread, locale }) {
     const htmlView = HtmlView('<div><div #level1></div><div #level2></div></div>', []);
     const model = window.rx.create({ cash: [], bonus: [] });
 
     htmlView.refresh = async function () {
         htmlView.clear('level1').clear('level2');
-        model.bonus.splice(0, 100000000);
-        model.cash.splice(0, 100000000);
+        model.bonus.splice(0, 1000000000);
+        model.cash.splice(0, 1000000000);
         if (system.store.adminLevel === 2) {
             const year = new Date();
-            year.setMonth(0);
+            year.setMonth(year.getMonth() - numberOfMonths);
             year.setDate(1);
             year.setHours(0, 0, 0, 0);
             const cash = await thread.execute('rest-api', {
@@ -32,7 +34,10 @@ export default async function ({ system, thread, locale }) {
     };
 
     window.rx.connect({ adminLevel: () => system.store.adminLevel }, htmlView.refresh);
-    window.rx.connect({ cash: () => model.cash, adminLevel: () => system.store.adminLevel }, ({ cash, adminLevel }) => {
+    window.rx.connect({
+        cash: () => model.cash,
+        orders: () => system.store.orders,
+        adminLevel: () => system.store.adminLevel }, ({ cash, orders, adminLevel }) => {
         if (adminLevel === 2) {
             const monthNames = new Array(12).fill(0).map((v, i) => locale.get(`month_${i}`).toUpperCase());
             const today = new Date();
@@ -50,14 +55,16 @@ export default async function ({ system, thread, locale }) {
             const dm = { today: 0, month: 0, trimonth: 0, year: 0 };
 
             const salitre = Object.create(dm);
-            salitre.months = new Array(new Date().getMonth() + 1).fill(0);
+            salitre.months = new Array(numberOfMonths).fill(0);
             const buenaventura = Object.create(dm);
-            buenaventura.months = new Array(new Date().getMonth() + 1).fill(0);
+            buenaventura.months = new Array(numberOfMonths).fill(0);
             const compania = Object.create(dm);
-            compania.months = new Array(new Date().getMonth() + 1).fill(0);
+            compania.months = new Array(numberOfMonths).fill(0);
+            const online = Object.create(dm);
+            online.months = new Array(numberOfMonths).fill(0);
             const total = Object.create(dm);
-            total.months = new Array(new Date().getMonth() + 1).fill(0);
-            const result = { salitre, buenaventura, compania, total };
+            total.months = new Array(numberOfMonths).fill(0);
+            const result = { salitre, buenaventura, compania, online, total };
 
             cash
                 .reduce((acc, i) => {
@@ -73,12 +80,22 @@ export default async function ({ system, thread, locale }) {
                         acc[i.user].trimonth += i.amount;
                         acc.total.trimonth += i.amount;
                     }
-                    const thisMonth = (new Date(i.date)).getMonth();
-                    acc[i.user].months[thisMonth] += i.amount;
-                    acc[i.user].year += i.amount;
+                    const lastYearMonth = new Date(Date.now() - 1000 * 60 * 60 * 24 * 365);
+                    lastYearMonth.setMonth(lastYearMonth.getMonth() + 1);
+                    lastYearMonth.setDate(1);
+                    lastYearMonth.setHours(0, 0, 0, 0);
 
-                    acc.total.months[thisMonth] += i.amount;
-                    acc.total.year += i.amount;
+                    const thisMonth = (new Date(i.date));
+                    if (thisMonth.getTime() > lastYearMonth.getTime()) {
+                        acc[i.user].months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount;
+                        acc[i.user].year += i.amount;
+                        acc.total.months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount;
+                        acc.total.year += i.amount;
+                    } else if (numberOfMonths > 12) {
+                        acc[i.user].months[numberOfMonths - 13] += i.amount;
+                        acc.total.months[numberOfMonths - 13] += i.amount;
+                    }
+
 
                     return acc;
                 }, result);
@@ -94,17 +111,49 @@ export default async function ({ system, thread, locale }) {
                     }), [])
             });
 
+            orders.reduce((acc, i) => {
+                if (i.created >= today.getTime()) {
+                    acc['online'].today += i.amount/100;
+                    acc.total.today += i.amount/100;
+                }
+                if (i.created >= month.getTime()) {
+                    acc['online'].month += i.amount/100;
+                    acc.total.month += i.amount/100;
+                }
+                if (i.created >= trimonth.getTime()) {
+                    acc['online'].trimonth += i.amount/100;
+                    acc.total.trimonth += i.amount/100;
+                }
+                const lastYearMonth = new Date(Date.now() - 1000 * 60 * 60 * 24 * 365);
+                lastYearMonth.setMonth(lastYearMonth.getMonth() + 1);
+                lastYearMonth.setDate(1);
+                lastYearMonth.setHours(0, 0, 0, 0);
+
+                const thisMonth = (new Date(i.created));
+                if (thisMonth.getTime() > lastYearMonth.getTime()) {
+                    acc['online'].months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount/100;
+                    acc['online'].year += i.amount/100;
+                    acc.total.months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount/100;
+                    acc.total.year += i.amount/100;
+                } else if (numberOfMonths > 12) {
+                    acc['online'].months[numberOfMonths - 13] += i.amount/100;
+                    acc.total.months[numberOfMonths - 13] += i.amount/100;
+                }
+                return acc;
+            }, result);
+
             var ctx = view.get('chart').getContext('2d');
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: result.total.months.map((tot, i) => monthNames[i]),
-                    datasets: [{
-                        label: 'SALITRE',
-                        data: result.salitre.months,
-                        backgroundColor: '#cdfaff',
-                        borderWidth: 1
-                    },
+                    labels: result.total.months.map((tot, i, a) => monthNames[i ? i - 1 : a.length - 2]),
+                    datasets: [
+                        {
+                            label: 'SALITRE',
+                            data: result.salitre.months,
+                            backgroundColor: '#cdfaff',
+                            borderWidth: 1
+                        },
                         {
                             label: 'COMPAÑIA',
                             data: result.compania.months,
@@ -118,11 +167,18 @@ export default async function ({ system, thread, locale }) {
                             borderWidth: 1
                         },
                         {
+                            label: 'ONLINE',
+                            data: result.online.months,
+                            backgroundColor: '#fff1b0',
+                            borderWidth: 1
+                        },
+                        {
                             label: 'TOTAL',
                             data: result.total.months,
                             backgroundColor: '#000000',
                             borderWidth: 1
-                        }]
+                        }
+                    ]
                 }
             });
         }
