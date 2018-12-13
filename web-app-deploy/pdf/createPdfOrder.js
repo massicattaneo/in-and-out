@@ -2,87 +2,103 @@ const PdfDoc = require('pdfkit');
 const path = require('path');
 const parseCart = require('./parseCart');
 const info = require('../serverInfo.json');
+const { activePromotions, getDiscountsPrice, getPromotionDiscounts } = require('../shared');
 
 module.exports = function createPdfOrder(res, googleDb, code, cart) {
-    const doc = new PdfDoc();
+    const activePromo = activePromotions(googleDb.promotions, 1)[0];
+    const doc = new PdfDoc({
+        margins: {
+            bottom: 0
+        }
+    });
     doc.pipe(res);
     const products = parseCart(cart, googleDb);
 
+    doc.registerFont('burst', `${__dirname}/../static/assets/fonts/busrt-my-bubble/burstmybubble.ttf`);
+    doc.registerFont('burst-bold', `${__dirname}/../static/assets/fonts/busrt-my-bubble/burstmybubblebold.ttf`);
+
     doc
-        .fontSize(20)
+        .image(path.resolve(`${__dirname}/../static/assets/images/pdf-buy-background.png`), 0, 0, { width: 615 });
+
+    const salitre = googleDb.centers[0];
+    const buenaventura = googleDb.centers[2];
+    const marginLeft = 40;
+
+    doc
+        .fontSize(50)
+        .fillColor(info.greenColor)
+        .font('burst-bold')
+        .text('ALGO ESPECIAL', marginLeft + 100, 25)
+        .text('TE ESPERA!', marginLeft + 100, 85)
+        .fillColor('black');
+
+    doc
+        .fontSize(10)
         .font('Helvetica-Bold')
-        .fillColor('black')
-        .text('IN', 40, 40)
-        .fillColor('green')
-        .text('&', 60, 40)
-        .fillColor('black')
-        .text('OUT', 74, 40);
-
-    doc
-        .fontSize(16)
+        .fillColor('white')
+        .text(`${salitre.address}`, marginLeft, 160)
+        .text(`${buenaventura.address}`, 245, 160)
+        .fontSize(9)
         .font('Helvetica')
-        .text('- Centro de belleza', 120, 43);
+        .text(`TEL: ${salitre.tel}, MOV: ${salitre.mobile}`, marginLeft, 170)
+        .text(`TEL: ${buenaventura.tel}, MOV: ${buenaventura.mobile}`, 245, 170)
+        .text(`HORARIO:`, marginLeft, 185)
+        .text(`HORARIO:`, 245, 185)
+        .text(`lunes-viernes 10:00-20:00 h.`, 90, 185)
+        .text(`lunes-viernes 10:00-19:00 h.`, 295, 185)
+        .text(`sabado 10:00-14:00 h.`, 90, 195)
+        .text(`sabado 10:00-14:00 h.`, 295, 195)
+        .text(`1 hora de parking GRATIS *`, marginLeft + 420, 210);
 
-    doc
-        .lineWidth(1)
-        .lineCap('butt')
-        .moveTo(40, 65)
-        .lineTo(570, 65)
-        .stroke();
+    doc.text(`(*) 1 hora de parking gratis a partir de 30€`, marginLeft, 690);
 
-        const salitre = googleDb.centers[0];
-        const buenaventura = googleDb.centers[2];
-        doc
-            .fontSize(9)
-            .fillColor('grey')
-            .text(`${salitre.address} - tel: ${salitre.tel}, mov: ${salitre.mobile}`, 40, 75)
-            .text(`${buenaventura.address} - tel: ${buenaventura.tel}, mov: ${buenaventura.mobile}`, 40, 90);
-
-    let y = 130;
-
+    let y = 250;
+    doc.font('burst');
     if (products.filter(i => i.type !== 'products').length) {
-
         doc
             .fontSize(14)
             .fillColor('black')
-            .text(`Hola! Ya puedes disfrutar de los tratamientos de In&Out!!!`, 40, y);
-
-        y += 30;
-
+            .text(`Ya puedes disfrutar de los tratamientos de In&Out!!!`, marginLeft, y);
+        y += 15;
         doc
             .fontSize(12)
             .fillColor('black')
-            .text(`Pide cita en uno de nuestro centros con este codigo: (${code})`, 40, y);
+            .text(`Pide cita en uno de nuestros centros.`, marginLeft, y);
 
-        y += 30;
+        y += 15;
     } else {
         doc
             .fontSize(14)
             .fillColor('black')
-            .text(`Hola! Aqui tiene el codigo de compra de tu productos In&Out!!!`, 40, y);
+            .text(`Hola! Aqui tiene el codigo de compra de tu productos In&Out!!!`, marginLeft, y);
 
-        y += 30;
+        y += 15;
     }
 
     doc
-        .image(path.resolve(`${__dirname}/../order-qr-codes/${code}.png`), 25, y, { width: 130 });
+        .image(path.resolve(`${__dirname}/../order-qr-codes/${code}.png`), 470, y-50, { width: 100 });
 
-    const left = 170;
+    const left = marginLeft;
 
     if (products.filter(i => i.type !== 'products').length) {
         y += 15;
 
         doc
-            .lineWidth(15)
+            .lineWidth(30)
             .lineCap('butt')
-            .strokeColor('#dddddd')
-            .moveTo(left, y + 5)
-            .lineTo(570, y + 5)
+            .strokeColor('#FFECD1')
+            .moveTo(marginLeft, y + 7)
+            .lineTo(470, y + 7)
             .stroke();
         doc
-            .text('Esto es lo que te espera en nuestros centros:', left, y);
+            .fontSize(20)
+            .font('burst-bold')
+            .text('Esto es lo que te espera:', marginLeft + 10, y);
 
-        y += 15;
+        y += 25;
+
+        doc.fontSize(14);
+        doc.font('Helvetica');
 
         products.filter(i => i.type !== 'products')
             .forEach(function ({ count, price, type, title, category }) {
@@ -95,7 +111,6 @@ module.exports = function createPdfOrder(res, googleDb, code, cart) {
     }
 
     if (products.filter(i => i.type === 'products').length) {
-
         y += 15;
         doc
             .lineWidth(15)
@@ -105,6 +120,7 @@ module.exports = function createPdfOrder(res, googleDb, code, cart) {
             .lineTo(570, y + 5)
             .stroke();
 
+        doc.font('burst-bold')
         if (products.filter(i => i.type !== 'products').length) {
             doc.text('Ademas te enviaremos:', left, y);
         } else {
@@ -113,6 +129,8 @@ module.exports = function createPdfOrder(res, googleDb, code, cart) {
 
         y += 15;
 
+        doc.fontSize(14);
+        doc.font('Helvetica');
         products
             .filter(i => i.type === 'products')
             .forEach(function ({ count, price, type, title }) {
@@ -121,9 +139,20 @@ module.exports = function createPdfOrder(res, googleDb, code, cart) {
             });
     }
 
-    doc
-        .image(path.resolve(`${__dirname}/../static/assets/images/slider-1.png`), 40, 500, { width: 530 });
-
+    if (activePromo) {
+        doc.font('burst');
+        const discounts = getPromotionDiscounts(activePromo);
+        doc
+            .fontSize(20)
+            .font('burst-bold')
+            .text('Y ADEMAS NO PERDERTE:', 260, 700)
+            .fontSize(12)
+            .font('burst')
+            .text(`${activePromo.titulo}`, 260, 720, { width: 300 })
+            .fontSize(16)
+            .font('burst-bold')
+            .text(`POR SOLO ${getDiscountsPrice(googleDb, discounts)}€`, 260, doc.y + 5);
+    }
 
     doc.end();
 };

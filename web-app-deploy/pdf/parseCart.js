@@ -20,7 +20,7 @@ module.exports = function parseCart(array, googleDb) {
                     price: t.precio,
                     type,
                     typeTranslated: cartEs.treatmentsTypes[type],
-                    category: type === 'treatments' ? `${t.tipo}` : type === 'bonusCards' ? 'Tarjeta' : ''
+                    category: type === 'treatments' ? `${t.tipo}` : type === 'bonusCards' ? 'Bono' : ''
                 });
             }
             return arr;

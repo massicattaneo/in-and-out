@@ -101,7 +101,7 @@ module.exports = function (isDeveloping, utils) {
             db.collection('users')
                 .find({ email: { $exists: true, $not: { $size: 0 } }, deleted: { $exists: false } })
                 .toArray(function (err, res) {
-                    resolve(res.map(i => i.email));
+                    resolve(res.filter(i => i.active !== false).map(i => i.email));
                 });
         });
     };
