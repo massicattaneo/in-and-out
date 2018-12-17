@@ -68,16 +68,17 @@ export default async function ({ system, thread, locale }) {
 
             cash
                 .reduce((acc, i) => {
+                    const user = i.user || 'salitre';
                     if (i.date >= today.getTime()) {
-                        acc[i.user].today += i.amount;
+                        acc[user].today += i.amount;
                         acc.total.today += i.amount;
                     }
                     if (i.date >= month.getTime()) {
-                        acc[i.user].month += i.amount;
+                        acc[user].month += i.amount;
                         acc.total.month += i.amount;
                     }
                     if (i.date >= trimonth.getTime()) {
-                        acc[i.user].trimonth += i.amount;
+                        acc[user].trimonth += i.amount;
                         acc.total.trimonth += i.amount;
                     }
                     const lastYearMonth = new Date(Date.now() - 1000 * 60 * 60 * 24 * 365);
@@ -87,12 +88,12 @@ export default async function ({ system, thread, locale }) {
 
                     const thisMonth = (new Date(i.date));
                     if (thisMonth.getTime() > lastYearMonth.getTime()) {
-                        acc[i.user].months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount;
-                        acc[i.user].year += i.amount;
+                        acc[user].months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount;
+                        acc[user].year += i.amount;
                         acc.total.months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount;
                         acc.total.year += i.amount;
                     } else if (numberOfMonths > 12) {
-                        acc[i.user].months[numberOfMonths - 13] += i.amount;
+                        acc[user].months[numberOfMonths - 13] += i.amount;
                         acc.total.months[numberOfMonths - 13] += i.amount;
                     }
 
