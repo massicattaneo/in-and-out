@@ -321,14 +321,13 @@ const shared = require('./shared');
             }).then(async (e) => {
                 res.send(e);
                 const date = new Date(new Date(e.start).getTime() - (offset * 60 * 60 * 1000));
-                console.log(date, offset);
                 const event = {
                     bookId: e.eventId,
                     clientName: name,
                     description: e.label,
                     email,
-                    startDate: e.start,
-                    endDate: e.end,
+                    startDate: new Date(new Date(e.start).getTime() - (offset * 60 * 60 * 1000)).toISOString(),
+                    endDate: new Date(new Date(e.end).getTime() - (offset * 60 * 60 * 1000)).toISOString(),
                     formattedDate: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
                     formattedHour: `${date.getHours()}:${date.getMinutes()}`,
                     location: e.location
