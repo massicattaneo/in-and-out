@@ -320,7 +320,8 @@ const shared = require('./shared');
                 offset
             }).then(async (e) => {
                 res.send(e);
-                const date = new Date(e.start);
+                const date = new Date(new Date(e.start).getTime() - (offset * 60 * 60 * 1000));
+                console.log(date, offset);
                 const event = {
                     bookId: e.eventId,
                     clientName: name,
