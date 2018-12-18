@@ -7,6 +7,7 @@ const confirm = require('./templates/confirm');
 const orderConfirm = require('./templates/orderConfirm');
 const googleReview = require('./templates/googleReview');
 const privacy = require('./templates/privacy');
+const bookReminder = require('./templates/bookReminder');
 
 module.exports = function (type, emailParams) {
     const email = emailParams.email;
@@ -55,6 +56,14 @@ module.exports = function (type, emailParams) {
             subject: 'Cláusula Informativa y la Política de cookies', // Subject line
             text: '', // plain text body
             html: privacy(params)
+        };
+    case 'bookReminder':
+        return {
+            to: emailParams.email,
+            subject: 'Recordatorio cita con In&Out', // Subject line
+            text: '', // plain text body
+            html: bookReminder(params),
+            attachments: emailParams.attachments
         };
     }
 };

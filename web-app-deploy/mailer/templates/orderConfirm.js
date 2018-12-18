@@ -65,6 +65,29 @@ module.exports = function ({grayColor, id, cart, googleDb, footer, amount, host,
                 </tr>
             </table>
         </p>
+        <div itemscope itemtype="http://schema.org/Order">
+          <div itemprop="merchant" itemscope itemtype="http://schema.org/Organization">
+            <meta itemprop="name" content="inandoutbelleza.es"/>
+          </div>
+          <meta itemprop="orderNumber" content="${id}"/>
+          <meta itemprop="priceCurrency" content="EUR"/>
+          <meta itemprop="price" content="${amount/100}"/>
+          
+          ${parseCart(cart, googleDb)
+        .map(item => `
+            
+            <div itemprop="acceptedOffer" itemscope itemtype="http://schema.org/Offer">
+                <div itemprop="itemOffered" itemscope itemtype="http://schema.org/Product">
+                  <meta itemprop="name" content="${item.typeTranslated} - ${item.title}"/>
+                </div>
+                <meta itemprop="price" content="${item.price}"/>
+                <meta itemprop="priceCurrency" content="EUR"/>
+                <div itemprop="eligibleQuantity" itemscope itemtype="http://schema.org/QuantitativeValue">
+                  <meta itemprop="value" content="${item.count}"/>
+                </div>
+            </div>            
+            `).join('')}
+        </div>
         </td>
     </tr>
     <!-- COPY -->

@@ -1,4 +1,5 @@
 const { firebaseBonuses, firebaseClients, firebaseTransactions } = require('./firebaseImporter');
+const { createICS } = require('./events/createICS');
 const posts = require('./extras/posts.json');
 const detector = require('spider-detector');
 const path = require('path');
@@ -317,8 +318,26 @@ const shared = require('./shared');
                 description: email,
                 label,
                 offset
-            }).then((e) => {
+            }).then(async (e) => {
                 res.send(e);
+                const date = new Date(e.start);
+                const event = {
+                    bookId: e.eventId,
+                    clientName: name,
+                    description: e.label,
+                    email,
+                    startDate: e.start,
+                    endDate: e.end,
+                    formattedDate: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
+                    formattedHour: `${date.getHours()}:${date.getMinutes()}`,
+                    location: e.location
+                };
+
+                const filePath = path.resolve(__dirname, `temp/${e.eventId}.ics`);
+                const attachments = [{ filename: 'Cita.ics', path: filePath }];
+                fs.writeFileSync(filePath, createICS(event), 'utf8');
+                const emailTemplate = createTemplate('bookReminder', { email, event, attachments });
+                mailer.send(emailTemplate);
             }).catch((e) => {
                 res.status(500);
                 console.log('error', e);

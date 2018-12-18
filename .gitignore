@@ -5,6 +5,7 @@ web-app-deploy/private/*
 web-app-deploy/google/*
 web-app-deploy/extras/*
 web-app-deploy/order-qr-codes/*.png
+web-app-deploy/temp/*.ics
 backup/fb2b86b1ef42eee47e65ce27fc320948/
 scripts/*.csv
 src/assets/uploads/*
