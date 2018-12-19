@@ -67,6 +67,7 @@ function cart({ system }) {
                             count: 1,
                             title: `${t.tipo ? `${t.tipo}: ` : ''}${t.titulo}`,
                             price: Number(t.precio),
+                            href: `${locale.get(`urls.${type}`)}/${t.menuhref ? `${t.menuhref}/` : ''}${t.href}`,
                             type
                         });
                     }
@@ -111,6 +112,7 @@ function cart({ system }) {
                 const typeTitleDisplay = type === item.type ? 'none' : 'block';
                 const typeTitle = locale.get(`treatmentsTypes.${type = item.type}`);
                 const total = system.toCurrency(item.price * item.count);
+                console.log(item);
                 cartView.appendTo('cart', cartItemTemplate, [], { item, total, typeTitleDisplay, typeTitle });
             });
         }

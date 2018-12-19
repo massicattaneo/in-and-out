@@ -18,7 +18,8 @@
     "cart": "/es/cesta",
     "bookings": "/es/citas",
     "products": "/es/productos",
-    "promotions": "/es/promociones"
+    "promotions": "/es/promociones",
+    "bonusCards": "/es/tarjetas"
   },
   "privacyAccept": "He leido y acepto la <a target='blank' href='/es/preguntas'>Cláusula Informativa y la Política de cookies</a>",
   "signature": "Tu equipo de In<span class=\"green-color\">&</span>Out.",
