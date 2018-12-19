@@ -5,7 +5,10 @@ import template from './icon.html';
 export default function ({ system, context, parent, config, autoDisconnect = false }) {
     let obj = {};
     const { name } = config;
-    const { icon = context.appsManifest.find(i => i.name === name).icon } = config;
+    const {
+        icon = context.appsManifest.find(i => i.name === name).icon,
+        color = context.appsManifest.find(i => i.name === name).color
+    } = config;
     const url = `/${system.info().lang}/${context.locale.get(`apps.${config.name}.url`)}`;
     const view = HtmlView(template, styles, { url });
     const iconClass = view.get('icon').className;
@@ -22,6 +25,7 @@ export default function ({ system, context, parent, config, autoDisconnect = fal
         view.get('loader').style.display = loaded === 100 ? 'none' : 'block';
         view.get('text').innerHTML = context.locale.get(`apps.${name}.iconText`);
         view.get('icon').className = iconClass + ' ' + icon;
+        view.get().style.color = `${color}`;
         view.get('notify').style.display = 'none';
         notifiers
             .filter(n => n === name)
