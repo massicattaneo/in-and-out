@@ -188,7 +188,7 @@ function map(template, googleDb, posts, isSpider, google) {
     }
 
     const oldUrls = ['beauty-corner', 'beauty-parties', null, 'contacto', null, 'in-out-go', null, 'quienes-somos'];
-    ['beautycorner', 'beautyparties', 'bookings', 'callUs', 'hours', 'inandoutgo', 'photoMeasure', 'team']
+    ['beautycorner', 'beautyparties', 'bookings', 'callUs', 'hours', 'inandoutgo', 'photoMeasure', 'team', 'gift']
         .forEach(function (name, index) {
             const app = es.apps[name];
             const html = template

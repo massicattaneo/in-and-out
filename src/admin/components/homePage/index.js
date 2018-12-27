@@ -15,7 +15,7 @@ export default async function ({ system, thread, locale }) {
         model.cash.splice(0, 1000000000);
         if (system.store.adminLevel === 2) {
             const year = new Date();
-            year.setMonth(year.getMonth() - numberOfMonths);
+            year.setMonth(year.getMonth() - numberOfMonths + 1);
             year.setDate(1);
             year.setHours(0, 0, 0, 0);
             const cash = await thread.execute('rest-api', {
@@ -87,12 +87,14 @@ export default async function ({ system, thread, locale }) {
                     lastYearMonth.setHours(0, 0, 0, 0);
 
                     const thisMonth = (new Date(i.date));
+
                     if (thisMonth.getTime() > lastYearMonth.getTime()) {
                         acc[user].months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount;
                         acc[user].year += i.amount;
                         acc.total.months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount;
                         acc.total.year += i.amount;
                     } else if (numberOfMonths > 12) {
+
                         acc[user].months[numberOfMonths - 13] += i.amount;
                         acc.total.months[numberOfMonths - 13] += i.amount;
                     }
