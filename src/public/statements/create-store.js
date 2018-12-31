@@ -1,4 +1,4 @@
-import { sortByDate, futurePromotions } from '../../../web-app-deploy/shared';
+import { sortByDate, futurePromotions, getSpainOffset } from '../../../web-app-deploy/shared';
 
 function addDescription(i) {
     return Object.assign(i, { descripcion: i.descripcion || '' });
@@ -45,7 +45,11 @@ export default async function ({ system, wait, thread }) {
         beautyparties: publicDb.beautyparties || [],
         centers: publicDb.centers,
         workers: publicDb.workers,
-        timestamp: publicDb.timestamp,
+        localTimestamp: Date.now(),
+        serverTimestamp: publicDb.serverTimestamp,
+        localOffset: new Date().getTimezoneOffset() / -60,
+        spainOffset: getSpainOffset(),
+        spainTime: Date.now(),
         calendars: publicDb.calendars,
         notifications: Math.random(),
         reviews: new Array(publicDb.reviews.count).fill(''),
@@ -62,16 +66,21 @@ export default async function ({ system, wait, thread }) {
             return Object.assign(s, source);
         }, staticStore);
     system.store = window.rx.create(staticStore);
-    const today = (function () {
-        const d = new Date(system.store.timestamp);
-        if (d.getDay() === 0) d.setTime(d.getTime() + 24 * 60 * 60 * 1000);
-        d.setUTCHours(1, 0, 0, 0);
-        return d.getTime();
-    })();
+
+    function setSpainTime() {
+        system.store.spainTime = new Date(Date.now() - (system.store.localTimestamp - system.store.serverTimestamp)
+            + ((system.store.spainOffset - system.store.localOffset) * 60 * 60 * 1000)).getTime();
+    }
+
+    setInterval(setSpainTime, 1000);
+    setSpainTime();
+
+    const spainDate = new Date(system.store.spainTime);
+    if (spainDate.getDay() === 0) spainDate.setTime(spainDate.getTime() + 24 * 60 * 60 * 1000);
     system.book = window.rx.create({
         center: 0,
         treatments: [],
-        date: today,
+        date: spainDate.getTime(),
         progress: 0
     });
 

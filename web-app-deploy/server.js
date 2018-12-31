@@ -279,9 +279,10 @@ const shared = require('./shared');
     app.post('/google/calendar/insert',
         requiresLogin,
         async function (req, res) {
-            const { treatments, start, locationIndex, offset } = req.body;
+            const offset = -shared.getSpainOffset();
+            const { treatments, start, locationIndex } = req.body;
             const { name, tel, email } = await mongo.getUser({ _id: new ObjectId(req.session.userId) });
-            const workers = shared.getWorkersByHour(googleDb, start, locationIndex, offset);
+            const workers = shared.getWorkersByHour(googleDb, start, locationIndex);
             const all = google.publicDb().treatments;
             const dateMin = new Date(start);
             const items = workers
@@ -316,11 +317,10 @@ const shared = require('./shared');
                 to: new Date(dateMin.getTime() + shared.getTreatmentsDuration(googleDb, all, treatments, workerIndex) * 60 * 1000).toISOString(),
                 summary: `${name} (TEL. ${tel}) ${label}`,
                 description: email,
-                label,
-                offset
+                label
             }).then(async (e) => {
                 res.send(e);
-                const date = new Date(new Date(e.start).getTime() - (offset * 60 * 60 * 1000));
+                const date = new Date(new Date(e.start).getTime() - ((offset + google.publicDb().serverOffset) * 60 * 60 * 1000));
                 const event = {
                     bookId: e.eventId,
                     clientName: name,
@@ -329,7 +329,7 @@ const shared = require('./shared');
                     startDate: new Date(new Date(e.start).getTime() - (offset * 60 * 60 * 1000)).toISOString(),
                     endDate: new Date(new Date(e.end).getTime() - (offset * 60 * 60 * 1000)).toISOString(),
                     formattedDate: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
-                    formattedHour: `${date.getHours()}:${date.getMinutes()}`,
+                    formattedHour: `${date.getHours()}:${date.getMinutes().toString().length === 1 ? `0${date.getMinutes()}` : date.getMinutes()}`,
                     location: e.location
                 };
 
@@ -378,7 +378,7 @@ const shared = require('./shared');
     app.post('/google/calendar/add',
         requiresAdmin,
         async function (req, res) {
-            const { duration, calendarId, date, summary, label = '', processId, description, offset } = req.body;
+            const { duration, calendarId, date, summary, label = '', processId, description } = req.body;
             const from = new Date(date);
             google.calendarInsert({
                 id: calendarId,
@@ -387,8 +387,7 @@ const shared = require('./shared');
                 summary,
                 description,
                 label,
-                processId,
-                offset
+                processId
             })
                 .then((e) => {
                     res.send(e);

@@ -13,6 +13,7 @@ import {
     getPromotionDiscounts,
     getCartTotal
 } from '../../../../web-app-deploy/shared';
+import editCash from '../cash/edit-cash.html';
 
 export default async function ({ locale, system, thread, wait }) {
     const view = HtmlView('<div>{{templates.loading}}</div>', [], locale.get());
@@ -99,6 +100,31 @@ export default async function ({ locale, system, thread, wait }) {
                 emails.push({ centerIndex, sent: new Date().toISOString(), type: 'googleReview' });
                 await thread.execute('rest-api', { api: `users/${id}`, method: 'put', emails });
             }
+        };
+
+        v.get('wrapper').addCash = async function() {
+            const { modalView, modal } = createModal(editCash, { users: system.store.users }, async function(close) {
+                if (!this.description.value) system.throw('custom', { message: 'FALTA LA DESCRIPCION' });
+                if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
+                if (!this.type.value) system.throw('custom', { message: 'TARJETA O EFECTIVO?' });
+                await thread.execute('rest-api', {
+                    api: 'cash',
+                    method: 'post',
+                    date: this.date.valueAsNumber,
+                    clientId: id,
+                    description: this.description.value,
+                    amount: Number(this.amount.value),
+                    type: this.type.value,
+                    user: this.user.value
+                });
+                close();
+            });
+
+            modalView.get('date').valueAsNumber = (new Date()).getTime();
+            modalView.get('description').focus();
+            modalView.get('clientwrapper').style.display = 'none';
+            modalView.get('description').setSelectionRange(0, modalView.get('description').value.length);
+            // fillClients(modalView, '');
         };
 
         v.get('wrapper').addPromotion = async function () {

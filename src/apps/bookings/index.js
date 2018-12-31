@@ -1,5 +1,5 @@
 import { plugin } from 'gml-system';
-import { Node, HtmlStyle, HtmlView } from 'gml-html';
+import { HtmlStyle, HtmlView, Node } from 'gml-html';
 import template from './index.html';
 import hoursTemplate from './hours.html';
 import createAnAccountTemplate from '../../common/createAnAccount.html';
@@ -12,6 +12,10 @@ import {
     decimalToTime,
     getAvailableHours, isCenterClosed
 } from '../../../web-app-deploy/shared';
+
+function toLocalTime(date, system) {
+    return new Date(new Date(date).getTime() - ((system.store.spainOffset - system.store.localOffset) * 60 * 60 * 1000)).getTime();
+}
 
 function bookings({ system }) {
     return async function ({ parent, thread, wait }) {
@@ -28,12 +32,6 @@ function bookings({ system }) {
         let view;
         const maximumDays = 14;
         const oneDayMs = 1000 * 60 * 60 * 24;
-        const today = (function () {
-            const d = new Date(system.store.timestamp);
-            d.setUTCHours(1, 0, 0, 0);
-            return d.getTime();
-        })();
-
         const model = system.book;
 
         const disc1 = window.rx.connect({
@@ -115,12 +113,12 @@ function bookings({ system }) {
         }
 
         function refreshButtons() {
-            if (model.date <= today) {
+            if (model.date <= system.store.spainTime + (new Date(system.store.spainTime).getDay() === 0 ? oneDayMs : 0)) {
                 view.get('prev').setAttribute('disabled', 'disabled');
             } else {
                 view.get('prev').removeAttribute('disabled');
             }
-            if (model.date >= today + (maximumDays * oneDayMs)) {
+            if (model.date >= system.store.spainTime + (maximumDays * oneDayMs)) {
                 view.get('next').setAttribute('disabled', 'disabled');
             } else {
                 view.get('next').removeAttribute('disabled');
@@ -140,15 +138,15 @@ function bookings({ system }) {
         }, async function ({ orientation, date, trt, center, logged, mTrt }) {
             if (logged && trt.filter(t => t.favourite).length) {
                 view.style(orientation);
-                const centers = getCenters(system.store, date).filter(c => c !== undefined);
-                const treatments = getTreatments(system.store, date, center, trt);
+                const centers = getCenters(system.store, toLocalTime(date, system)).filter(c => c !== undefined).sort();
+                const treatments = getTreatments(system.store, toLocalTime(date, system), center, trt);
                 const selTreatments = mTrt.filter(id => {
                     const t = treatments.find(t => t.identificador === id);
                     return t && t.available;
                 });
                 view.get('date').innerText = new Date(date).formatDay('dddd dd/mm', dayNames);
                 refreshButtons();
-                if (isCenterClosed(system.store, center, date)) {
+                if (isCenterClosed(system.store, center, toLocalTime(date, system))) {
                     view.clear('hours').appendTo('hours', `<div>CERRADO</div>`);
                     view.clear('treatments');
                     return;
@@ -159,9 +157,10 @@ function bookings({ system }) {
                 view.get('book').setAttribute('disabled', 'disabled');
                 if (selTreatments.length && centers.filter(c => c === center).length) {
                     view.clear('hours').appendTo('hours', '<div style="text-align: center; width: 100%"><img style="width: 33px" src="/assets/images/loading.gif" /></div>', []);
+                    const localDate = toLocalTime(date, system);
                     const freeBusy = await thread.execute('booking/get-hours',
-                        { date, treatments: selTreatments, center });
-                    const hours = getAvailableHours(system.store, date, center, treatments, selTreatments, freeBusy)
+                        { date: localDate, treatments: selTreatments, center });
+                    const hours = getAvailableHours(system.store, localDate, center, treatments, selTreatments, freeBusy)
                         .map(h => decimalToTime(h).splice(0, 2).map(i => i.toString().padLeft(2, '0')).join(':'));
                     if (hours.length) {
                         view.clear('hours').appendTo('hours', hoursTemplate, [], { hours });
@@ -172,8 +171,14 @@ function bookings({ system }) {
             }
         });
 
+        const timer = window.rx.connect({ t: () => system.store.spainTime }, function ({ t }) {
+            if (system.store.logged)
+                view.get('spain').innerText = `Malaga: ${new Date(t).formatDay('dddd, mm', dayNames)} ${new Date(t).formatTime('hh:mm:ss')}`;
+        });
+
         obj.destroy = function () {
             disconnect();
+            timer();
             disc1();
         };
 

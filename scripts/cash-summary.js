@@ -32,10 +32,10 @@ function createTotals() {
 }
 
 const billNumber = {
-    salitre: { ref: '14', num: 10340 },
-    compania: { ref: '16', num: 2006 },
-    buenaventura: { ref: '16', num: 0 },
-    online: { ref: '17', num: 0 }
+    salitre: { ref: '14', num: 11582 },
+    compania: { ref: '15', num: 2006 },
+    buenaventura: { ref: '16', num: 497 },
+    online: { ref: '17', num: 39 }
 };
 
 function getBillNumber(item) {
@@ -71,6 +71,7 @@ module.exports = async function (db, google, { from, to, maxCashAmount = 3200 })
 
     let ref = '2-7-2018';
     const data = [];
+    const allData = [];
     const array = cash
         .concat(orders)
         .filter(item => item.date > from)
@@ -156,6 +157,7 @@ module.exports = async function (db, google, { from, to, maxCashAmount = 3200 })
             }, getTotals(item.amount));
             item.amount > 0 && formatted.push(itemFormatted);
             data.push(itemFormatted);
+            allData.push(itemFormatted);
         }
     }
 
@@ -177,6 +179,9 @@ module.exports = async function (db, google, { from, to, maxCashAmount = 3200 })
     const file = fs.createWriteStream(path.resolve(__dirname, './bills.pdf'));
     createPdfBills(file, formatted);
 
+    const allSheet = XLSX.utils.json_to_sheet(allData);
+    XLSX.utils.book_append_sheet(wb, allSheet, 'LISTADO COMPLETO');
+
     const sheet = XLSX.utils.json_to_sheet(data);
     XLSX.utils.book_append_sheet(wb, sheet, 'TOTAL');
 
@@ -184,6 +189,4 @@ module.exports = async function (db, google, { from, to, maxCashAmount = 3200 })
     const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
     fs.writeFileSync(path.resolve(__dirname, './cash-summary.xlsx'), buf);
-
-    console.log('finish');
 };

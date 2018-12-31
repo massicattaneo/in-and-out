@@ -1,16 +1,18 @@
 <div #wrapper>
     <form #booking>
-        <div #centers>
+        <div #centers style=" min-height: 32px;">
+
 
         </div>
-
 
 
         <hr/>
 
         <div>
-            <button type="button" class="fa fa-arrow-circle-left clickable button" onclick="this.form.prev()" #prev></button>
-            <button type="button" class="fa fa-arrow-circle-right clickable button" onclick="this.form.next()" #next></button>
+            <button type="button" class="fa fa-arrow-circle-left clickable button" onclick="this.form.prev()"
+                    #prev></button>
+            <button type="button" class="fa fa-arrow-circle-right clickable button" onclick="this.form.next()"
+                    #next></button>
             <span #date></span>
         </div>
         <hr/>
@@ -20,6 +22,10 @@
 
         <hr/>
 
+        <div style="position: relative;">
+            <div #spain
+                 style="position: absolute; right: 10px; top: 5px; line-height: 14px; text-align: right;    color: #27af00;"></div>
+        </div>
         <h3>{{title2}}</h3>
         <div #hours>
 
@@ -29,7 +35,7 @@
 
         <div style="text-align: center">
             <input #book type="button" onclick="this.form.book()"
-                   class="clickable button green-bg-color white-color" value="{{confirm}}" />
+                   class="clickable button green-bg-color white-color" value="{{confirm}}"/>
         </div>
     </form>
 

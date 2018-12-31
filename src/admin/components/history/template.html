@@ -36,6 +36,44 @@
 
         <div style="clear:both;"></div>
     </div>
+    <div  class="mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <button type="button"
+                onclick="this.form.addCash()"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+            <i class="material-icons">add_box</i>
+            CAJA
+            <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+        </button>
+        <button type="button"
+                onclick="this.form.addPromotion()"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+            <i class="material-icons">add_box</i>
+            PROMOCION
+            <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+        </button>
+        <button type="button"
+                onclick="this.form.addBonus()"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+            <i class="material-icons">add_box</i>
+            BONO
+            <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+        </button>
+        <button type="button"
+                onclick="this.form.addGift()"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+            <i class="material-icons">add_box</i>
+            TARJETA REGALO
+            <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+        </button>
+    </div>
     <div class="cgt-graphs mdl-shadow--2dp mdl-cell mdl-cell--8-col" style="position: relative;">
         <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
             BONUS
@@ -54,36 +92,6 @@
             {{/each}}
 
         </div>
-        <button type="button"
-                style="position: absolute;right: 150px;bottom: 10px;"
-                onclick="this.form.addPromotion()"
-                class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
-                data-upgraded=",MaterialButton,MaterialRipple">
-            PR
-            <span class="mdl-button__ripple-container">
-                        <span class="mdl-ripple"></span>
-            </span>
-        </button>
-        <button type="button"
-                style="position: absolute;right: 10px;bottom: 10px;"
-                onclick="this.form.addBonus()"
-                class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
-                data-upgraded=",MaterialButton,MaterialRipple">
-            B
-            <span class="mdl-button__ripple-container">
-                        <span class="mdl-ripple"></span>
-            </span>
-        </button>
-        <button type="button"
-                style="position: absolute;right: 80px;bottom: 10px;"
-                onclick="this.form.addGift()"
-                class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
-                data-upgraded=",MaterialButton,MaterialRipple">
-            TR
-            <span class="mdl-button__ripple-container">
-                        <span class="mdl-ripple"></span>
-            </span>
-        </button>
     </div>
     <div class="cgt-cards mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet mdl-grid mdl-grid--no-spacing">
         <div class="cgt-updates mdl-card mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--4-col-tablet mdl-cell--12-col-desktop">

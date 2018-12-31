@@ -42,27 +42,26 @@ module.exports = function (db) {
                 account: 'main'
             };
         }));
-    //
-    // const lines2 = fs.readFileSync(path.resolve(__dirname, './secondary.csv'), 'utf8');
-    // docs.push(...lines2
-    //     .split('\n')
-    //     .filter(line => line.match(/^\d\d\/\d\d\/\d\d\d\d/))
-    //     .map(function (line) {
-    //         const arr = line.split('\t');
-    //         return {
-    //             accountingDate: new Date(arr[0].split('/').reverse().join('-')),
-    //             key: arr[2],
-    //             description: arr[3],
-    //             note: arr[4].replace('\t', '').replace(/\s+/, '').trim().replace(/'/g, ''),
-    //             valueDate: new Date(arr[1].split('/').reverse().join('-')),
-    //             amount: convertNumber(arr[6]),
-    //             office: arr[5].replace(/'/g, ''),
-    //             account: 'iva'
-    //         }
-    //     }));
-    //
-    // // console.log(docs[docs.length-1])
-    //
+
+    const lines2 = fs.readFileSync(path.resolve(__dirname, './secondary.csv'), 'utf8');
+    docs.push(...lines2
+        .split('\n')
+        .filter(line => line.match(/^\d\d\/\d\d\/\d\d\d\d/))
+        .map(function (line) {
+            const arr = line.split('\t');
+            return {
+                accountingDate: new Date(arr[0].split('/').reverse().join('-')),
+                key: arr[2],
+                description: arr[3],
+                note: arr[4].replace('\t', '').replace(/\s+/, '').trim().replace(/'/g, ''),
+                valueDate: new Date(arr[1].split('/').reverse().join('-')),
+                amount: convertNumber(arr[6]),
+                office: arr[5].replace(/'/g, ''),
+                account: 'iva'
+            }
+        }));
+
+    // console.log(docs[docs.length-1])
+
     db.collection('bank').insert(docs);
-    console.log('finish');
 };

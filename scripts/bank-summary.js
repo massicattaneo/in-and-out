@@ -111,7 +111,7 @@ module.exports = async function (db, google, { from, to }) {
     });
 
     const sheet = XLSX.utils.json_to_sheet(data);
-    XLSX.utils.book_append_sheet(wb, sheet, 'III Trimestre 2018');
+    XLSX.utils.book_append_sheet(wb, sheet, 'IV Trimestre 2018');
 
     /* generate buffer */
     const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });

@@ -1,13 +1,24 @@
-const timeZoneOffset = (new Date().getTimezoneOffset() / 60);
+const spainOffsets = [
+    new Date('2018-10-28T03:00').getTime(),
+    new Date('2019-03-31T02:00').getTime(),
+    new Date('2019-10-27T03:00').getTime(),
+    new Date('2020-03-29T02:00').getTime(),
+    new Date('2020-10-25T03:00').getTime(),
+    new Date('2021-03-28T02:00').getTime(),
+    new Date('2021-10-31T03:00').getTime()
+];
+
+function getSpainOffset() {
+    return 2 - (spainOffsets.filter(i => i <= Date.now()).length % 2);
+}
 
 function getCalendar({ calendars }, date) {
     const d = new Date(date).getTime();
     return calendars.find(c => {
-        const end = new Date(c.to);
-        end.setUTCHours(23, 59, 59, 99);
-        return new Date(c.from).getTime() < d && end.getTime() > d;
+        return new Date(`${c.from}T00:00:00.000Z`).getTime() < d && new Date(`${c.to}T23:59:59.999Z`).getTime() > d;
     });
 }
+
 
 function getWorkers({ calendars }, date, center) {
     const calendar = getCalendar({ calendars }, date);
@@ -20,7 +31,7 @@ function getWorkers({ calendars }, date, center) {
         }, []);
 }
 
-function getWorkersByHour({ calendars }, date, center, offset = -1) {
+function getWorkersByHour({ calendars }, date, center) {
     const calendar = getCalendar({ calendars }, date);
     const day = calendar.week[new Date(date).getDay()];
     return day
@@ -28,9 +39,9 @@ function getWorkersByHour({ calendars }, date, center, offset = -1) {
         .filter(d => {
             const dt = new Date(date);
             const from = new Date(date);
-            from.setUTCHours(...decimalToTime(d[2], offset));
+            from.setUTCHours(...decimalToTime(d[2], -getSpainOffset()));
             const to = new Date(date);
-            to.setUTCHours(...decimalToTime(d[3], offset));
+            to.setUTCHours(...decimalToTime(d[3], -getSpainOffset()));
             return from.getTime() <= dt.getTime() && to.getTime() > dt.getTime();
         })
         .reduce(function (ret, d) {
@@ -130,29 +141,68 @@ function futurePromotions(promotions) {
     }).sort(sortByDate('creacion'));
 }
 
+function getCenters({ calendars }, date) {
+    const calendar = getCalendar({ calendars }, date);
+    const day = calendar.week[new Date(date).getDay()];
+    return day.reduce(function (ret, d) {
+        if (ret.indexOf(d[0]) === -1) ret.push(d[0]);
+        return ret;
+    }, []);
+}
+
+function isCenterClosed({ calendars }, centerIndex, date) {
+    const end = new Date(date);
+    end.setUTCHours(23, 59, 59);
+    const start = new Date(date);
+    start.setUTCHours(0, 0, 0);
+    const res = calendars
+        .filter(c => end.getTime() > new Date(`${c.from}T00:00:00.000Z`))
+        .filter(c => start.getTime() <= new Date(`${c.to}T23:59:59.999Z`))
+        .map(c => Object.assign(c, { closed: c.week.filter(day => day.filter(worker => worker[0] === centerIndex).length).length === 0 }));
+    return res.length && res[0].closed;
+}
+
+function getAvailableHours(db, date, center, treatments, selTreatments, freeBusy) {
+    const hours = [];
+    const workers = getWorkers(db, date, center);
+    const { serverTimestamp } = db;
+    workers
+        .filter(w => getTreatmentsDuration(db, treatments, selTreatments, w) > 0)
+        .forEach(function (w) {
+            const calendar = getCalendar(db, date);
+            const day = calendar.week[new Date(date).getDay()];
+            const duration = getTreatmentsDuration(db, treatments, selTreatments, w) / 60;
+            const busy = freeBusy[w] || [];
+            const workerHours = day.filter(i => i[1] === w);
+            const dt = new Date(date);
+            workerHours
+                .filter(wh => wh[0] === center)
+                .forEach(function (wh) {
+                    for (let h = wh[2]; h <= (wh[3] - duration); h += 0.25) {
+                        dt.setUTCHours(...decimalToTime(h, -getSpainOffset()));
+                        const hStart = new Date(dt);
+                        dt.setUTCHours(...decimalToTime(h + duration, -getSpainOffset()));
+                        const hEnd = new Date(dt);
+                        const filter = busy.filter(function ({ start, end }) {
+                            const bStart = new Date(start);
+                            const bEnd = new Date(end);
+                            return (bStart >= hEnd) || (bEnd <= hStart);
+                        });
+                        if (filter.length === busy.length && hStart.getTime() > new Date(serverTimestamp).getTime()) {
+                            hours.push(h);
+                        }
+                    }
+                });
+        });
+    return hours.filter((h, i, a) => a.indexOf(h) === i).sort();
+}
+
 module.exports = {
     getCalendar: getCalendar,
-    getCenters: function ({ calendars }, date) {
-        const calendar = getCalendar({ calendars }, date);
-        const day = calendar.week[new Date(date).getDay()];
-        return day.reduce(function (ret, d) {
-            if (ret.indexOf(d[0]) === -1) ret.push(d[0]);
-            return ret;
-        }, []);
-    },
+    getCenters,
     getWorkers: getWorkers,
     getWorkersByHour: getWorkersByHour,
-    isCenterClosed: function isCenterClosed({ calendars }, centerIndex, date) {
-        const end = new Date(date);
-        end.setHours(23, 59, 59);
-        const start = new Date(date);
-        start.setHours(0, 0, 0);
-        const res = calendars
-            .filter(c => end.getTime() > new Date(c.from))
-            .filter(c => start.getTime() <= new Date(c.to))
-            .map(c => Object.assign(c, { closed: c.week.filter(day => day.filter(worker => worker[0] === centerIndex).length).length === 0 }));
-        return res.length && res[0].closed;
-    },
+    isCenterClosed,
     getTreatments: function ({ calendars, workers, centers }, date, center, treatments) {
         const calendar = getCalendar({ calendars }, date);
         const day = calendar.week[new Date(date).getDay()];
@@ -170,41 +220,8 @@ module.exports = {
     },
     getTreatmentsDuration: getTreatmentsDuration,
     decimalToTime: decimalToTime,
-    getAvailableHours: function (db, date, center, treatments, selTreatments, freeBusy) {
-        const hours = [];
-        const workers = getWorkers(db, date, center);
-        const { timestamp } = db;
-        workers
-            .filter(w => getTreatmentsDuration(db, treatments, selTreatments, w) > 0)
-            .forEach(function (w) {
-                const calendar = getCalendar(db, date);
-                const day = calendar.week[new Date(date).getDay()];
-                const duration = getTreatmentsDuration(db, treatments, selTreatments, w) / 60;
-                const busy = freeBusy[w] || [];
-                const workerHours = day.filter(i => i[1] === w);
-                const dt = new Date(date);
-                workerHours
-                    .filter(wh => wh[0] === center)
-                    .forEach(function (wh) {
-                        for (let h = wh[2]; h <= (wh[3] - duration); h += 0.25) {
-                            dt.setUTCHours(...decimalToTime(h, timeZoneOffset));
-                            const hStart = new Date(dt);
-                            dt.setUTCHours(...decimalToTime(h + duration, timeZoneOffset));
-                            const hEnd = new Date(dt);
-                            const filter = busy.filter(function ({ start, end }) {
-                                const bStart = new Date(start);
-                                const bEnd = new Date(end);
-                                return (bStart >= hEnd) || (bEnd <= hStart);
-                            });
-                            if (filter.length === busy.length && hStart.getTime() > new Date(timestamp).getTime()) {
-                                hours.push(h);
-                            }
-                        }
-                    });
-            });
-        return hours.filter((h, i, a) => a.indexOf(h) === i).sort();
-    },
-    getLocation: function (db, date, googleId, offset) {
+    getAvailableHours,
+    getLocation: function (db, date, googleId) {
         const cal = getCalendar(db, date);
         const workerIndex = db.workers.find(w => w.googleId === googleId).index;
         const bookDate = new Date(date);
@@ -212,12 +229,12 @@ module.exports = {
             .filter(a => a[1] === workerIndex)
             .filter(a => {
                 const start = new Date(date);
-                start.setUTCHours(...decimalToTime(a[2], offset));
+                start.setUTCHours(...decimalToTime(a[2], -getSpainOffset()));
                 return start.getTime() <= bookDate.getTime();
             })
             .filter(a => {
                 const end = new Date(date);
-                end.setUTCHours(...decimalToTime(a[3], offset));
+                end.setUTCHours(...decimalToTime(a[3], -getSpainOffset()));
                 return end.getTime() > bookDate.getTime();
             });
         return filter.length ? db.centers.find(c => c.index === filter[0][0]) : 'NO LOCATION';
@@ -279,5 +296,6 @@ module.exports = {
     },
     sortByDate,
     activePromotions,
-    futurePromotions
+    futurePromotions,
+    getSpainOffset
 };

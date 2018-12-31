@@ -11,5 +11,6 @@ Date.prototype.formatDay = function (pattern, dayNames = [], monthnames = []) {
 Date.prototype.formatTime = function (pattern) {
     pattern = pattern.replace(/hh/g, this.getHours().toString().padLeft(2, 0));
     pattern = pattern.replace(/mm/g, this.getMinutes().toString().padLeft(2, 0));
+    pattern = pattern.replace(/ss/g, this.getSeconds().toString().padLeft(2, 0));
     return pattern;
 };

@@ -269,7 +269,8 @@ module.exports = function (utils, posts) {
             calendars: googleDb.calendars,
             centers: googleDb.centers,
             workers: googleDb.workers,
-            timestamp: new Date().toISOString(),
+            serverTimestamp: new Date().getTime(),
+            serverOffset: -(new Date().getTimezoneOffset() / 60),
             processes,
             settings: {
                 freeChargeLimit: 60,
@@ -359,9 +360,9 @@ module.exports = function (utils, posts) {
             .join(' - ');
     };
 
-    obj.calendarInsert = function ({ id, from, to, label, description = '', summary, processId = 97, offset = -1 }) {
+    obj.calendarInsert = function ({ id, from, to, label, description = '', summary, processId = 97 }) {
         return new Promise(function (resolve, reject) {
-            const location = shared.getLocation(googleDb, from, id, offset).address;
+            const location = shared.getLocation(googleDb, from, id).address;
             const params = {
                 calendarId: id,
                 resource: {

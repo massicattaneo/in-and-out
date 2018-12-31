@@ -10,7 +10,7 @@ import editEvent from './edit-event.html';
 import editNote from './edit-note.html';
 import eventTpl from './event.html';
 import { createModal } from '../../utils';
-import { getCalendar } from '../../../../web-app-deploy/shared';
+import { getCalendar, getSpainOffset } from '../../../../web-app-deploy/shared';
 
 const stepHeight = 13;
 const minPeriod = 15;
@@ -30,26 +30,12 @@ function sameDay(d1, d2) {
         d1.getDate() === d2.getDate();
 }
 
-function createEvent(params) {
-    const def = {
-        worker: '',
-        attendees: [],
-        summary: '',
-        id: '',
-        processId: 99,
-        duration: minPeriod,
-        date: Date.now(),
-        description: '',
-        label: ''
-    };
-    const assign = Object.assign(def, params);
-    const date = new Date(def.date);
-    date.setHours(startHour, startMinutes, 0, 0);
-    const number = (new Date(def.date).getTime() - date.getTime()) / (15 * 60 * 1000);
-    assign.top = number * stepHeight + topOffset;
-    assign.height = stepHeight * (def.duration / minPeriod);
-    assign.json = JSON.stringify(assign);
-    return assign;
+function toLocalTime(date, system) {
+    return new Date(new Date(date).getTime() + (getSpainOffset() - system.store.localOffset) * 60 * 60 * 1000).getTime();
+}
+
+function reverseLocalTime(date, system) {
+    return new Date(new Date(date).getTime() - (getSpainOffset() - system.store.localOffset) * 60 * 60 * 1000).getTime();
 }
 
 export default async function ({ locale, system, thread }) {
@@ -72,8 +58,33 @@ export default async function ({ locale, system, thread }) {
     else
         view.get('processes').parentNode.removeChild(view.get('processes'));
 
+    function createEvent(params) {
+        const def = {
+            worker: '',
+            attendees: [],
+            summary: '',
+            id: '',
+            processId: 99,
+            duration: minPeriod,
+            date: Date.now(),
+            description: '',
+            label: ''
+        };
+        const assign = Object.assign(def, params);
+        const date = new Date(def.date);
+        date.setUTCHours(startHour, startMinutes, 0, 0);
+        const number = (new Date(def.date).getTime() - date.getTime() + (getSpainOffset() * 60 * 60 * 1000)) / (15 * 60 * 1000);
+        assign.top = number * stepHeight + topOffset;
+        assign.height = stepHeight * (def.duration / minPeriod);
+        assign.json = JSON.stringify(assign);
+        return assign;
+    }
+
+    // system.store.date = new Date(toLocalTime(system.store.date, system));
+
     form.changeDate = function () {
         const d = new Date(system.store.date);
+        console.log(d);
         d.setDate(window.event.target.value);
         system.store.date = d.getTime();
     };
@@ -100,19 +111,14 @@ export default async function ({ locale, system, thread }) {
         const target = window.event.target;
         target.classList.remove('hover');
         const params = config || JSON.parse(window.event.dataTransfer.getData('config'));
-        if (params.userAction === 'move') {
-            thread.execute('booking/delete', {
-                eventId: params.id,
-                calendarId: system.publicDb.workers.find(c => c.column === worker).googleId
-            });
-        }
-
-        const date = new Date(params.date || system.store.date);
+        const configToRemove = Object.assign({} ,params);
+        const date = new Date(params.date || reverseLocalTime(system.store.date, system));
         const id = config ? config.id : '';
         const hour = (params.date && params.userAction !== 'move')
             ? [new Date(date).getHours(), new Date(date).getMinutes()]
             : target.innerText.split(':').map(i => Number(i));
         date.setHours(hour[0], hour[1], 0, 0);
+        if (params.userAction === 'new' || params.userAction === 'move') date.setTime(reverseLocalTime(date, system))
         const dbWorker = system.publicDb.workers.find(c => c.column === worker);
 
         const displayName = dbWorker.title;
@@ -127,21 +133,21 @@ export default async function ({ locale, system, thread }) {
         document.getElementById('modal').appendChild(modal);
         modal.showModal();
         componentHandler.upgradeDom();
-        modalView.get('date').valueAsNumber = date.getTime() - (new Date().getTimezoneOffset()) * 60 * 1000;
+        modalView.get('date').valueAsNumber = date.getTime() + (getSpainOffset() * 60 * 60 * 1000);
         modalView.get('summary').focus();
         modalView.get('summary').setSelectionRange(0, modalView.get('summary').value.length);
 
         async function saveForm() {
-            if (e.id) {
+            if (configToRemove.id) {
                 await thread.execute('booking/delete', {
-                    eventId: e.id,
-                    calendarId: dbWorker.googleId
+                    eventId: configToRemove.id,
+                    calendarId: system.publicDb.workers.find(i => i.column === configToRemove.worker).googleId
                 });
             }
             const evt = createEvent(Object.assign({}, e, {
                 summary: this.summary.value,
                 duration: this.duration.value,
-                date: this.date.valueAsNumber + (new Date().getTimezoneOffset()) * 60 * 1000,
+                date: this.date.valueAsNumber - (getSpainOffset() * 60 * 60 * 1000)
             }));
             await thread.execute('booking/add', {
                 duration: evt.duration * 60 * 1000,
@@ -279,7 +285,7 @@ export default async function ({ locale, system, thread }) {
     async function getServerDayEvents(callServer, c) {
         if (callServer) {
             const { items } = await thread.execute('booking/get', {
-                date: new Date(system.store.date),
+                date: new Date(reverseLocalTime(system.store.date, system)),
                 calendarId: c.googleId
             });
             return items;
@@ -288,7 +294,7 @@ export default async function ({ locale, system, thread }) {
     }
 
     function drawCalendars(search, callServer = true) {
-        const calendar = getCalendar(system.publicDb, system.store.date);
+        const calendar = getCalendar(system.publicDb, reverseLocalTime(system.store.date, system));
         system.publicDb.workers.forEach(async function (c) {
             const dayView = view.clear(c.column).appendTo(c.column, dayTpl, [], c);
             dayView.style();
@@ -344,10 +350,11 @@ export default async function ({ locale, system, thread }) {
         const year = y;
         let day = 1;
 
-        let date = new Date(`${year}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}`);
+        let date = new Date(dt);
+        date.setDate(1);
         console.warn(year, month, day);
         const today = new Date();
-        miniView.get('month').innerText = (new Date(`${year}-${month.toString().padLeft(2, '0')}-${d.toString().padLeft(2, '0')}`)).formatDay('mmm yy', [], monthNames);
+        miniView.get('month').innerText = date.formatDay('mmm yy', [], monthNames);
         today.setHours(0, 0, 0, 0);
         [1, 2, 3, 4, 5, 6].forEach(function (r) {
             [0, 1, 2, 3, 4, 5, 6].forEach(function (c) {
@@ -359,14 +366,15 @@ export default async function ({ locale, system, thread }) {
                 node.setAttribute('data-day', '');
                 if (c === date.getDay() && date.getMonth() === month - 1) {
                     if (d === date.getDate()) node.classList.add('selected');
-                    date = new Date(`${year}-${month.toString().padLeft(2, '0')}-${day.toString().padLeft(2, '0')}`);
+                    date.setDate(day);
+
                     if (today.getTime() > date.getTime()) node.classList.add('old');
                     if (isWorkDay(date)) {
                         node.classList.add('work');
                     }
                     node.innerText = (date.getDate());
                     node.setAttribute('data-day', date.getDate());
-                    date = new Date(`${year}-${month.toString().padLeft(2, '0')}-${(++day).toString().padLeft(2, '0')}`);
+                    date.setDate(++day);
                 }
             });
         });

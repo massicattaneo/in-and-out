@@ -69,6 +69,9 @@ export default function ({ system, gos }) {
                 if (type.indexOf('-rest-') !== -1) {
                     const a = type.split('-');
                     const storeElement = system.store[restMapping[a[2]] || a[2]];
+                    if (a[2] === 'cash' && location.pathname.endsWith('historial')) {
+                        gos.history.update({ id: data.clientId });
+                    }
                     if (a[2] === 'bonus') {
                         gos.history.update({ id: data.clientId });
                     } else if (storeElement) {

@@ -25,9 +25,11 @@ export default async function ({ system, parent, thread }) {
                 bookings
                     .sort((a, b) => a.start - b.start)
                     .forEach(item => {
-                        const date = new Date(item.start).formatDay('dddd, dd-mm-yyyy', dayNames);
-                        const startTime = new Date(item.start).formatTime('hh:mm');
-                        const endTime = new Date(item.end).formatTime('hh:mm');
+                        const start = new Date(item.start).getTime();
+                        const end = new Date(item.end).getTime();
+                        const date = new Date(start+ ((system.store.spainOffset - system.store.localOffset) * 60 * 60 * 1000)).formatDay('dddd, dd-mm-yyyy', dayNames);
+                        const startTime = new Date(start+ ((system.store.spainOffset - system.store.localOffset) * 60 * 60 * 1000)).formatTime('hh:mm');
+                        const endTime = new Date(end+ ((system.store.spainOffset - system.store.localOffset) * 60 * 60 * 1000)).formatTime('hh:mm');
                         const variables = Object.assign({} ,{ item, startTime, endTime, date }, locale.get());
                         view.appendTo('appointments', appointmentTemplate, [], variables);
                     });

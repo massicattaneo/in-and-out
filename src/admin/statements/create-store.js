@@ -1,3 +1,5 @@
+import { getSpainOffset } from '../../../web-app-deploy/shared';
+
 export default async function ({ system, thread }) {
     let status = await getStatus();
     const req = RetryRequest('/api/public-db', { headers: { 'Content-Type': 'application/json' } });
@@ -37,9 +39,21 @@ export default async function ({ system, thread }) {
     });
     system.publicDb = publicDb;
 
+    const localTimestamp = Date.now();
+    function getSpainTime() {
+        return new Date(Date.now() - (localTimestamp - publicDb.serverTimestamp)
+            + ((getSpainOffset() - localOffset) * 60 * 60 * 1000)).getTime()
+    }
+
+    const localOffset = new Date().getTimezoneOffset() / -60;
+    const spainTime = getSpainTime();
+
     system.store = window.rx.create({
         logged: status.logged,
         adminLevel: status.adminLevel,
+        serverTimestamp: publicDb.serverTimestamp,
+        spainTime,
+        localOffset,
         loading: false,
         search: '',
         clients: [],
@@ -48,9 +62,11 @@ export default async function ({ system, thread }) {
         bills: [],
         cart: system.getStorage('cart') || [],
         users: [...((decodeURI(system.cookies.getItem('users')) || '')).split('|')],
-        date: Date.now(),
+        date: spainTime,
         keysPressed: []
     });
+
+    setInterval(() => system.store.spainTime = getSpainTime(), 1000);
 
     system.initStorage({});
 
