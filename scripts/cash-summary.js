@@ -43,7 +43,7 @@ function getBillNumber(item) {
     return `${billNumber[item.user].ref}${(++billNumber[item.user].num).toString().padLeft(6, '0')}`;
 }
 
-module.exports = async function (db, google, { from, to, maxCashAmount = 3200 }) {
+module.exports = async function (db, google, { from, to, maxCashAmount }) {
     const users = await db.collection('users').find().toArray();
     const bank = await db.collection('bank').find().toArray();
     const orders = (await db.collection('orders').find().toArray())
@@ -176,7 +176,7 @@ module.exports = async function (db, google, { from, to, maxCashAmount = 3200 })
     data.push({ '': '' });
     data.push({ '': 'PDF link' });
 
-    const file = fs.createWriteStream(path.resolve(__dirname, './bills.pdf'));
+    const file = fs.createWriteStream(path.resolve(__dirname, './facturas_de_venta.pdf'));
     createPdfBills(file, formatted);
 
     const allSheet = XLSX.utils.json_to_sheet(allData);
@@ -188,5 +188,5 @@ module.exports = async function (db, google, { from, to, maxCashAmount = 3200 })
     /* generate buffer */
     const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
-    fs.writeFileSync(path.resolve(__dirname, './cash-summary.xlsx'), buf);
+    fs.writeFileSync(path.resolve(__dirname, './somario_facturas_de_venta.xlsx'), buf);
 };

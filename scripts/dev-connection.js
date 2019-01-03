@@ -1,3 +1,5 @@
+const { promiseSerial } = require('./common');
+
 const MongoClient = require('mongodb').MongoClient;
 const ObjectId = require('mongodb').ObjectID;
 const fs = require('fs');
@@ -17,21 +19,22 @@ MongoClient.connect(url, async function (err, db) {
     await google.authorize();
     await google.initDriveSheets();
 
+    // create temp directory
     // ImportCsv(db);
-    /** TRIMESTRAL SUMMARY **/
-    await BankSummary(db, google, {
-        from: new Date('2018-10-01 02:00:00').getTime(),
-        to: new Date('2018-12-31 21:59:59').getTime()
-    });
-    await BillSummary(db, google, {
-        from: new Date('2018-10-01 02:00:00').getTime(),
-        to: new Date('2018-12-31 21:59:59').getTime()
-    });
-    await CashSummary(db, google, {
-        from: new Date('2018-10-01 02:00:00').getTime(),
-        to: new Date('2018-12-31 21:59:59').getTime(),
-        maxCashAmount: 2650
-    });
+    // /** TRIMESTRAL SUMMARY **/
+    // await BankSummary(db, google, {
+    //     from: new Date('2018-10-01 02:00:00').getTime(),
+    //     to: new Date('2019-01-02 21:59:59').getTime(),
+    //     title: 'IV TRIMESTRE 2018'
+    // });
+    // await BillSummary(db, google, {
+    //     title: 'IV TRIMESTRE 2018'
+    // });
+    // await CashSummary(db, google, {
+    //     from: new Date('2018-10-01 02:00:00').getTime(),
+    //     to: new Date('2018-12-31 21:59:59').getTime(),
+    //     maxCashAmount: 2650
+    // });
 
     console.log('finish');
 });

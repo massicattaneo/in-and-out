@@ -65,7 +65,7 @@ function getType(b) {
     return res.length ? res.map(type => types[type].label).join(',') : '';
 }
 
-module.exports = async function (db, google, { from, to }) {
+module.exports = async function (db, google, { from, to, title }) {
 
     const bills = (await db.collection('bills').find().toArray())
         .filter(a => new Date(a.date).getTime() > from)
@@ -107,15 +107,15 @@ module.exports = async function (db, google, { from, to }) {
 
     data.push({
         DESCRIPCION: `TOTAL FACTURAS`,
-        CUENTA_PRINCIPAL: - toCurrency(bills.reduce((a, b) => a + b.amount, 0))
+        CUENTA_PRINCIPAL: -toCurrency(bills.reduce((a, b) => a + b.amount, 0))
     });
 
     const sheet = XLSX.utils.json_to_sheet(data);
-    XLSX.utils.book_append_sheet(wb, sheet, 'IV Trimestre 2018');
+    XLSX.utils.book_append_sheet(wb, sheet, title);
 
     /* generate buffer */
     const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
-    fs.writeFileSync(path.resolve(__dirname, './bank-summary.xlsx'), buf);
+    fs.writeFileSync(path.resolve(__dirname, './somario_banco.xlsx'), buf);
 
 };

@@ -1,3 +1,4 @@
+const { promiseSerial } = require('./common');
 const access = require('../web-app-deploy/private/mongo-db-access');
 const MongoClient = require('mongodb').MongoClient;
 const config = access.config;
@@ -5,48 +6,15 @@ const ObjectId = require('mongodb').ObjectID;
 const fs = require('fs');
 const url = `mongodb://${config.mongo.user}:${encodeURIComponent(access.password)}@${config.mongo.hostString}`;
 const path = require('path');
-const CashSummary = require('./cash-summary');
-const BillSummary = require('./bill-summary');
-const BankSummary = require('./bank-summary');
-const GlobalSummary = require('./global-summary');
 const ImportCsv = require('./import-csv');
 
 const google = require('../web-app-deploy/google-api')({}, []);
-
-function convertNumber(s) {
-    const string = s.toString();
-    if (string.indexOf(',') !== -1 && string.indexOf('.') !== -1) {
-        if (string.indexOf(',') >= string.indexOf('.')) return Number(string.replace('.', '').replace(',', '.'));
-        if (string.indexOf('.') >= string.indexOf(',')) return Number(string.replace(/[^0-9\.-]+/g, ''));
-    } else if (string.indexOf(',') !== -1) {
-        return Number(string.replace(',', '.'));
-    }
-    return Number(string);
-}
 
 MongoClient.connect(url, async function (err, db) {
     if (err) return;
 
     await google.authorize();
     await google.initDriveSheets();
-
-    /** GLOBAL SUMMARY */
-    // await BillSummary(db, google, {});
-
-    /** TRIMESTRAL SUMMARY **/
-    // await BankSummary(db, google, {
-    //     from: new Date('2018-07-01 02:00:00').getTime(),
-    //     to: new Date('2018-09-30 21:59:59').getTime()
-    // });
-    // await BillSummary(db, google, {
-    //     from: new Date('2018-07-01 02:00:00').getTime(),
-    //     to: new Date('2018-09-30 21:59:59').getTime()
-    // });
-    // await CashSummary(db, google, {
-    //     from: new Date('2018-07-01 02:00:00').getTime(),
-    //     to: new Date('2018-09-30 21:59:59').getTime(),
-    //     maxCashAmount: 3200
-    // });
 
     /** DUPLICATE PHONE */
     // const list = [];
@@ -111,6 +79,20 @@ MongoClient.connect(url, async function (err, db) {
     //     fs.writeFileSync('./scripts/temp.csv', users.map(doc => `${doc.name},${doc.email},${doc.tel}`).join('\n'));
     //     console.log('finish');
     // });
+
+
+    // After doing the trimestral summary do this:
+    // ImportCsv(db);
+    /** mark bills as deducted from IVA **/
+    // const bills = await db.collection('bills').find().toArray();
+    // await promiseSerial(bills.map(bill => function () {
+    //     return new Promise(resolve => {
+    //         db.collection('bills').updateOne(
+    //             { _id: ObjectId(bill._id) },
+    //             { $set: { deducted: true } }
+    //             , resolve);
+    //     })
+    // }));
 
     console.log('finish');
 

@@ -721,13 +721,8 @@ module.exports = function (utils, posts) {
         });
     };
 
-    obj.download = async function (fileId) {
-        return new Promise(function (resolve, reject) {
-            drive.files.get({ fileId, alt: 'media' }, function (err, done) {
-                if (err) reject(new Error('generic'));
-                resolve(done);
-            });
-        });
+    obj.download = function (fileId) {
+        return drive.files.get({ fileId, alt: 'media' });
     };
 
     obj.shareFile = function (fileId) {
