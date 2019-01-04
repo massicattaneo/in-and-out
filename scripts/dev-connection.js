@@ -23,22 +23,22 @@ MongoClient.connect(url, async function (err, db) {
     // ImportCsv(db);
     // /** TRIMESTRAL SUMMARY **/
     // await BankSummary(db, google, {
-    //     from: new Date('2018-10-01 02:00:00').getTime(),
-    //     to: new Date('2019-01-02 21:59:59').getTime(),
+    //     from: new Date('2018-10-01 00:00:00').getTime(),
+    //     to: new Date('2019-01-02 23:59:59').getTime(),
     //     title: 'IV TRIMESTRE 2018'
     // });
-    // await BillSummary(db, google, {
-    //     title: 'IV TRIMESTRE 2018'
-    // });
+    await BillSummary(db, google, {
+        title: 'IV TRIMESTRE 2018'
+    });
     // await CashSummary(db, google, {
-    //     from: new Date('2018-10-01 02:00:00').getTime(),
-    //     to: new Date('2018-12-31 21:59:59').getTime(),
+    //     from: new Date('2018-10-01 00:00:00').getTime(),
+    //     to: new Date('2018-12-31 23:59:59').getTime(),
     //     maxCashAmount: 2650
     // });
-    await GlobalSummary(db, google, {
-        from: new Date('2018-10-01 02:00:00').getTime(),
-        to: new Date('2018-12-31 21:59:59').getTime()
-    });
+    // await GlobalSummary(db, google, {
+    //     from: new Date('2018-10-01 00:00:00').getTime(),
+    //     to: new Date('2018-12-31 23:59:59').getTime()
+    // });
 
     console.log('finish');
 });

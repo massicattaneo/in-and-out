@@ -310,6 +310,7 @@ module.exports = function (utils, posts) {
             calendar.freebusy.query(temp, function (err, data) {
                 if (err) return rej(new Error('error'));
                 if (!data) return rej(new Error('error'));
+                if (!data.calendars) return rej(new Error('error'));
                 const array = Object.keys(data.calendars).map(googleId => {
                     return {
                         workerIndex: googleDb.workers.find(w => w.googleId === googleId).index,
