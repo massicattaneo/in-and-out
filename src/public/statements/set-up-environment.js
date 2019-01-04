@@ -10,7 +10,10 @@ import ScriptLoader from 'gml-scripts-loader'
 
 export default async function ({ system, wait }) {
 
-    this.appsManifest = appsManifest;
+    this.appsManifest = appsManifest.map(function (man) {
+        const app = window.scripts.find(i => i.url.startsWith(man.url.split('.')[0])) || {};
+        return Object.assign(man, app);
+    });
 
     system
         .setMaximumDeviceAssetsQuality(1, () => true)

@@ -11,7 +11,7 @@ const ImportCsv = require('./import-csv');
 const BillSummary = require('./bill-summary');
 const CashSummary = require('./cash-summary');
 const BankSummary = require('./bank-summary');
-
+const GlobalSummary = require('./global-summary');
 
 MongoClient.connect(url, async function (err, db) {
     if (err) return;
@@ -35,6 +35,10 @@ MongoClient.connect(url, async function (err, db) {
     //     to: new Date('2018-12-31 21:59:59').getTime(),
     //     maxCashAmount: 2650
     // });
+    await GlobalSummary(db, google, {
+        from: new Date('2018-10-01 02:00:00').getTime(),
+        to: new Date('2018-12-31 21:59:59').getTime()
+    });
 
     console.log('finish');
 });

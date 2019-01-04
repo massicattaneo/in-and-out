@@ -1,11 +1,11 @@
 const spainOffsets = [
-    new Date('2018-10-28T03:00').getTime(),
-    new Date('2019-03-31T02:00').getTime(),
-    new Date('2019-10-27T03:00').getTime(),
-    new Date('2020-03-29T02:00').getTime(),
-    new Date('2020-10-25T03:00').getTime(),
-    new Date('2021-03-28T02:00').getTime(),
-    new Date('2021-10-31T03:00').getTime()
+    1540692000000, //new Date('2018-10-28T03:00').getTime(),
+    1553994000000, //new Date('2019-03-31T02:00').getTime(),
+    1572141600000, //new Date('2019-10-27T03:00').getTime(),
+    1585443600000, //new Date('2020-03-29T02:00').getTime(),
+    1603591200000, //new Date('2020-10-25T03:00').getTime(),
+    1616893200000, //new Date('2021-03-28T02:00').getTime(),
+    1635645600000 //new Date('2021-10-31T03:00').getTime()
 ];
 
 function getSpainOffset() {

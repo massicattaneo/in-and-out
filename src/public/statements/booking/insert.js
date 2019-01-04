@@ -2,7 +2,6 @@ export default async function ({ system, wait }) {
     const {model, hour} = this;
     const date = new Date(model.date);
     date.setUTCHours(hour[0], hour[1], 0, 0);
-    alert(system.store.spainOffset)
     date.setTime(date.getTime() - system.store.spainOffset * 60 * 60 * 1000);
     const req = RetryRequest('/google/calendar/insert', {
         timeout: 10000,

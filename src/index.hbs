@@ -177,6 +177,15 @@
 <script>window.stripeKey = '{{htmlWebpackPlugin.options.stripeKey}}'</script>
 <canvas id="snow" style="position: absolute;top: 0;pointer-events: none;"></canvas>
 <script src="/assets/vendor/snow.js"></script>
-<script src="/public.bundle.js?v={{htmlWebpackPlugin.options.version}}"></script>
+<script>
+    var scripts = [];
+        {{#each htmlWebpackPlugin.files.chunks}}
+        scripts.push({
+            url: '{{this.entry}}'.replace('../', '/'),
+            size: {{this.size}}
+        });
+        {{/each}}
+</script>
+<script src="{{ htmlWebpackPlugin.files.chunks.public.entry }}"></script>
 </body>
 </html>

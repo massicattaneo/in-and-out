@@ -5,6 +5,23 @@ import * as style from './style.scss';
 
 const numberOfMonths = 13;
 
+function monthDiff(start, end) {
+    var tempDate = new Date(start);
+    var monthCount = 0;
+    while ((tempDate.getMonth() + '' + tempDate.getFullYear()) != (end.getMonth() + '' + end.getFullYear())) {
+        monthCount++;
+        tempDate.setMonth(tempDate.getMonth() + 1);
+    }
+    return monthCount + 1;
+}
+
+function calculateMOnth(d) {
+    const now = new Date();
+    now.setDate(d.getDate());
+    now.setHours(d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds());
+    return numberOfMonths - monthDiff(d, now);
+}
+
 export default async function ({ system, thread, locale }) {
     const htmlView = HtmlView('<div><div #level1></div><div #level2></div></div>', []);
     const model = window.rx.create({ cash: [], bonus: [] });
@@ -37,7 +54,8 @@ export default async function ({ system, thread, locale }) {
     window.rx.connect({
         cash: () => model.cash,
         orders: () => system.store.orders,
-        adminLevel: () => system.store.adminLevel }, ({ cash, orders, adminLevel }) => {
+        adminLevel: () => system.store.adminLevel
+    }, ({ cash, orders, adminLevel }) => {
         if (adminLevel === 2) {
             const monthNames = new Array(12).fill(0).map((v, i) => locale.get(`month_${i}`).toUpperCase());
             const today = new Date();
@@ -66,6 +84,7 @@ export default async function ({ system, thread, locale }) {
             total.months = new Array(numberOfMonths).fill(0);
             const result = { salitre, buenaventura, compania, online, total };
 
+
             cash
                 .reduce((acc, i) => {
                     const user = i.user || 'salitre';
@@ -81,27 +100,52 @@ export default async function ({ system, thread, locale }) {
                         acc[user].trimonth += i.amount;
                         acc.total.trimonth += i.amount;
                     }
-                    const lastYearMonth = new Date(Date.now() - 1000 * 60 * 60 * 24 * 365);
-                    lastYearMonth.setMonth(lastYearMonth.getMonth() + 1);
-                    lastYearMonth.setDate(1);
-                    lastYearMonth.setHours(0, 0, 0, 0);
+                    const thisYearFirstMonth = new Date();
+                    thisYearFirstMonth.setMonth(0);
+                    thisYearFirstMonth.setDate(1);
+                    thisYearFirstMonth.setHours(0, 0, 0, 0);
 
                     const thisMonth = (new Date(i.date));
 
-                    if (thisMonth.getTime() > lastYearMonth.getTime()) {
-                        acc[user].months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount;
-                        acc[user].year += i.amount;
-                        acc.total.months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount;
+                    if (thisMonth.getTime() > thisYearFirstMonth.getTime()) {
                         acc.total.year += i.amount;
-                    } else if (numberOfMonths > 12) {
-
-                        acc[user].months[numberOfMonths - 13] += i.amount;
-                        acc.total.months[numberOfMonths - 13] += i.amount;
+                        acc[user].year += i.amount;
                     }
+                    acc.total.months[calculateMOnth(thisMonth)] += i.amount;
+                    acc[user].months[calculateMOnth(thisMonth)] += i.amount;
 
 
                     return acc;
                 }, result);
+
+            orders.reduce((acc, i) => {
+                if (new Date(i.created).getTime() >= today.getTime()) {
+                    acc['online'].today += i.amount / 100;
+                    acc.total.today += i.amount / 100;
+                }
+                if (new Date(i.created).getTime() >= month.getTime()) {
+                    acc['online'].month += i.amount / 100;
+                    acc.total.month += i.amount / 100;
+                }
+                if (new Date(i.created).getTime() >= trimonth.getTime()) {
+                    acc['online'].trimonth += i.amount / 100;
+                    acc.total.trimonth += i.amount / 100;
+                }
+
+                const thisYearFirstMonth = new Date();
+                thisYearFirstMonth.setMonth(0);
+                thisYearFirstMonth.setDate(1);
+                thisYearFirstMonth.setHours(0, 0, 0, 0);
+
+                const thisMonth = (new Date(i.created));
+                if (thisMonth.getTime() > thisYearFirstMonth.getTime()) {
+                    acc['online'].year += i.amount / 100;
+                    acc.total.year += i.amount / 100;
+                }
+                acc['online'].months[calculateMOnth(thisMonth)] += i.amount / 100;
+                acc.total.months[calculateMOnth(thisMonth)] += i.amount / 100;
+                return acc;
+            }, result);
 
             const view = htmlView.clear('level2').appendTo('level2', admin2Tpl, style, {
                 users: Object.keys(result)
@@ -114,42 +158,11 @@ export default async function ({ system, thread, locale }) {
                     }), [])
             });
 
-            orders.reduce((acc, i) => {
-                if (i.created >= today.getTime()) {
-                    acc['online'].today += i.amount/100;
-                    acc.total.today += i.amount/100;
-                }
-                if (i.created >= month.getTime()) {
-                    acc['online'].month += i.amount/100;
-                    acc.total.month += i.amount/100;
-                }
-                if (i.created >= trimonth.getTime()) {
-                    acc['online'].trimonth += i.amount/100;
-                    acc.total.trimonth += i.amount/100;
-                }
-                const lastYearMonth = new Date(Date.now() - 1000 * 60 * 60 * 24 * 365);
-                lastYearMonth.setMonth(lastYearMonth.getMonth() + 1);
-                lastYearMonth.setDate(1);
-                lastYearMonth.setHours(0, 0, 0, 0);
-
-                const thisMonth = (new Date(i.created));
-                if (thisMonth.getTime() > lastYearMonth.getTime()) {
-                    acc['online'].months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount/100;
-                    acc['online'].year += i.amount/100;
-                    acc.total.months[thisMonth.getMonth() + numberOfMonths - 12] += i.amount/100;
-                    acc.total.year += i.amount/100;
-                } else if (numberOfMonths > 12) {
-                    acc['online'].months[numberOfMonths - 13] += i.amount/100;
-                    acc.total.months[numberOfMonths - 13] += i.amount/100;
-                }
-                return acc;
-            }, result);
-
             var ctx = view.get('chart').getContext('2d');
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: result.total.months.map((tot, i, a) => monthNames[i ? i - 1 : a.length - 2]),
+                    labels: result.total.months.map((tot, i, a) => monthNames[(12+i) % 12]),
                     datasets: [
                         {
                             label: 'SALITRE',

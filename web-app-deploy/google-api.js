@@ -442,8 +442,8 @@ module.exports = function (utils, posts) {
                             eventId: id,
                             calendarId,
                             summary: summary, location,
-                            start: new Date(start.dateTime).getTime(),
-                            end: new Date(end.dateTime).getTime()
+                            start: new Date(start.dateTime).toISOString(),
+                            end: new Date(end.dateTime).toISOString()
                         };
                     }));
                 });

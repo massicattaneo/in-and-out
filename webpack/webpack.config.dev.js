@@ -70,7 +70,7 @@ const config = {
     },
     plugins: [
         new HtmlWebpackPlugin({
-            chunks: ['public'],
+            // chunks: ['public'],
             template: 'src/index.hbs',
             inject: false,
             filename: './templates/index.html',

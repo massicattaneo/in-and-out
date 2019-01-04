@@ -112,7 +112,6 @@ function cart({ system }) {
                 const typeTitleDisplay = type === item.type ? 'none' : 'block';
                 const typeTitle = locale.get(`treatmentsTypes.${type = item.type}`);
                 const total = system.toCurrency(item.price * item.count);
-                console.log(item);
                 cartView.appendTo('cart', cartItemTemplate, [], { item, total, typeTitleDisplay, typeTitle });
             });
         }
@@ -155,7 +154,6 @@ function cart({ system }) {
 
             const form = document.getElementById('payment-form');
             form.addEventListener('submit', async function (event) {
-                console.log('paying');
                 event.preventDefault();
                 if (cartView.get('email').value === '') system.throw('missingEmail');
                 if (!emailRegEx.test(cartView.get('email').value)) system.throw('malformedEmail');
