@@ -175,8 +175,9 @@
 </script>
 <script src="/assets/vendor/polyfills.min.js"></script>
 <script>window.stripeKey = '{{htmlWebpackPlugin.options.stripeKey}}'</script>
-<canvas id="snow" style="position: absolute;top: 0;pointer-events: none;"></canvas>
-<script src="/assets/vendor/snow.js"></script>
+<!--NAVIDAD-->
+<!--<canvas id="snow" style="position: absolute;top: 0;pointer-events: none;"></canvas>-->
+<!--<script src="/assets/vendor/snow.js"></script>-->
 <script>
     var scripts = [];
         {{#each htmlWebpackPlugin.files.chunks}}
@@ -186,6 +187,6 @@
         });
         {{/each}}
 </script>
-<script src="{{ htmlWebpackPlugin.files.chunks.public.entry }}"></script>
+<script src="../../../../../../../../{{ htmlWebpackPlugin.files.chunks.public.entry }}"></script>
 </body>
 </html>

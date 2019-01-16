@@ -1,33 +1,21 @@
 #wrapper {
 
 }
+
+#wrapperbuttons {
+  position: absolute;
+  padding: 5px;
+  background: white;
+  top: 0;
+}
+
 #footer {
   position: fixed;
   bottom: 0;
   right: 0;
 }
 
-#scanqr {
-  position: fixed;
-  right: 90px;
-  bottom: 68px;
-  z-index: 1;
-}
-
-#resetcard {
-  position: fixed;
-  right: 170px;
-  bottom: 68px;
-  z-index: 1;
-}
-
-#add {
-  position: fixed;
-  right: 10px;
-  bottom: 68px;
-  z-index: 1;
-}
-
 #clients {
   padding-bottom: 90px;
+  padding-top: 53px;
 }

@@ -14,7 +14,8 @@ import {
 } from '../../../web-app-deploy/shared';
 
 function toLocalTime(date, system) {
-    return new Date(new Date(date).getTime()).getTime();
+    return new Date(new Date(date).getTime() - ((- system.store.localOffset) * 60 * 60 * 1000)).getTime();
+
 }
 
 function bookings({ system }) {
@@ -172,7 +173,7 @@ function bookings({ system }) {
         });
 
         const timer = window.rx.connect({ t: () => system.store.spainTime }, function ({ t }) {
-            if (system.store.logged)
+            if (system.store.logged && view.get('spain'))
                 view.get('spain').innerText = `Malaga: ${new Date(t).formatDay('dddd, mm', dayNames)} ${new Date(t).formatTime('hh:mm:ss')}`;
         });
 

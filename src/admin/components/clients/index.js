@@ -138,7 +138,7 @@ export default async function ({ locale, system, thread }) {
             if (!this.surname.value) system.throw('custom', { message: 'FALTA EL APPELIDO' });
             const email = this.email.value.toLowerCase();
             const existing = await thread.execute('rest-api', { method: 'get', api: `users?email=${email}` });
-            if (existing.length > 0) system.throw('custom', { message: 'CORREO YA EXISTE' });
+            if (email && existing.length > 0) system.throw('custom', { message: 'CORREO YA EXISTE' });
             await thread.execute('rest-api', {
                 api: 'users',
                 method: 'post',
@@ -149,7 +149,7 @@ export default async function ({ locale, system, thread }) {
                 tel: this.tel.value,
                 privacy: false
             });
-            if (confirm('Quieres enaviar un correo para aceptar la Privacy?')) {
+            if (email && confirm('Quieres enaviar un correo para aceptar la Privacy?')) {
                 await thread.execute('user/privacyEmail', { email });
             }
             close();

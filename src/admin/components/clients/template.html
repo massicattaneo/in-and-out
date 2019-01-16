@@ -1,23 +1,28 @@
 <form #wrapper>
+    <div #wrapperbuttons class="mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <button #resetcard
+                type="button"
+                onclick="this.form.resetCard()"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+            <i class="material-icons">move_to_inbox</i>
+            BORRAR TARJETA
+        </button>
+        <button #scanqr
+                type="button"
+                onclick="this.form.scanqr()"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+            <i class="material-icons">camera</i>
+            ESCANEAR CODIGO QR
+        </button>
+        <button #add
+                type="button"
+                onclick="this.form.add()"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+            <i class="material-icons">add</i>
+            AÑADIR CLIENTE
+        </button>
+    </div>
     <div #clients></div>
-    <button #resetcard
-            type="button"
-            onclick="this.form.resetCard()"
-            class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
-        <i class="material-icons">move_to_inbox</i>
-    </button>
-    <button #scanqr
-            type="button"
-            onclick="this.form.scanqr()"
-            class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
-        <i class="material-icons">camera</i>
-    </button>
-    <button #add
-            type="button"
-            onclick="this.form.add()"
-            class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored">
-        <i class="material-icons">add</i>
-    </button>
     <footer #footer class="mdl-mega-footer mdl-grid">
         <div class="mdl-cell--3-col" #useweb></div>
         <div class="mdl-cell--3-col" #withorders></div>
