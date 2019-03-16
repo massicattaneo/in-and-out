@@ -30,12 +30,8 @@ function sameDay(d1, d2) {
         d1.getDate() === d2.getDate();
 }
 
-function toLocalTime(date, system) {
-    return new Date(new Date(date).getTime() + (getSpainOffset() - system.store.localOffset) * 60 * 60 * 1000).getTime();
-}
-
 function reverseLocalTime(date, system) {
-    return new Date(new Date(date).getTime() - (getSpainOffset() - system.store.localOffset) * 60 * 60 * 1000).getTime();
+    return new Date(new Date(date).getTime() - (getSpainOffset(date) - system.store.localOffset) * 60 * 60 * 1000).getTime();
 }
 
 export default async function ({ locale, system, thread }) {

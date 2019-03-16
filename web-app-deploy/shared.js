@@ -8,8 +8,11 @@ const spainOffsets = [
     1635645600000 //new Date('2021-10-31T03:00').getTime()
 ];
 
-function getSpainOffset() {
-    return 2 - (spainOffsets.filter(i => i <= Date.now()).length % 2);
+function getSpainOffset(date) {
+    if (date) {
+        return spainOffsets.filter(i => i <= (new Date(date).getTime())).length % 2;
+    }
+    return spainOffsets.filter(i => i <= Date.now()).length % 2;
 }
 
 function getCalendar({ calendars }, date) {

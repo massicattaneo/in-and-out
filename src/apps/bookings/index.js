@@ -14,8 +14,7 @@ import {
 } from '../../../web-app-deploy/shared';
 
 function toLocalTime(date, system) {
-    return new Date(new Date(date).getTime() - ((- system.store.localOffset) * 60 * 60 * 1000)).getTime();
-
+    return new Date(new Date(date).getTime() - (( - system.store.localOffset) * 60 * 60 * 1000)).getTime();
 }
 
 function bookings({ system }) {

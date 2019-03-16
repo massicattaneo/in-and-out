@@ -3,6 +3,7 @@ import template from './logged.html';
 import * as styles from './logged.scss';
 import deleteDone from './delete-done.html';
 import appointmentTemplate from './appointment.html';
+import { getSpainOffset } from '../../../../web-app-deploy/shared';
 
 export default async function ({ system, parent, thread }) {
     const obj = {};
@@ -27,9 +28,9 @@ export default async function ({ system, parent, thread }) {
                     .forEach(item => {
                         const start = new Date(item.start).getTime();
                         const end = new Date(item.end).getTime();
-                        const date = new Date(start+ ((system.store.spainOffset - system.store.localOffset) * 60 * 60 * 1000)).formatDay('dddd, dd-mm-yyyy', dayNames);
-                        const startTime = new Date(start+ ((system.store.spainOffset - system.store.localOffset) * 60 * 60 * 1000)).formatTime('hh:mm');
-                        const endTime = new Date(end+ ((system.store.spainOffset - system.store.localOffset) * 60 * 60 * 1000)).formatTime('hh:mm');
+                        const date = new Date(start+ ((getSpainOffset(start) - system.store.localOffset) * 60 * 60 * 1000)).formatDay('dddd, dd-mm-yyyy', dayNames);
+                        const startTime = new Date(start+ ((getSpainOffset(start) - system.store.localOffset) * 60 * 60 * 1000)).formatTime('hh:mm');
+                        const endTime = new Date(end+ ((getSpainOffset(start) - system.store.localOffset) * 60 * 60 * 1000)).formatTime('hh:mm');
                         const variables = Object.assign({} ,{ item, startTime, endTime, date }, locale.get());
                         view.appendTo('appointments', appointmentTemplate, [], variables);
                     });
