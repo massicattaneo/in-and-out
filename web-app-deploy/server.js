@@ -320,7 +320,7 @@ const shared = require('./shared');
                 label
             }).then(async (e) => {
                 res.send(e);
-                const date = new Date(new Date(e.start).getTime() - (((-shared.getSpainOffset(e.start)) + google.publicDb().serverOffset) * 60 * 60 * 1000));
+                const date = new Date(new Date(e.start).getTime() - (((-shared.getSpainOffset()) + google.publicDb().serverOffset) * 60 * 60 * 1000));
                 const event = {
                     bookId: e.eventId,
                     clientName: name,
