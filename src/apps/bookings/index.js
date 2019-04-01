@@ -173,7 +173,10 @@ function bookings({ system }) {
 
         const timer = window.rx.connect({ t: () => system.store.spainTime }, function ({ t }) {
             if (system.store.logged && view.get('spain'))
-                view.get('spain').innerText = `Malaga: ${new Date(t).formatDay('dddd, mm', dayNames)} ${new Date(t).formatTime('hh:mm:ss')}`;
+                {
+                    const dd = t + 120 * 60000;
+                    view.get('spain').innerText = `Malaga: ${new Date(dd).formatDay('dddd, mm', dayNames)} ${new Date(dd).formatTime('hh:mm:ss')}`;
+                }
         });
 
         obj.destroy = function () {
