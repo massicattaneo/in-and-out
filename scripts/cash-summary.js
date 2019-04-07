@@ -32,9 +32,9 @@ function createTotals() {
 }
 
 const billNumber = {
-    salitre: { ref: '14', num: 11582 },
+    salitre: { ref: '14', num: 12881 },
     compania: { ref: '15', num: 2006 },
-    buenaventura: { ref: '16', num: 497 },
+    buenaventura: { ref: '16', num: 1028 },
     online: { ref: '17', num: 39 }
 };
 
@@ -48,8 +48,8 @@ module.exports = async function (db, google, { from, to, maxCashAmount }) {
     const bank = await db.collection('bank').find().toArray();
     const orders = (await db.collection('orders').find().toArray())
         .filter(o => o.payed === true)
-        .filter(o => new Date(o.created).getTime() > new Date('2018-06-26').getTime())
-        .filter(o => new Date(o.created).getTime() < new Date('2018-09-22').getTime())
+        .filter(o => new Date(o.created).getTime() > new Date(from).getTime())
+        .filter(o => new Date(o.created).getTime() < new Date(to).getTime())
         .map(o => {
             const products = parseCart(o.cart, google.publicDb());
             return {

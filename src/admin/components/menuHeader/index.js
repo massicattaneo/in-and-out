@@ -13,7 +13,7 @@ export default async function ({ locale, system, thread }) {
     });
 
     window.rx.connect({t: () => system.store.spainTime}, function ({ t }) {
-        view.get('spaintime').innerText = `Malaga: ${new Date(t).formatDay('dd/mm')}, h${new Date(t).formatTime('hh:mm:ss')}`
+        view.get('spaintime').innerText = `Malaga: ${new Date(t + 120 * 60000).formatDay('dd/mm')}, h${new Date(t + 120 * 60000).formatTime('hh:mm:ss')}`
     })
 
     return view;

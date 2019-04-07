@@ -48,6 +48,15 @@ const shared = require('./shared');
         lifetime: 2 * 60 //seconds
     });
 
+    const startSever = http.createServer(function (req, res) {
+        res.writeHead(503, { 'Content-Type': 'text/html' });
+        res.write(fs.readFileSync(path.resolve(__dirname, '404.html'), 'utf8')); //write a response to the client
+        res.end(); //end the response
+    });
+    startSever.listen(port, (err) => {
+        console.log('startServer running');
+    });
+
     app.use(fileUpload());
     app.use(detector.middleware());
     app.use(bodyParser.json());
@@ -596,6 +605,12 @@ const shared = require('./shared');
     }
     app.get('*', callback);
 
+    await (new Promise(function (resolve) {
+        startSever.close(function () {
+            console.log('PEPE',...arguments)
+            resolve();
+        });
+    }));
 
     const server = http.createServer(app).listen(port, () => {
         console.log('http server running at ' + port);
