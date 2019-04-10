@@ -171,8 +171,8 @@ function bookings({ system }) {
             }
         });
 
-        const timer = window.rx.connect({ t: () => system.store.spainTime }, function ({ t }) {
-            if (system.store.logged && view.get('spain'))
+        const timer = window.rx.connect({ t: () => system.store.spainTime, trt: () => system.store.treatments }, function ({ t, trt }) {
+            if (system.store.logged && view.get('spain') && trt.filter(t => t.favourite).length)
                 {
                     const dd = t + 120 * 60000;
                     view.get('spain').innerText = `Malaga: ${new Date(dd).formatDay('dddd, mm', dayNames)} ${new Date(dd).formatTime('hh:mm:ss')}`;
