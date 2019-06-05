@@ -157,7 +157,7 @@ function bookings({ system }) {
                 view.get('book').setAttribute('disabled', 'disabled');
                 if (selTreatments.length && centers.filter(c => c === center).length) {
                     view.clear('hours').appendTo('hours', '<div style="text-align: center; width: 100%"><img style="width: 33px" src="/assets/images/loading.gif" /></div>', []);
-                    const localDate = toLocalTime(date, system);
+                    const localDate = toLocalTime(date + 2 * 60 * 60 * 1000, system);
                     const freeBusy = await thread.execute('booking/get-hours',
                         { date: localDate, treatments: selTreatments, center });
                     const hours = getAvailableHours(system.store, localDate, center, treatments, selTreatments, freeBusy)

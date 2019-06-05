@@ -62,7 +62,10 @@ export default async function ({ system, parent, thread }) {
     };
 
     form.deleteAccount = async function () {
-        await thread.execute('user/delete', { password: view.get('password').value });
+        await thread.execute('user/delete', {
+            password: view.get('password').value,
+            email: system.store.email
+        });
         system.store.logged = false;
         view.clear().appendTo('', deleteDone, [], locale.get());
     };
