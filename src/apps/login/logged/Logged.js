@@ -3,7 +3,7 @@ import template from './logged.html';
 import * as styles from './logged.scss';
 import deleteDone from './delete-done.html';
 import appointmentTemplate from './appointment.html';
-import { getSpainOffset } from '../../../../web-app-deploy/shared';
+import { getSpainOffset, toICSDate } from '../../../../web-app-deploy/shared';
 
 export default async function ({ system, parent, thread }) {
     const obj = {};
@@ -53,6 +53,15 @@ export default async function ({ system, parent, thread }) {
         const item = system.store.bookings.filter(b => b.eventId === eventId && b.calendarId === calendarId)[0];
         const index = system.store.bookings.indexOf(item);
         system.store.bookings.splice(index, 1);
+    };
+
+    form.addToGoogle = function (eventId) {
+        const booking = system.store.bookings.find(b => b.eventId === eventId);
+        window.open(`https://www.google.com/calendar/render?action=TEMPLATE`
+            + `&text=${encodeURIComponent('In&Out Belleza')}`
+            + `&dates=${toICSDate(booking.start)}/${toICSDate(booking.end)}`
+            + `&details=${encodeURIComponent(booking.summary.match(/[^)]*\)\s(.*)/)[1])}`
+            + `&location=${encodeURIComponent(booking.location)}&sf=true&output=xml`)
     };
 
     form.logout = async function () {

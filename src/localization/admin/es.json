@@ -74,7 +74,7 @@
   },
   "login": {
     "title": "ENTRA EN IN&OUT",
-    "password": "PASSWORD",
+    "password": "CONTRASEÑA",
     "button": "ENTRA"
   },
   "about": {
@@ -97,7 +97,7 @@
     "wrongEmail": "El correo no corresponde a ninguna cuenta.",
     "generic": "Algo no salió bien. Inténtalo de nuevo en breve.",
     "send-email-error": "Ha occurido un problema con el envio del correo. Ententalo otra vez.",
-    "wrongPassword": "TU PASSWORD NO ES CORRECTA.",
+    "wrongPassword": "TU CONTRASEÑA NO ES CORRECTA.",
     "inactiveUser": "AUN NO HAS ACTIVADO TU CUENTA. SI NO TE HA LLEGADO EL CORREO PULSA AQUI PARA RECIBIRNE OTRO",
     "missingEmail": "añade tu correo",
     "missingName": "añade tu nombre",

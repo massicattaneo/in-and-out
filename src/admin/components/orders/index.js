@@ -104,6 +104,7 @@ export default async function ({ locale, system, thread }) {
                     method: 'put',
                     cart: order.cart
                 });
+                system.store.search = ''
             }
         } else if (typeIndex === 0) {
             if (confirm('ESTAS SEGURO DE UTILIZAR ESTE TRATAMIENTO?')) {
@@ -113,6 +114,7 @@ export default async function ({ locale, system, thread }) {
                     method: 'put',
                     cart: order.cart
                 });
+                system.store.search = ''
             }
         } else if (typeIndex === 1) {
             const { id } = order.cart[index];
@@ -147,12 +149,31 @@ export default async function ({ locale, system, thread }) {
                     method: 'put',
                     cart: order.cart
                 });
+                system.store.search = '';
                 close();
             });
             const client = system.store.clients.find(i => i.email === order.email);
             if (client)
                 modalView.get('client').value = client._id;
         }
+    };
+
+    view.get('wrapper').scanqr = function () {
+        const scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+        scanner.addListener('scan', function (content) {
+            scanner.stop();
+            const order = system.store.orders.find(i => i._id === content);
+            system.store.search = order._id;
+        });
+        Instascan.Camera.getCameras().then(function (cameras) {
+            if (cameras.length > 0) {
+                scanner.start(cameras[0]);
+            } else {
+                console.error('No cameras found.');
+            }
+        }).catch(function (e) {
+            console.error(e);
+        });
     };
 
     view.destroy = function () {

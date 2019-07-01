@@ -300,5 +300,8 @@ module.exports = {
     sortByDate,
     activePromotions,
     futurePromotions,
-    getSpainOffset
+    getSpainOffset,
+    toICSDate: function toICSDate(date) {
+        return new Date(date).toISOString().replace(/-/g, '').replace(/:/g, '').substr(0, 15);
+    }
 };

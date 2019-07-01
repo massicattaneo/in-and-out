@@ -1,4 +1,13 @@
 <form #wrapper>
+    <div #wrapperbuttons class="mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <button #scanqr
+                type="button"
+                onclick="this.form.scanqr()"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+            <i class="material-icons">camera</i>
+            ESCANEAR CODIGO QR
+        </button>
+    </div>
     <div #orders></div>
     <footer #footer class="mdl-mega-footer mdl-grid">
         <div class="mdl-cell--3-col" #month></div>

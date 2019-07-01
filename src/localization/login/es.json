@@ -22,6 +22,7 @@
     "deleteAccount": "ELIMINAR TU CUENTA",
     "deleteAccountButton": "ELMINAR",
     "deletePassword": "contraseña",
+    "addToGoogle": "AÑADIR A GOOGLE",
     "deleteBooking": "ELMINAR CITA",
     "deleted": {
       "title": "Tu cuenta ya ha sido borrada",
@@ -62,7 +63,7 @@
   },
   "reset": {
     "title": "PON TU CONTRASEÑA:",
-    "passwordLabel": "password",
+    "passwordLabel": "contraseña",
     "resetButton": "CONTINUAR"
   },
   "resetDone": {

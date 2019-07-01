@@ -76,16 +76,15 @@ export default async function ({ system, thread, locale }) {
             salitre.months = new Array(numberOfMonths).fill(0);
             const buenaventura = Object.create(dm);
             buenaventura.months = new Array(numberOfMonths).fill(0);
-            const compania = Object.create(dm);
-            compania.months = new Array(numberOfMonths).fill(0);
             const online = Object.create(dm);
             online.months = new Array(numberOfMonths).fill(0);
             const total = Object.create(dm);
             total.months = new Array(numberOfMonths).fill(0);
-            const result = { salitre, buenaventura, compania, online, total };
+            const result = { salitre, buenaventura, online, total };
 
 
             cash
+                .filter(acc => acc.user !== 'compania')
                 .reduce((acc, i) => {
                     const user = i.user || 'salitre';
                     if (i.date >= today.getTime()) {
@@ -162,18 +161,12 @@ export default async function ({ system, thread, locale }) {
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: result.total.months.map((tot, i, a) => monthNames[(12+i) % 12]),
+                    labels: result.total.months.map((tot, i, a) => monthNames[(new Date().getMonth() + i) % 12]),
                     datasets: [
                         {
                             label: 'SALITRE',
                             data: result.salitre.months,
                             backgroundColor: '#cdfaff',
-                            borderWidth: 1
-                        },
-                        {
-                            label: 'COMPAÑIA',
-                            data: result.compania.months,
-                            backgroundColor: '#cdffd6',
                             borderWidth: 1
                         },
                         {
@@ -193,6 +186,16 @@ export default async function ({ system, thread, locale }) {
                             data: result.total.months,
                             backgroundColor: '#000000',
                             borderWidth: 1
+                        },
+                        {
+                            label: 'Total',
+                            data: result.total.months.map(function (item, index, array) {
+                                return (item + (array[index + 1] || item)) / 2;
+                            }),
+                            type: 'line',
+                            options: {
+                                cubicInterpolationMode: 'default'
+                            }
                         }
                     ]
                 }

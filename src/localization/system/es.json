@@ -158,7 +158,7 @@
   "errors": {
     "wrongEmail": "El correo no corresponde a ninguna cuenta.",
     "generic": "Algo no salió bien. Inténtalo de nuevo en breve.",
-    "wrongPassword": "TU PASSWORD NO ES CORRECTA.",
+    "wrongPassword": "TU CONTRASEÑA NO ES CORRECTA.",
     "inactiveUser": "<a style='color: white;' onclick='window.navigate(this, event)' href='/es/cuenta/recuperar'>AUN NO HAS ACTIVADO TU CUENTA. SI NO TE HA LLEGADO EL CORREO PULSA AQUI PARA RECIBIRNE OTRO</a>",
     "missingEmail": "añade tu correo",
     "missingName": "añade tu nombre",
