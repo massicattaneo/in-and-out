@@ -32,10 +32,10 @@ function createTotals() {
 }
 
 const billNumber = {
-    salitre: { ref: '14', num: 14107 },
+    salitre: { ref: '14', num: 15721 },
     compania: { ref: '15', num: 2006 },
-    buenaventura: { ref: '16', num: 1565 },
-    online: { ref: '17', num: 118 }
+    buenaventura: { ref: '16', num: 2138 },
+    online: { ref: '17', num: 207 }
 };
 
 function getBillNumber(item) {
