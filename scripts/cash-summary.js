@@ -32,10 +32,10 @@ function createTotals() {
 }
 
 const billNumber = {
-    salitre: { ref: '14', num: 12881 },
+    salitre: { ref: '14', num: 14107 },
     compania: { ref: '15', num: 2006 },
-    buenaventura: { ref: '16', num: 1028 },
-    online: { ref: '17', num: 39 }
+    buenaventura: { ref: '16', num: 1565 },
+    online: { ref: '17', num: 118 }
 };
 
 function getBillNumber(item) {
@@ -69,7 +69,7 @@ module.exports = async function (db, google, { from, to, maxCashAmount }) {
     const subTotals = createTotals();
     const totals = createTotals();
 
-    let ref = '2-7-2018';
+    let ref = '30-7-2018';
     const data = [];
     const allData = [];
     const array = cash
@@ -134,6 +134,13 @@ module.exports = async function (db, google, { from, to, maxCashAmount }) {
             data.push({ DESCRIPCION: 'TPV BUENAVENTURA', TOTAL: toCurrency(tpvBuenaventura) });
             data.push({ '': '' });
 
+            if (Math.abs(tpvSalitre - subTotals.salitre.tarjeta) > 4) {
+                console.log(ref, 'salitre', tpvSalitre, subTotals.salitre.tarjeta);
+            }
+            if (Math.abs(tpvBuenaventura - subTotals.buenaventura.tarjeta) > 4) {
+                console.log(ref, 'buenaventura', tpvBuenaventura, subTotals.buenaventura.tarjeta);
+            }
+
             addTotals(subTotals, totals);
             resetObject(subTotals);
 
@@ -188,5 +195,12 @@ module.exports = async function (db, google, { from, to, maxCashAmount }) {
     /* generate buffer */
     const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
+    await new Promise(res => setTimeout(res, 3000));
+
     fs.writeFileSync(path.resolve(__dirname, './somario_facturas_de_venta.xlsx'), buf);
+    console.log(`BILLS NUMBERS FOR NEXT TRIMESTRAL:
+        SALITRE:      ${billNumber.salitre.num + 1}
+        BUENAVENTURA: ${billNumber.buenaventura.num + 1}
+        ONLINE:       ${billNumber.online.num + 1}
+    `);
 };

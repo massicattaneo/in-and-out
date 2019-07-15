@@ -95,7 +95,7 @@ export default async function ({ system, thread }) {
         system.store.clients.splice(0, system.store.clients.length);
         system.store.clients.push(...data.clients);
         system.store.orders.splice(0, system.store.orders.length);
-        system.store.orders.push(...data.orders);
+        system.store.orders.push(...(data.orders.filter(order => order.payed === true)));
         system.store.bills.splice(0, system.store.bills.length);
         system.store.bills.push(...data.bills);
         system.store.users.splice(0, system.store.users.length);

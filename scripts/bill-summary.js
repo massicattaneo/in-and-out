@@ -33,7 +33,7 @@ module.exports = async function (db, google, { title }) {
                             .pipe(dest)
                             .on('error', reject);
                     }));
-                    if (extname === '.pdf') {
+                    if (extname.toLowerCase() === '.pdf') {
                         await pdftoimage(pathFile, {
                             format: 'jpeg',
                             outdir: path.resolve(__dirname, 'temp')
