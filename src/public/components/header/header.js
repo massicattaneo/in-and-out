@@ -7,7 +7,8 @@ export default async function ({ system, context, parent }) {
     const locale = await system.locale(`/localization/common/es.json`);
     const loginUrl = `/${system.info().lang}/${context.locale.get(`apps.login.url`)}`;
     const cartUrl = `/${system.info().lang}/${context.locale.get(`apps.cart.url`)}`;
-    const view = HtmlView(template, styles, { loginUrl, cartUrl });
+    const searchUrl = `/${system.info().lang}/${context.locale.get(`apps.search.url`)}`;
+    const view = HtmlView(template, styles, { loginUrl, cartUrl, searchUrl });
 
     window.rx.connect({
         deviceType: () => system.deviceInfo().deviceType,

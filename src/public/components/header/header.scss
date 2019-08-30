@@ -11,9 +11,9 @@
 #logo {
   position: relative;
   background-repeat: no-repeat;
-  margin: 3px;
+  margin: 2px 0 3px 2px;
   height: 50px;
-  width: 160px;
+  width: 147px;
   display: inline-block;
   background-size: contain;
   vertical-align: top;
@@ -37,7 +37,7 @@
   line-height: 50px;
   float: right;
   margin: 5px 0;
-  padding: 0 15px;
+  padding: 0 7px;
   cursor: pointer;
   position: relative;
   text-decoration: none;
@@ -48,7 +48,16 @@
   line-height: 50px;
   float: right;
   margin: 5px 0;
-  padding: 0 15px;
+  padding: 0 7px;
+  cursor: pointer;
+  position: relative;
+  text-decoration: none;
+}
+#search {
+  line-height: 50px;
+  float: right;
+  margin: 5px 0;
+  padding: 0 7px;
   cursor: pointer;
   position: relative;
   text-decoration: none;
