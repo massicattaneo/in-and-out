@@ -148,10 +148,17 @@ const shared = require('./shared');
     });
 
     app.get('/api/public-db', async function (req, res) {
-        res.send(Object.assign({}, google.publicDb(), {
-            reviews: await mongo.getReviewsInfo(),
-            wrongEmails
-        }));
+
+        if (req.session && req.session.isAdmin) {
+            res.send(Object.assign({}, google.publicDb(), {
+                reviews: await mongo.getReviewsInfo(),
+                wrongEmails
+            }));
+        } else {
+            res.send(Object.assign({}, google.publicDb(), {
+                reviews: await mongo.getReviewsInfo()
+            }));
+        }
     });
 
     app.get('/api/reviews/*', function (req, res) {
