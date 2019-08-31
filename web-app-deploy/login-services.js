@@ -3,13 +3,14 @@ const {
     confirmRegistrationUrl, registerUrl, loginUrl, adminLoginUrl,
     logoutUrl, logAdminStatus, logStatusUrl, recoverUrl,
     resetUrl, deleteAccountUrl, privacyEmailUrl,
-    privacyAcceptUrl
+    privacyAcceptUrl, newsletterUrl
 } = require('./serverInfo');
 const ObjectId = require('mongodb').ObjectID;
-const adminKeys = require("./private/adminKeys.json");
+const adminKeys = require('./private/adminKeys.json');
+
 function getObjectId(id) {
     try {
-        return new ObjectId(id)
+        return new ObjectId(id);
     } catch (e) {
         return e;
     }
@@ -24,7 +25,7 @@ module.exports = function ({
         requiresLogin,
         async function (req, res) {
             const userId = req.session.userId;
-            const { email, anonymous, _id, privacy } = await mongo.getUser({ _id: getObjectId(userId) });
+            const { email, anonymous, _id, privacy, newsletter = true } = await mongo.getUser({ _id: getObjectId(userId) });
             if (anonymous) {
                 res.send({});
             } else {
@@ -33,7 +34,8 @@ module.exports = function ({
                     favourites: await mongo.getUserData(userId),
                     hasBonusCards: (await mongo.rest.get('bonus', `clientId=${userId}`)).length > 0,
                     bookings: await google.getBookings(email),
-                    privacy
+                    privacy,
+                    newsletter
                 };
                 Object.assign(data, { logged: true, email: req.session.email });
                 res.send(data);
@@ -44,6 +46,15 @@ module.exports = function ({
         requiresAdmin,
         async function (req, res) {
             res.send({ logged: true, adminLevel: req.session.adminLevel });
+        });
+
+    app.post(newsletterUrl,
+        requiresLogin,
+        async function (req, res) {
+            mongo.rest.update('users', req.session.userId, {
+                newsletter: req.body.newsletter
+            });
+            res.send('ok');
         });
 
     app.get(confirmRegistrationUrl,
@@ -68,7 +79,7 @@ module.exports = function ({
             .catch(function (err) {
                 res.status(500);
                 res.send(err.message);
-            })
+            });
     });
 
     app.post(recoverUrl, function (req, res) {
@@ -80,7 +91,7 @@ module.exports = function ({
             .catch(function (err) {
                 res.status(500);
                 res.send(err.message);
-            })
+            });
     });
 
     app.post(privacyAcceptUrl, function (req, res) {
@@ -91,7 +102,7 @@ module.exports = function ({
             .catch(function (err) {
                 res.status(500);
                 res.send(err.message);
-            })
+            });
     });
 
     app.post(resetUrl, function (req, res) {
@@ -102,7 +113,7 @@ module.exports = function ({
             .catch(function (err) {
                 res.status(500);
                 res.send(err.message);
-            })
+            });
     });
 
     app.post(registerUrl,
@@ -131,7 +142,7 @@ module.exports = function ({
                 .catch(err => {
                     res.status(500);
                     res.send(err.message);
-                })
+                });
         });
 
     app.post(adminLoginUrl,
@@ -205,7 +216,7 @@ module.exports = function ({
                 }).catch(function (err) {
                     res.status(500);
                     res.send(err.message);
-                })
+                });
             }
         });
 };

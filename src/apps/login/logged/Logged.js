@@ -1,4 +1,4 @@
-import {Node, HtmlStyle, HtmlView} from 'gml-html';
+import { Node, HtmlStyle, HtmlView } from 'gml-html';
 import template from './logged.html';
 import * as styles from './logged.scss';
 import deleteDone from './delete-done.html';
@@ -12,37 +12,39 @@ export default async function ({ system, parent, thread }) {
     await locale.load(`/localization/globalize/es.json`);
     await locale.load(`/localization/login/es.json`);
     const dayNames = new Array(7).fill(0).map((v, i) => locale.get(`day_${i}`));
-    const view = HtmlView(template, styles, locale.get());
+    const view = HtmlView(template, styles, Object.assign({
+        hasNewsletter: system.info().status.newsletter ? 'checked' : ''
+    }, locale.get()));
     const form = view.get('wrapper');
 
     const disconnect = window.rx.connect({
         orientation: () => system.deviceInfo().orientation,
         bookings: () => system.store.bookings
     }, function ({ orientation, bookings }) {
-            view.style(orientation);
-            view.get('appointments').innerHTML = locale.get('logged.emptyAppointments');
-            if (bookings.length) {
-                view.clear('appointments');
-                bookings
-                    .sort((a, b) => a.start - b.start)
-                    .forEach(item => {
-                        const start = new Date(item.start).getTime();
-                        const end = new Date(item.end).getTime();
-                        const date = new Date(start+ ((getSpainOffset(start) - system.store.localOffset) * 60 * 60 * 1000)).formatDay('dddd, dd-mm-yyyy', dayNames);
-                        const startTime = new Date(start+ ((getSpainOffset(start) - system.store.localOffset) * 60 * 60 * 1000)).formatTime('hh:mm');
-                        const endTime = new Date(end+ ((getSpainOffset(start) - system.store.localOffset) * 60 * 60 * 1000)).formatTime('hh:mm');
-                        const variables = Object.assign({} ,{ item, startTime, endTime, date }, locale.get());
-                        view.appendTo('appointments', appointmentTemplate, [], variables);
-                    });
-            }
-            if (system.info().status.hasBonusCards) {
-                view.get('qrcode').innerHTML = `
+        view.style(orientation);
+        view.get('appointments').innerHTML = locale.get('logged.emptyAppointments');
+        if (bookings.length) {
+            view.clear('appointments');
+            bookings
+                .sort((a, b) => a.start - b.start)
+                .forEach(item => {
+                    const start = new Date(item.start).getTime();
+                    const end = new Date(item.end).getTime();
+                    const date = new Date(start + ((getSpainOffset(start) - system.store.localOffset) * 60 * 60 * 1000)).formatDay('dddd, dd-mm-yyyy', dayNames);
+                    const startTime = new Date(start + ((getSpainOffset(start) - system.store.localOffset) * 60 * 60 * 1000)).formatTime('hh:mm');
+                    const endTime = new Date(end + ((getSpainOffset(start) - system.store.localOffset) * 60 * 60 * 1000)).formatTime('hh:mm');
+                    const variables = Object.assign({}, { item, startTime, endTime, date }, locale.get());
+                    view.appendTo('appointments', appointmentTemplate, [], variables);
+                });
+        }
+        if (system.info().status.hasBonusCards) {
+            view.get('qrcode').innerHTML = `
                 <img style="width: 200px;" src="/api/qr-code/${system.info().status.id}" />
-                `
-            } else {
-                view.get('noqrcode').innerHTML = `Activala en uno de nuestros centros.`
-            }
-        });
+                `;
+        } else {
+            view.get('noqrcode').innerHTML = `Activala en uno de nuestros centros.`;
+        }
+    });
 
     parent.appendChild(view.get());
 
@@ -61,13 +63,19 @@ export default async function ({ system, parent, thread }) {
             + `&text=${encodeURIComponent('In&Out Belleza')}`
             + `&dates=${toICSDate(booking.start)}/${toICSDate(booking.end)}`
             + `&details=${encodeURIComponent(booking.summary.match(/[^)]*\)\s(.*)/)[1])}`
-            + `&location=${encodeURIComponent(booking.location)}&sf=true&output=xml`)
+            + `&location=${encodeURIComponent(booking.location)}&sf=true&output=xml`);
     };
 
     form.logout = async function () {
         await thread.execute('user/logout');
         system.store.logged = false;
         system.navigateTo(locale.get('urls.home'));
+    };
+
+    form.newsletter = async function () {
+        const newsletter = view.get('newsletter').checked;
+        system.info().status.newsletter = newsletter;
+        await thread.execute('user/newsletter', { newsletter });
     };
 
     form.deleteAccount = async function () {

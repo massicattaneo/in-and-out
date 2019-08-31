@@ -3,6 +3,7 @@
   "email": "info@inandoutbelleza.com",
   "confirmRegistrationUrl": "/api/login/confirm",
   "registerUrl": "/api/login/register",
+  "newsletterUrl": "/api/login/newsletter",
   "loginUrl": "/api/login/login",
   "adminLoginUrl": "/api/login/adminLogin",
   "logoutUrl": "/api/login/logout",

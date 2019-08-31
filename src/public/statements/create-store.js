@@ -114,7 +114,8 @@ export default async function ({ system, wait, thread }) {
                 logged: false,
                 email: '',
                 favourites: [],
-                privacy: false
+                privacy: false,
+                newsletter: true
             };
         }
         system.info().status = status;
