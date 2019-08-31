@@ -124,7 +124,20 @@ export default async function ({ locale, system, thread }) {
                 bonus, amount: system.toCurrency(amount),
                 clients: system.store.clients.sort((a,b) => a.surname.localeCompare(b.surname) || a.name.localeCompare(b.name))
             }, async function (close) {
-                if (!this.clientId.value) system.throw('custom', { message: 'SELCIONA UN CLIENTE' });
+                if (!this.clientId.value) {
+                    const res = confirm(`SI NO SELECIONAS UN CLIENTE EL BONO "${bonus.title}" SE MARCARA' COMO USADO SIN CONVERTIRLO. ESTAS SEGURO?`);
+                    if (res) {
+                        order.cart[index].used = true;
+                        await thread.execute('rest-api', {
+                            api: `orders/${orderId}`,
+                            method: 'put',
+                            cart: order.cart
+                        });
+                        system.store.search = '';
+                        close();
+                    }
+                    return;
+                }
                 if (order.cart[index].used === true) {
                     system.throw('generic')
                 }
