@@ -102,8 +102,8 @@ export default async function ({ locale, system, thread, wait }) {
             }
         };
 
-        v.get('wrapper').addCash = async function() {
-            const { modalView, modal } = createModal(editCash, { users: system.store.users }, async function(close) {
+        v.get('wrapper').addCash = async function () {
+            const { modalView, modal } = createModal(editCash, { users: system.store.users }, async function (close) {
                 if (!this.description.value) system.throw('custom', { message: 'FALTA LA DESCRIPCION' });
                 if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
                 if (!this.type.value) system.throw('custom', { message: 'TARJETA O EFECTIVO?' });
@@ -271,6 +271,7 @@ export default async function ({ locale, system, thread, wait }) {
         };
 
         v.get('wrapper').useBonus = async function (id, trId, title, icon) {
+            console.log(trId);
             if (icon === 'cancel' && confirm(`Quieres utilizar la sesion de "${title.toUpperCase()}"?`)) {
                 const bonus = bonuses.find(b => b._id === id);
                 const trs = bonus.transactions.concat([
@@ -281,6 +282,18 @@ export default async function ({ locale, system, thread, wait }) {
                     method: 'put',
                     transactions: trs,
                     finished: trs.length === bonus.treatments.length
+                });
+            } else if (icon !== 'cancel' && prompt(`Quieres reactivar la sesion de "${title.toUpperCase()}"?`) === 'carmen') {
+                const bonus = bonuses.find(b => b._id === id);
+                const array = bonus.transactions.filter(t => t.treatmentId === trId);
+                const index = bonus.transactions.findIndex(t => t === array[array.length - 1]);
+                const trs = bonus.transactions.slice(0);
+                trs.splice(index, 1);
+                await thread.execute('rest-api', {
+                    api: `bonus/${id}`,
+                    method: 'put',
+                    transactions: trs,
+                    finished: false
                 });
             }
         };
