@@ -8,13 +8,16 @@ function reviews({ system }) {
     return async function ({ parent, thread }) {
         let obj = {};
         const locale = await system.locale(`/localization/reviews/es.json`);
+        locale.load('/localization/globalize/es.json');
         locale.load('/localization/static.json');
+        const dayNames = new Array(7).fill(0).map((v, i) => locale.get(`day_${i}`));
+        const monthNames = new Array(12).fill(0).map((v, i) => locale.get(`month_${i}`));
 
         const view = HtmlView(template, styles, locale.get());
 
         const addReviewEl = view.get('addreview');
 
-        view.appendTo('staraverage', `<span>${system.store.reviewsAverage.toFixed(1)}</span>`);
+        view.appendTo('staraverage', `<span>${system.store.reviewsAverage.toFixed(1)} - ${system.store.reviews.length} reseñas</span>`);
 
         function getStarTemplate(rate) {
             return new Array(Number(rate)).fill(0)
@@ -63,14 +66,21 @@ function reviews({ system }) {
             system.store.notifications = Math.random();
             disconnect();
         };
-
+console.warn(monthNames)
         let loadCounter = 0;
         obj.loadContent = async function () {
             if (loadCounter >= 0) {
                 const list = await thread.execute('reviews/get', { counter: loadCounter });
                 loadCounter = (list.length) ? loadCounter + 1 : -1;
                 list.forEach(function (item) {
-                    view.appendTo('reviews', reviewTemplate, [], { item, stars: getStarTemplate(item.rate) });
+
+                    view.appendTo('reviews', reviewTemplate, [], {
+                        item: Object.assign({}, item, {
+                            name: item.name.toLowerCase(),
+                            created: (new Date(item.created)).formatDay('yyyy, mmm', dayNames, monthNames)
+                        }),
+                        stars: getStarTemplate(item.rate)
+                    });
                 });
             } else {
                 view.get('loading').style.display = 'none';
