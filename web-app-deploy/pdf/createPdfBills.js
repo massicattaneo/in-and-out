@@ -14,12 +14,12 @@ function toCurrency(number) {
 }
 
 function addItem(doc, params) {
-    const { CLIENTE, NUMERO, FECHA, DESCRIPCION, TOTAL, IVA } = params;
+    const { CLIENTE, NUMERO, FECHA, DESCRIPCIONES, TOTAL, IVA } = params;
     const marginLeft = 30;
     let posY;
 
     doc.image(txtImage, 15, 15, { width: 180, height: 100 });
-    doc.rect(290, 15, 300, 100).stroke();
+    doc.rect(290, 15, 300, 150).stroke();
 
     doc
         .fontSize(20)
@@ -38,24 +38,25 @@ function addItem(doc, params) {
         .text('Cliente:', 310, 70);
 
     doc
-        .fontSize(14)
+        .fontSize(11)
         .font('Helvetica')
         .text(CLIENTE, 310, 85);
 
+    posY = 200;
     doc
         .fontSize(12)
-        .text(`Numero: ${NUMERO}`, marginLeft, 150);
+        .text(`Numero: ${NUMERO}`, marginLeft, posY);
 
     doc
         .fontSize(12)
-        .text(`Fecha: ${FECHA}`, marginLeft + 250, 150);
+        .text(`Fecha: ${FECHA}`, marginLeft + 250, posY);
 
     doc
-        .moveTo(marginLeft, 165)
-        .lineTo(400, 165)
+        .moveTo(marginLeft, 215)
+        .lineTo(400, 215)
         .stroke();
 
-    posY = 200;
+    posY += 50;
     doc
         .fontSize(9)
         .text('Codigo', marginLeft, posY)
@@ -64,14 +65,18 @@ function addItem(doc, params) {
         .text('% IVA', marginLeft + 400, posY)
         .text('Importe', marginLeft + 450, posY);
 
-    posY = 230;
-    doc
-        .fontSize(11)
-        .text('1', marginLeft, posY)
-        .text(DESCRIPCION, marginLeft + 50, posY, { width: 200 })
-        .text(toCurrency(params['BASE IMPONIBLE']), marginLeft + 300, posY)
-        .text(params['PORCENTAJE IVA'], marginLeft + 400, posY)
-        .text(toCurrency(TOTAL), marginLeft + 450, posY);
+    posY += 30;
+
+    DESCRIPCIONES.forEach(function (inner, index) {
+        doc
+            .fontSize(11)
+            .text(`${index + 1}`, marginLeft, posY)
+            .text(inner.DESCRIPCION, marginLeft + 50, posY, { width: 200 })
+            .text(toCurrency(inner['BASE IMPONIBLE']), marginLeft + 300, posY)
+            .text(inner['PORCENTAJE IVA'], marginLeft + 400, posY)
+            .text(toCurrency(inner.TOTAL), marginLeft + 450, posY);
+        posY += 30;
+    });
 
     posY = 600;
     doc
@@ -102,15 +107,17 @@ function addItem(doc, params) {
         .text('TOTAL', marginLeft + 250, posY + 80)
         .text(toCurrency(TOTAL), marginLeft + 400, posY + 80, { width: 90, align: 'right' });
 
-    doc.addPage();
 }
 
 module.exports = function (res, items) {
     const doc = new PdfDoc();
     doc.pipe(res);
 
-    items.forEach(function (item) {
+    items.forEach(function (item, index, array) {
         addItem(doc, item);
+        if (index < array.length - 1) {
+            doc.addPage();
+        }
     });
 
     doc.end();

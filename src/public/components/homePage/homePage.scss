@@ -15,9 +15,9 @@
 
 #news {
   clear: both;
-  display: flex;
-  flex-flow: row wrap;
+  display: block;
   margin-top: 10px;
+  text-align: center;
 }
 
 #scrollable {
@@ -39,9 +39,6 @@
   transition: top 500ms;
 }
 
-#image {
-  margin: 20px 0 0 0;
+#brands {
+  margin-bottom: 20px;
 }
-
-
-

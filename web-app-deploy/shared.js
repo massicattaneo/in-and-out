@@ -9,10 +9,7 @@ const spainOffsets = [
 ];
 
 function getSpainOffset(date) {
-    if (date) {
-        return spainOffsets.filter(i => i <= (new Date(date).getTime())).length % 2;
-    }
-    return spainOffsets.filter(i => i <= Date.now()).length % 2;
+    return 0;
 }
 
 function getCalendar({ calendars }, date) {
@@ -200,6 +197,20 @@ function getAvailableHours(db, date, center, treatments, selTreatments, freeBusy
     return hours.filter((h, i, a) => a.indexOf(h) === i).sort();
 }
 
+function isInPromotion(promotions, item) {
+    return promotions
+        .filter(promo => {
+            const promoStart = new Date(promo.desde.split('/').reverse().join('/'));
+            return Date.now() > promoStart.getTime();
+        })
+        .map(getPromotionDiscounts)
+        .reduce((a, i) => a.concat(i), [])
+        .filter(i => {
+            const searchPromo = i.items.find(o => o.id === item.identificador);
+            return searchPromo && i.items.find(c => c.id === searchPromo.id);
+        }).length;
+}
+
 module.exports = {
     getCalendar: getCalendar,
     getCenters,
@@ -243,6 +254,7 @@ module.exports = {
         return filter.length ? db.centers.find(c => c.index === filter[0][0]) : 'NO LOCATION';
     },
     getPromotionDiscounts: getPromotionDiscounts,
+    isInPromotion: isInPromotion,
     getDiscountsPrice,
     getDiscountsItems: getDiscountsItems,
     getCartTotal: function cartTotal(store, cart) {

@@ -31,6 +31,13 @@ function clean(o) {
     }, {});
 }
 
+function padLeft(string, size, char) {
+    if (size === 0) {
+        return '';
+    }
+    return (Array(size + 1).join(char) + string).slice(-size);
+}
+
 module.exports = function (isDeveloping, utils) {
     const obj = {};
     const url = isDeveloping ? `mongodb://localhost:27017/in-and-out` : `mongodb://${config.mongo.user}:${encodeURIComponent(access.password)}@${config.mongo.hostString}`;
@@ -323,6 +330,15 @@ module.exports = function (isDeveloping, utils) {
                     resolve(order);
                 });
         });
+    };
+
+    obj.nextBillNumber = async function (centerId) {
+        const query = { id: centerId };
+        const update = { $inc: { lastBillNumber: 1 } };
+        await db.collection('centers').update(query, update);
+        const { lastBillNumber, billRef } = await db.collection('centers').findOne(query);
+        const billNumber = `${billRef}${padLeft(lastBillNumber.toString(), 6, '0')}`;
+        return { centerId, billNumber };
     };
 
     obj.rest = {

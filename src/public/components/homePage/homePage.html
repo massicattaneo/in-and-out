@@ -4,38 +4,46 @@
         <div #scrollable>
             <div #header></div>
             <div #divider></div>
-            <div #iconswrapper>
+            <div #iconswrapper class="homeMenu">
                 <span #icons></span>
-                <a target="_blank" href="/assets/images/tarifa_de_precios.pdf" class="clickable"
-                   style="position: relative;display: inline-block;width: 60px;
-                   height: 60px;margin: 10px 20px;text-align: center;cursor: pointer;
-                   vertical-align: middle;text-decoration: none;/* pointer-events: none; */">
-                    <div class="green-color flaticon-shopping-bag" style="font-size: 45px; opacity: 0.8;">
-                        <span class="icon-notify" style="color: white; display: none;">!</span>
-                    </div>
-                    <div class="dark-grey-color"
-                         style="font-size: 14px; height: 20px; position: absolute; left: -16px; width: 96px;">
-                        {{homePage.pdfPrices}}
-                    </div>
-                </a>
             </div>
+            <hr class="homePage-line"/>
+            <h2 style="color: #e9ba96;">PRODUCTOS EN VENTAS ONLINE</h2>
+            <div #slider class="home-product-slider" style="height: 160px;">
+
+            </div>
+            <br/>
+            <h3 style="color: #e9ba96;">Trabajamos con los mejores</h3>
+            <div #brands>
+                <img style="max-width: 150px; min-width: 75px; width: 10%; margin: 0 1%; display: inline-block;" src="/assets/images/biologique-recherche-productos-venta-malaga-beauty-center.jpg" alt="Biologique Recherche en Malaga - venta productos de alta cosmetica en beauty center de In&Out"/>
+                <img style="max-width: 150px; min-width: 75px; width: 10%; margin: 0 1%; display: inline-block;" src="/assets/images/natura-bisse-productos-venta-malaga-beauty-center.jpg" alt="Natura Bisse en Malaga - venta productos de alta cosmetica en beauty center de In&Out"/>
+                <img style="max-width: 150px; min-width: 75px; width: 10%; margin: 0 1%; display: inline-block;" src="/assets/images/carita-paris-malaga-venta-productos-beauty-center.png" alt="Carita Paris en Malaga - venta productos de alta cosmetica en beauty center de In&Out"/>
+                <img style="max-width: 150px; min-width: 75px; width: 10%; margin: 0 1%; display: inline-block;" src="/assets/images/opi-malaga-esmaltes-venta.png" alt="Fedua en Malaga - venta productos de alta cosmetica en beauty center de In&Out"/>
+                <img style="max-width: 150px; min-width: 75px; width: 10%; margin: 0 1%; display: inline-block;" src="/assets/images/decleor-paris-productos-venta-malaga.png" alt="Decleor Paris en Malaga - venta productos de alta cosmetica en beauty center de In&Out"/>
+                <img style="max-width: 150px; min-width: 75px; width: 10%; margin: 0 1%; display: inline-block;" src="/assets/images/indiba-productos-venta-malaga-beauty-center.jpg" alt="Indiba en Malaga - venta productos de alta cosmetica en beauty center de In&Out"/>
+                <img style="max-width: 150px; min-width: 75px; width: 10%; margin: 0 1%; display: inline-block;" src="/assets/images/comfort-zone-productos-venta-malaga-beauty-center.png" alt="Comfort Zone en Malaga - venta productos de alta cosmetica en beauty center de In&Out"/>
+            </div>
+            <br/>
+            <h3 style="color: #e9ba96;">Nuestros mejores tratamientos</h3>
+            <form #treatments class="home-treatments-slider" style="height: 240px;">
+
+            </form>
             <div style="height: 27px; margin-top: 20px; clear: both;">
                 <iframe src="https://www.facebook.com/plugins/like.php?href=https://www.facebook.com/inandoutbelleza&width=170&layout=button&action=like&size=large&show_faces=false&share=true&height=65&appId=1950796945206063"
                         width="170" height="65" style="border:none;overflow:hidden; display: inline-block;height: 46px;vertical-align: middle;width: 200px;"
                         scrolling="no" frameborder="0" allowTransparency="true" allow="encrypted-media"></iframe>
                 <a href="https://www.instagram.com/inandoutmalaga/" target="_blank"><img src="/assets/images/instagram.png" style="width: 100px"/></a>
             </div>
-            <div #image>
-                <img src="/assets/images/slider-1.png"  alt="In&Out centro de belleza en Malaga"/>
-            </div>
-            <div #brands>
-                <img style="min-width: 100px; width: 14%; margin: 0 2%; display: inline-block;" src="/assets/images/carita-paris-malaga-venta-productos-beauty-center.png" alt="Carita Paris en Malaga - venta productos de alta cosmetica en beauty center de In&Out"/>
-                <img style="min-width: 100px; width: 14%; margin: 0 2%; display: inline-block;" src="/assets/images/opi-malaga-esmaltes-venta.png" alt="Fedua en Malaga - venta productos de alta cosmetica en beauty center de In&Out"/>
-                <img style="min-width: 100px; width: 14%; margin: 0 2%; display: inline-block;" src="/assets/images/decleor-paris-productos-venta-malaga.png" alt="Decleor Paris en Malaga - venta productos de alta cosmetica en beauty center de In&Out"/>
-                <img style="min-width: 100px; width: 14%; margin: 0 2%; display: inline-block;" src="/assets/images/fedua-malaga-venta-productos-beauty-center.png" alt="Mama Mio en Malaga - venta productos de alta cosmetica en beauty center de In&Out"/>
-                <img style="min-width: 100px; width: 14%; margin: 0 2%; display: inline-block;" src="/assets/images/mama-mio-productos-venta-malaga-beauty-center.png" alt="Mama Mio en Malaga - venta productos de alta cosmetica en beauty center de In&Out"/>
-            </div>
             <div #news></div>
+            <div #footer class="homePage-footer">
+                <a href="/es/{{apps.gift.url}}" onclick="window.navigate(this, event)">{{apps.gift.iconText}}</a> |
+                <a href="/es/{{apps.beautyparties.url}}" onclick="window.navigate(this, event)">{{apps.beautyparties.iconText}}</a> |
+                <a href="/es/{{apps.beautycorner.url}}" onclick="window.navigate(this, event)">{{apps.beautycorner.iconText}}</a> |
+                <a href="/es/{{apps.inandoutgo.url}}" onclick="window.navigate(this, event)">{{apps.inandoutgo.iconText}}</a> |
+                <a href="/es/{{apps.team.url}}" onclick="window.navigate(this, event)">{{apps.team.iconText}}</a> |
+                <a target="_blank" href="/assets/images/tarifa_de_precios.pdf">{{homePage.pdfPrices}}</a> |
+                <a href="/es/{{apps.questions.url}}" onclick="window.navigate(this, event)">{{apps.questions.iconText}}</a>
+            </div>
         </div>
     </div>
 </div>

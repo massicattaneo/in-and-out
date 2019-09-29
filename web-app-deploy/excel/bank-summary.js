@@ -1,8 +1,5 @@
-const { dayNames, monthNames, toCurrency, net, getTotals, promiseSerial } = require('./common');
+const { dayNames, monthNames, toCurrency, net, getTotals, promiseSerial } = require('../pdf/common');
 const XLSX = require('xlsx');
-const wb = XLSX.utils.book_new();
-const fs = require('fs');
-const path = require('path');
 const types = {
     tpv: {
         filter: b => b.key === '143',
@@ -66,6 +63,7 @@ function getType(b) {
 }
 
 module.exports = async function (db, google, { from, to, title }) {
+    const wb = XLSX.utils.book_new();
 
     const bills = (await db.collection('bills').find().toArray())
         .filter(a => new Date(a.date).getTime() > from)
@@ -115,7 +113,5 @@ module.exports = async function (db, google, { from, to, title }) {
 
     /* generate buffer */
     const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
-
-    fs.writeFileSync(path.resolve(__dirname, './somario_banco.xlsx'), buf);
-
+    return buf;
 };

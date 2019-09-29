@@ -1,5 +1,11 @@
 <div #wrapper>
-    <form #products>
+    <form #search style="text-align: center;">
+        <select #type onchange="this.form.change('type')" name="type">
+            <option value="">TODAS LA TIPOLOGIAS</option>
+        </select>
+    </form>
+    <form #bonus>
 
     </form>
+    <div #loading><img style="width: 33px" src="/assets/images/loading.gif"/></div>
 </div>

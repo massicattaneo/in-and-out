@@ -1,10 +1,18 @@
 import * as styles from './homePage.scss';
 import * as newsStyles from './news.scss';
-import { Node, HtmlStyle, HtmlView } from 'gml-html';
+import { HtmlView } from 'gml-html';
 import Header from '../header/header';
 import Icon from '../icon/icon';
 import template from './homePage.html';
 import newsTemplate from './news.html';
+import sliderTemplate from './sliderItem.html';
+import treatmentTemplate from './treatmentItem.html';
+import { tns } from 'tiny-slider/src/tiny-slider';
+import { getCartTotal, isInPromotion } from '../../../../web-app-deploy/shared';
+
+function getTreatments(i) {
+    return (i.tratamientos || '').split('|').map(string => string.split('x')[1]);
+}
 
 export default async function ({ system, parent, context, thread }) {
     let obj = {};
@@ -13,6 +21,70 @@ export default async function ({ system, parent, context, thread }) {
     let header = view.get('header');
 
     await Header({ parent: header, system, context });
+
+    view.get('slider').style.opacity = 0;
+    view.get('treatments').style.opacity = 0;
+
+    view.get('treatments').buy = id => {
+        system.store.cart.push(id);
+        system.navigateTo('/es/cesta');
+    };
+
+    system.store.products
+        .filter(product => product.posicion === 1 || isInPromotion(system.store.promotions, product))
+        .sort((first, second) => {
+            if (isInPromotion(system.store.promotions, first)) return -1;
+            if (isInPromotion(system.store.promotions, second)) return 1;
+            return 0;
+        })
+        .forEach(product => {
+            const cartTotal = getCartTotal(system.store, [product.identificador]);
+            const discount = Math.round(cartTotal.discount / product.precio * 100);
+            view.appendTo('slider', sliderTemplate, [], Object.assign({
+                isPromotion: isInPromotion(system.store.promotions, product)
+                    ? `<div style="padding: 5px 5px 0 5px">DESCUENTO ${discount.toFixed(2)}%</div>`
+                    :''
+            }, product, context.locale.get()));
+        });
+
+    const treatments = system.store.treatments
+        .filter(trt => trt.foto);
+
+    treatments
+        .forEach(trt => {
+            view.appendTo('treatments', treatmentTemplate, [], Object.assign({}, trt, context.locale.get()));
+        });
+
+    setTimeout(function () {
+        const slider = tns({
+            'container': '.home-product-slider',
+            'autoWidth': true,
+            'gutter': 20,
+            'mouseDrag': true,
+            autoplay: true,
+            nav: false,
+            arrowKeys: false,
+            autoplayTimeout: 4000,
+            slideBy: 2,
+            edgePadding: 200
+        });
+        view.get('slider').style.opacity = 1;
+    }, 500);
+    setTimeout(function () {
+        const slider = tns({
+            'container': '.home-treatments-slider',
+            'autoWidth': true,
+            'gutter': 20,
+            'mouseDrag': true,
+            autoplay: true,
+            nav: false,
+            arrowKeys: false,
+            autoplayTimeout: 4000,
+            slideBy: 1,
+            edgePadding: 200
+        });
+        view.get('treatments').style.opacity = 1;
+    }, 1500);
 
     context.appsManifest.forEach(config => {
         if (config.desktop) {
@@ -49,19 +121,19 @@ export default async function ({ system, parent, context, thread }) {
         return {
             title: i.titulo,
             src: `/google/drive/novedades/${system.deviceInfo().deviceType}.${i.foto}`,
-            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/novedades/${i.href}">LEER MAS</a>`,
+            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/novedades/${i.href}">LEER MAS</a>`
         };
     })[0];
     const item2 = system.store.promotions.map(i => {
         return {
             title: i.titulo, src: `/google/drive/promociones/${system.deviceInfo().deviceType}.${i.foto}`,
-            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/promociones/${i.href}">LEER MAS</a>`,
+            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/promociones/${i.href}">LEER MAS</a>`
         };
     })[0];
     const item3 = system.store.press.map(i => {
         return {
             title: i.titulo, src: `/google/drive/en-los-medios/${system.deviceInfo().deviceType}.${i.foto}`,
-            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/en-los-medios/${i.href}">LEER MAS</a>`,
+            info: i.descripcion.substr(0, maxPreviewLength) + `... <br/><a onclick="window.navigate(this, event)" href="/es/en-los-medios/${i.href}">LEER MAS</a>`
         };
     })[0];
     const item4 = system.store.photos.map(i => {
@@ -69,7 +141,8 @@ export default async function ({ system, parent, context, thread }) {
     })[0];
     const items = [];
 
-    items.push(...[item2, item1, item3, item4].map(function (item) {
+    const blocks = item2 ? [item2, item1, item3, item4] : [item1, item3, item4];
+    items.push(...blocks.map(function (item) {
         const params = Object.assign({ item }, context.locale.get());
         return view.appendTo('news', newsTemplate, newsStyles, params);
     }));
@@ -85,7 +158,7 @@ export default async function ({ system, parent, context, thread }) {
             scrollable: { height },
             iconswrapper: { width: (open & deviceType !== 'desktop') ? width - 600 : 'auto' },
             news: { width: visibleWidth },
-            image: { width: visibleWidth },
+            image: { width: visibleWidth }
         });
         error.style.top = '-90px';
         items.forEach(function (item) {

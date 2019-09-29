@@ -12,14 +12,7 @@ function promotions({ system }) {
         const locale = await system.locale(`/localization/common/es.json`);
         await locale.load('/localization/static.json');
         const view = HtmlView(template, styles, locale.get());
-        const promotionsList = system.store.promotions
-            .filter(function (i) {
-                const date = Date.now();
-                const to = (new Date(i.hasta.split('/').reverse().join('-')));
-                to.setHours(23, 59, 59, 59);
-                return date <= to.getTime();
-            })
-            .slice(0);
+        const promotionsList = system.store.promotions.slice(0);
 
         const disconnect =
             window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {
@@ -34,6 +27,10 @@ function promotions({ system }) {
             disconnect();
         };
 
+        if (!promotionsList.length) {
+            view.appendTo('promotions', '<h3>NO HAY NINGUNA PROMOCION ACTIVA</h3>');
+        }
+
         obj.loadContent = async function () {
             if (promotionsList.length) {
                 const item = promotionsList.splice(0, 1)[0];
@@ -42,9 +39,18 @@ function promotions({ system }) {
                 const price = getDiscountsPrice(system.store, discounts);
                 const cartIds = getDiscountsItems(discounts);
                 const bonusBuy = item.discounts ? buyTpl.replace('{{price}}', price ? system.toCurrency(price) : '').replace('{{ids}}', JSON.stringify(cartIds)) : '';
+                let itemToSell = '';
+                let itemPhoto = `/google/drive/promociones/${system.deviceInfo().deviceType}.${item.foto}`;
+                if (cartIds.length === 1 && cartIds[0].startsWith('PRD')) {
+                    const product = system.store.products.find(prd => prd.identificador === cartIds[0]);
+                    itemToSell = `<div><h2>${product.titulo}</h2></div>`;
+                    itemPhoto = `/google/drive/productos/${system.deviceInfo().deviceType}.${product.foto}`;
+                }
                 view.appendTo('promotions', promotionTemplate, [], Object.assign({
                     item,
                     newItem,
+                    itemPhoto,
+                    itemToSell,
                     bonusBuy: (Date.now() > (new Date(item.desde.split('/').reverse().join('-')))) && price ? bonusBuy : ''
                 }, locale.get()));
             } else {

@@ -1,14 +1,22 @@
-<div class="box">
-    <h2 class="green-color">{{item.titulo}}</h2>
+<div class="box" style="background-color: {{bgColor}}">
+    <h2 style="font-size: 22px" class="green-color">{{item.titulo}}</h2>
     {{newItem}}
     <img src="/google/drive/productos/{{system.deviceType}}.{{item.foto}}"
          style="float: left; width: {{percentage}}; margin: {{margin}};"/>
     <p>CANTIDAD: {{item.cantidad}}</p>
-    <p style=" display: {{addCartDisplay}};">PRECIO: {{item.precio_texto}}</p>
-    <input onclick="this.form.add('{{item.identificador}}');"
+
+    <span style="text-decoration: {{textDecoration}}; display: {{addCartDisplay}};">{{item.precio_texto}}</span>
+    <span style="color: #E91E63;display: {{showDiscount}}">{{discounted}}</span>
+    <span style="position: absolute;top: 64px;left: 21px;color: #e91d63;display: {{showDiscountPromo}};">DESCUENTO {{discountPercentage}}</span>
+
+    <br/><input onclick="this.form.add('{{item.identificador}}');"
             style="display:{{addCartDisplay}};"
             class="clickable button green-bg-color white-color"
             type="button" value="{{addToCartButton}}" />
+    <a href="/es/cuenta" onclick="window.navigate(this, event)"
+           style="display:{{loginDisplay}};"
+           class="clickable button green-bg-color white-color"
+       type="button">INICIA SESION PARA VER EL PRECIO</a>
     <a style="display: {{callDisplay}};width: 150px;"
        href="tel:{{location1Phone}}"
             class="clickable button green-bg-color white-color">{{callUsButton}}</a>

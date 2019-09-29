@@ -21,7 +21,7 @@ function reviews({ system }) {
 
         function getStarTemplate(rate) {
             return new Array(Number(rate)).fill(0)
-                .map(() => '<span class="fa fa-star green-color"></span>').join('');
+                .map(() => '<span class="apple green-color"></span>').join('');
         }
 
         function checkForm() {
@@ -66,7 +66,6 @@ function reviews({ system }) {
             system.store.notifications = Math.random();
             disconnect();
         };
-console.warn(monthNames)
         let loadCounter = 0;
         obj.loadContent = async function () {
             if (loadCounter >= 0) {

@@ -157,14 +157,14 @@ function map(template, googleDb, posts, isSpider, google) {
         </script>`;
     }
 
-    function createProductMarkup(item, url) {
+    function createProductMarkup(item, photoRelPath) {
         return `<script type="application/ld+json">
             {
               "@context": "http://schema.org/",
               "@type": "Product",
               "name": "${item.titulo}",
               "image": [
-                "${webSiteUrl}/google/drive/productos/${item.foto}"
+                "${webSiteUrl}${photoRelPath}"
                ],
               "description": "${item.descripcion}",
               "mpn": "925872",
@@ -312,7 +312,7 @@ function map(template, googleDb, posts, isSpider, google) {
                         <h1>${item.titulo}</h1>
                         <img style="width: 100% !important;" data-src="${photoRelPath}"/>
                         <p>${item.descripcion}</p>
-                        ${createProductMarkup(item, url)}
+                        ${createProductMarkup(item, photoRelPath)}
                         `)
                     .replace(/{{title}}/g, `${getTitle(es.apps['products'].windowTitle)} - ${item.titulo}`)
                     .replace(/{{image}}/g, `${webSiteUrl}${photoRelPath}`)

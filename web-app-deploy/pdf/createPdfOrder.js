@@ -76,7 +76,7 @@ module.exports = function createPdfOrder(res, googleDb, code, cart) {
     }
 
     doc
-        .image(path.resolve(`${__dirname}/../order-qr-codes/${code}.png`), 470, y-50, { width: 100 });
+        .image(path.resolve(`${__dirname}/../order-qr-codes/${code}.png`), 470, 300, { width: 100 });
 
     const left = marginLeft;
 

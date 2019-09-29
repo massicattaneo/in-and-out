@@ -1,6 +1,7 @@
 <div #wrapper>
     <table width="100%">
         <tr>
+            <td>FACTURA</td>
             <td>FECHA</td>
             <td>PAGADO</td>
             <td>CORREO</td>
@@ -9,6 +10,17 @@
         </tr>
         {{#each orders}}
         <tr class="list-item">
+            <td>
+                <button type="button" style="width: 100%"
+                    onclick="this.form.createBill('{{this.id}}')"
+                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                    data-upgraded=",MaterialButton,MaterialRipple">
+                    <i class="material-icons">picture_as_pdf</i>
+                <span class="mdl-button__ripple-container">
+                    <span class="mdl-ripple"></span>
+                </span>
+                </button>
+            </td>
             <td>{{this.date}}</td>
 
             <td>{{this.payed}}</td>

@@ -7,10 +7,11 @@ import treatmentTemplate from './treatment.html';
 import noTreatmentsTemplate from './no-treatments.html';
 import * as styles from './index.scss';
 import {
+    decimalToTime,
+    getAvailableHours,
     getCenters,
     getTreatments,
-    decimalToTime,
-    getAvailableHours, isCenterClosed
+    isCenterClosed
 } from '../../../web-app-deploy/shared';
 
 function toLocalTime(date, system) {
@@ -167,7 +168,7 @@ function bookings({ system }) {
                     if (hours.length) {
                         view.clear('hours').appendTo('hours', hoursTemplate, [], { hours });
                     } else {
-                        view.clear('hours').appendTo('hours', '<div>NO HAY TRABAJADORES DISPONIBLES</div>', [], {});
+                        view.clear('hours').appendTo('hours', '<div>Lo sentimos...hoy estamos completos para realizar este servicio</div>', [], {});
                     }
                 }
             }
@@ -176,7 +177,7 @@ function bookings({ system }) {
         const timer = window.rx.connect({ t: () => system.store.spainTime, trt: () => system.store.treatments }, function ({ t, trt }) {
             if (system.store.logged && view.get('spain') && trt.filter(t => t.favourite).length)
                 {
-                    const dd = t + 120 * 60000;
+                    const dd = t + 60 * 60000;
                     view.get('spain').innerText = `Malaga: ${new Date(dd).formatDay('dddd, mm', dayNames)} ${new Date(dd).formatTime('hh:mm:ss')}`;
                 }
         });

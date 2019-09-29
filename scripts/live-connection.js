@@ -1,13 +1,10 @@
-const { promiseSerial } = require('./common');
+const { promiseSerial } = require('../web-app-deploy/pdf/common');
 const access = require('../web-app-deploy/private/mongo-db-access');
 const MongoClient = require('mongodb').MongoClient;
 const config = access.config;
 const ObjectId = require('mongodb').ObjectID;
-const fs = require('fs');
 const url = `mongodb://${config.mongo.user}:${encodeURIComponent(access.password)}@${config.mongo.hostString}`;
-const path = require('path');
-const ImportCsv = require('./import-csv');
-
+const CashSummary = require('../web-app-deploy/excel/cash-summary');
 const google = require('../web-app-deploy/google-api')({}, []);
 
 MongoClient.connect(url, async function (err, db) {
@@ -15,6 +12,59 @@ MongoClient.connect(url, async function (err, db) {
 
     await google.authorize();
     await google.initDriveSheets();
+
+    // db.collection('centers').insertOne({
+    //     id: 'salitre',
+    //     name: 'In&Out Calle Salitre',
+    //     billRef: '14',
+    //     lastBillNumber: 15721,
+    //     'color': '#cdfaff',
+    //     'index': 0,
+    //     'label': 'SALITRE',
+    //     'address': 'CALLE SALITRE, 11 - MÁLAGA',
+    //     'tel': '951 131 460',
+    //     'mobile': '633 90 91 03',
+    //     closed: false
+    // });
+    // db.collection('centers').insertOne({
+    //     id: 'compania',
+    //     name: 'In&Out Calle Compañia',
+    //     billRef: '15',
+    //     lastBillNumber: 2006,
+    //     'color': '#cdffd6',
+    //     'index': 1,
+    //     'label': 'COMPAÑIA',
+    //     'address': 'CALLE COMPANIA, 42 - MÁLAGA',
+    //     'tel': '951 387 919',
+    //     'mobile': '695 685 291',
+    //     closed: true
+    // });
+    // db.collection('centers').insertOne({
+    //     id: 'buenaventura',
+    //     name: 'In&Out Calle Buenaventura',
+    //     billRef: '16',
+    //     lastBillNumber: 2137,
+    //     'color': '#ffcdcd',
+    //     'index': 2,
+    //     'label': 'BUENAVENTURA',
+    //     'address': 'CALLE PUERTA DE BUENAVENTURA, 4 - MÁLAGA',
+    //     'tel': '951 387 919',
+    //     'mobile': '695 685 291',
+    //     closed: false
+    // });
+    // db.collection('centers').insertOne({
+    //     id: 'online',
+    //     name: 'In&Out Tienda Online',
+    //     billRef: '17',
+    //     lastBillNumber: 206,
+    //     'color': '#cdfaff',
+    //     'index': 3,
+    //     'label': 'ONLINE',
+    //     'address': '',
+    //     'tel': '',
+    //     'mobile': '',
+    //     closed: false
+    // });
 
     /** DUPLICATE PHONE */
     // const list = [];
@@ -80,9 +130,6 @@ MongoClient.connect(url, async function (err, db) {
     //     console.log('finish');
     // });
 
-
-    // After doing the trimestral summary do this:
-    // ImportCsv(db);
     /** mark bills as deducted from IVA **/
     // const bills = await db.collection('bills').find().toArray();
     // await promiseSerial(bills.map(bill => function () {
@@ -91,8 +138,19 @@ MongoClient.connect(url, async function (err, db) {
     //             { _id: ObjectId(bill._id) },
     //             { $set: { deducted: true } }
     //             , resolve);
-    //     })
+    //     });
     // }));
+
+    /** save cash billNumber */
+    // const from = new Date('2019-10-01:00:00');
+    // const to = new Date('2019-12-31:23:00');
+    // const { report } = await CashSummary(db, google, {
+    //     from: from.getTime(),
+    //     to: to.getTime(),
+    //     maxCashAmount: 6000,
+    //     saveBillNumbers: true
+    // });
+    //
 
     console.log('finish');
 

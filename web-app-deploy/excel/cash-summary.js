@@ -1,11 +1,10 @@
-const { toCurrency, getTotals } = require('./common');
+const { toCurrency, getTotals, formatItemForPdfBill, formatDateShort } = require('../pdf/common');
 const XLSX = require('xlsx');
-const wb = XLSX.utils.book_new();
 const fs = require('fs');
 const path = require('path');
 const ObjectId = require('mongodb').ObjectID;
-const parseCart = require('../web-app-deploy/pdf/parseCart');
-const createPdfBills = require('../web-app-deploy/pdf/createPdfBills');
+const parseCart = require('../pdf/parseCart');
+const createPdfBills = require('../pdf/createPdfBills');
 
 function resetObject(tots) {
     Object.keys(tots).forEach(function (key) {
@@ -31,19 +30,17 @@ function createTotals() {
     };
 }
 
-const billNumber = {
-    salitre: { ref: '14', num: 15720 },
-    compania: { ref: '15', num: 2006 },
-    buenaventura: { ref: '16', num: 2137 },
-    online: { ref: '17', num: 206 }
-};
-
-function getBillNumber(item) {
+function getBillNumber(item, billNumber) {
     if (item.amount < 0) return '';
     return `${billNumber[item.user].ref}${(++billNumber[item.user].num).toString().padLeft(6, '0')}`;
 }
 
-module.exports = async function (db, google, { from, to, maxCashAmount }) {
+module.exports = async function (db, google, { from, to, maxCashAmount, saveBillNumbers }) {
+    const wb = XLSX.utils.book_new();
+    const billNumber = (await db.collection('centers').find().toArray()).reduce((acc, item) => {
+        return Object.assign(acc, { [item.id]: { ref: item.billRef, num: item.lastBillNumber } });
+    }, {});
+
     const users = await db.collection('users').find().toArray();
     const bank = await db.collection('bank').find().toArray();
     const orders = (await db.collection('orders').find().toArray())
@@ -70,7 +67,6 @@ module.exports = async function (db, google, { from, to, maxCashAmount }) {
     const totals = createTotals();
 
     let ref = '30-7-2018';
-    const data = [];
     const allData = [];
     const array = cash
         .concat(orders)
@@ -100,11 +96,13 @@ module.exports = async function (db, google, { from, to, maxCashAmount }) {
 
     const toPrint = others.sort((a, b) => a.date - b.date);
     const formatted = [];
-
+    const reportData = [];
+    reportData.push(['DATA     ', 'CENTRO       ', 'DIFERENCIA (TPV - CAJA)']);
     for (let index = 0; index <= toPrint.length; index++) {
         const item = toPrint[index] || {};
         const date = new Date(item.date);
-        const fecha = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+        const fecha = formatDateShort(date);
+        const data = [];
 
         if (ref !== fecha) {
             data.push({ '': '' });
@@ -120,13 +118,13 @@ module.exports = async function (db, google, { from, to, maxCashAmount }) {
 
             const salitre = bank
                 .filter(b => (b.note === 'COMERC334264736' || b.note === 'COMERC341540292' || b.note === 'COMERC 341540292')
-                    && b.key === '143' && new Date(b.valueDate).getMonth() === date.getMonth() && new Date(b.valueDate).getDate() === date.getDate())
+                    && b.key === '143' && new Date(b.valueDate).getMonth() === date.getMonth() && new Date(b.valueDate).getDate() === date.getDate() && new Date(b.valueDate).getFullYear() === date.getFullYear())
                 .filter(i => i.amount > 0);
             const buenaventura = bank
                 .filter(b => (b.note === 'COMERC334297272' || b.note === 'COMERC 334297272')
-                    && b.key === '143' && new Date(b.valueDate).getMonth() === date.getMonth() && new Date(b.valueDate).getDate() === date.getDate())
+                    && b.key === '143' && new Date(b.valueDate).getMonth() === date.getMonth() && new Date(b.valueDate).getDate() === date.getDate() && new Date(b.valueDate).getFullYear() === date.getFullYear())
                 .filter(i => i.amount > 0);
-            const tpvSalitre = salitre.reduce((t, i) => t + i.amount, 0) * (date.getTime() < (new Date('2018-08-02')).getTime() ? (100 / 98.5) : (100 / 99.6));
+            const tpvSalitre = salitre.reduce((t, i) => t + i.amount, 0);
             totals.salitre.tpv += tpvSalitre;
             data.push({ DESCRIPCION: 'TPV SALITRE', TOTAL: toCurrency(tpvSalitre) });
             const tpvBuenaventura = buenaventura.reduce((t, i) => t + i.amount, 0);
@@ -134,17 +132,16 @@ module.exports = async function (db, google, { from, to, maxCashAmount }) {
             data.push({ DESCRIPCION: 'TPV BUENAVENTURA', TOTAL: toCurrency(tpvBuenaventura) });
             data.push({ '': '' });
 
-            if (Math.abs(tpvSalitre - subTotals.salitre.tarjeta) > 4) {
-                console.log(ref, 'salitre', tpvSalitre, subTotals.salitre.tarjeta);
+            if (Math.abs(tpvSalitre - subTotals.salitre.tarjeta) > 10) {
+                reportData.push([ref + (ref.length === 8 ? ' ' : ''), 'salitre      ', `${(tpvSalitre - subTotals.salitre.tarjeta).toFixed(2)}`]);
             }
-            if (Math.abs(tpvBuenaventura - subTotals.buenaventura.tarjeta) > 4) {
-                console.log(ref, 'buenaventura', tpvBuenaventura, subTotals.buenaventura.tarjeta);
+            if (Math.abs(tpvBuenaventura - subTotals.buenaventura.tarjeta) > 10) {
+                reportData.push([ref + (ref.length === 8 ? ' ' : ''), 'buenaventura ', `${(tpvBuenaventura - subTotals.buenaventura.tarjeta).toFixed(2)}`]);
             }
 
             addTotals(subTotals, totals);
             resetObject(subTotals);
-
-            const sheet = XLSX.utils.json_to_sheet(data);
+            const sheet = XLSX.utils.json_to_sheet(JSON.parse(JSON.stringify(data)));
             XLSX.utils.book_append_sheet(wb, sheet, ref);
             data.length = 0;
         }
@@ -153,20 +150,19 @@ module.exports = async function (db, google, { from, to, maxCashAmount }) {
             const find = users.find(u => u._id.toString() === item.clientId.toString());
             ref = fecha;
             subTotals[item.user][item.amount > 0 ? item.type : 'expenses'] += item.amount;
-            let itemFormatted = Object.assign({
-                '': '',
-                NUMERO: getBillNumber(item),
-                CENTRO: item.user.toUpperCase(),
-                TIPO: item.type.toUpperCase(),
-                FECHA: fecha,
-                CLIENTE: find ? `${find.surname || ''} ${find.name || ''}` : 'SIN CONTACTO',
-                DESCRIPCION: item.description
-            }, getTotals(item.amount));
+            // TODO: merge same item.billNumber
+            const billNumberToSave = item.billNumber || getBillNumber(item, billNumber);
+            const itemFormatted = formatItemForPdfBill([item], billNumberToSave, fecha, find);
+            if (item._id && saveBillNumbers) {
+                await db.collection('cash').updateOne({ _id: ObjectId(item._id) }, { $set: { billNumber: billNumberToSave } });
+            }
             item.amount > 0 && formatted.push(itemFormatted);
             data.push(itemFormatted);
-            allData.push(itemFormatted);
+            item.amount > 0 && allData.push(itemFormatted);
         }
     }
+
+    const data = [];
 
     data.push({ '': '' });
     data.push(Object.assign({ DESCRIPCION: 'SALITRE TARJETA' }, getTotals(totals.salitre.tarjeta)));
@@ -183,7 +179,8 @@ module.exports = async function (db, google, { from, to, maxCashAmount }) {
     data.push({ '': '' });
     data.push({ '': 'PDF link' });
 
-    const file = fs.createWriteStream(path.resolve(__dirname, './facturas_de_venta.pdf'));
+    const pdfBillsPath = path.resolve(__dirname, './facturas_de_venta.pdf');
+    const file = fs.createWriteStream(pdfBillsPath);
     createPdfBills(file, formatted);
 
     const allSheet = XLSX.utils.json_to_sheet(allData);
@@ -193,14 +190,30 @@ module.exports = async function (db, google, { from, to, maxCashAmount }) {
     XLSX.utils.book_append_sheet(wb, sheet, 'TOTAL');
 
     /* generate buffer */
-    const buf = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
+    const excelBuffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
 
-    await new Promise(res => setTimeout(res, 3000));
+    await new Promise(res => setTimeout(res, 6000));
 
-    fs.writeFileSync(path.resolve(__dirname, './somario_facturas_de_venta.xlsx'), buf);
+    // fs.writeFileSync(path.resolve(__dirname, './somario_facturas_de_venta.xlsx'), buf);
     console.log(`BILLS NUMBERS FOR NEXT TRIMESTRAL:
-        SALITRE:      ${billNumber.salitre.num + 1}
-        BUENAVENTURA: ${billNumber.buenaventura.num + 1}
-        ONLINE:       ${billNumber.online.num + 1}
+        SALITRE:      ${billNumber.salitre.num}
+        BUENAVENTURA: ${billNumber.buenaventura.num}
+        ONLINE:       ${billNumber.online.num}
     `);
+
+    if (saveBillNumbers) {
+        //TODO missing update centers db collection
+    }
+
+    return {
+        pdfBuffer: fs.readFileSync(pdfBillsPath), excelBuffer, report: `
+<html>
+<body>
+<table>
+${reportData.map(arr => `<tr>${arr.map(item => `<td>${item}</td>`).join('')}</tr>`).join('')}
+</table>        
+</body>
+</html>
+    `
+    };
 };

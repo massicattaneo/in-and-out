@@ -1,9 +1,11 @@
-<div #wrapper>
-    <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
+<div #wrapper style="position: relative;">
+    <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast"
+         style="padding-left: 4px;height: 48px;">
         {{title}}
 
-        <button style="position:absolute; right: 0; overflow: visible;"
-                type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="day_{{column}}">
+        <button style="position:absolute; right: 0px; overflow: visible;"
+                type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon"
+                id="day_{{column}}">
             <!--<i class="mdl-badge material-icons" data-badge="0">more_vert</i>-->
             <i class="mdl-badge material-icons">more_vert</i>
         </button>
@@ -14,8 +16,13 @@
                     NOTA
                 </output>
             </li>
+            <!--<li class="mdl-menu__item">-->
+                <!--<output style="display: block; width: 100%;"-->
+                        <!--onclick="this.form.editHours({worker: '{{column}}'})">-->
+                    <!--HORARIO-->
+                <!--</output>-->
+            <!--</li>-->
         </ul>
 
-        </div>
     </div>
 </div>

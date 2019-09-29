@@ -17,13 +17,15 @@ function team({ system }) {
                 .filter(i => i.name === name && i.url.indexOf(`${deviceType}.`) !== -1)[0].url;
         }
 
-        db.workers.forEach(function (item) {
-            const des = locale.get(`user${item.id}description`);
-            const description = `<p>${des instanceof Object ? '' : des}</p>`;
-            const imageUrl = getImageUrl(item.profileImageName);
-            const { name } = item;
-            view.appendTo('workers', workerTemplate, [], { name, description: description, imageUrl });
-        });
+        system.store.workers
+            .filter(item => item.profileImageName)
+            .forEach(function (item) {
+                const des = locale.get(`user_${item.column}_description`);
+                const description = `<p>${des instanceof Object ? '' : des}</p>`;
+                const imageUrl = getImageUrl(item.profileImageName);
+                const { websiteName: name } = item;
+                view.appendTo('workers', workerTemplate, [], { name, description: description, imageUrl });
+            });
 
         const disconnect =
             window.rx.connect({ orientation: () => system.deviceInfo().orientation }, function ({ orientation }) {

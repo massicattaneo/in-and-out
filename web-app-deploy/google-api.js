@@ -213,7 +213,6 @@ module.exports = function (utils, posts) {
                     });
                 }
 
-
                 const folders = list.items
                     .filter(item => item.mimeType === 'application/vnd.google-apps.folder')
                     .filter(item => item.title !== 'website')
@@ -273,7 +272,7 @@ module.exports = function (utils, posts) {
             serverOffset: -(new Date().getTimezoneOffset() / 60),
             processes,
             settings: {
-                freeChargeLimit: 60,
+                freeChargeLimit: 100,
                 sendingCharge: 4.99
             }
         });
@@ -502,6 +501,14 @@ module.exports = function (utils, posts) {
         urls.push(...sheets.beautyparties.map(item => {
             return {
                 url: `/es/beauty-parties/${item.href}`,
+                changefreq: 'monthly',
+                priority: 1,
+                lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-02`)
+            };
+        }));
+        urls.push(...sheets.products.map(item => {
+            return {
+                url: `/es/productos/${item.menuhref}/${item.href}`,
                 changefreq: 'monthly',
                 priority: 1,
                 lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-02`)

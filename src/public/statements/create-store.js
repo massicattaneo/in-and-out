@@ -26,11 +26,19 @@ export default async function ({ system, wait, thread }) {
             : [],
         allPhotos: publicDb.photos || [],
         cart: system.getStorage('cart') || [],
-        treatments: publicDb.treatments || [],
+        treatments: (publicDb.treatments || [])
+            .map(item => Object.assign({}, item, {
+                posicion: Number(item.posicion) || 100
+            })),
         promotions: publicDb.promotions ? futurePromotions(publicDb.promotions) : [],
         news: publicDb.news ? publicDb.news.sort(sortByDate('fecha')) : [],
         press: publicDb.press ? publicDb.press.sort(sortByDate('fecha')) : [],
-        products: (publicDb.products || []).filter(i => i.online === 'si'),
+        products: (publicDb.products || [])
+            .filter(i => i.online === 'si')
+            .map(item => Object.assign({}, item, {
+                posicion: Number(item.posicion) || 100,
+                categoria: item.categoria || 'OTROS'
+            })),
         bonusCards: publicDb.bonusCards ?
             publicDb.bonusCards
                 .filter(function (i) {
@@ -40,6 +48,11 @@ export default async function ({ system, wait, thread }) {
                     from.setHours(0, 0, 0, 0);
                     to.setHours(23, 59, 59, 59);
                     return date >= from.getTime() && date <= to.getTime();
+                })
+                .map(bonus => {
+                    bonus.tratamientos = bonus.tratamientos instanceof Object
+                        ? bonus.tratamientos.value : bonus.tratamientos;
+                    return bonus;
                 })
             : [],
         beautyparties: publicDb.beautyparties || [],

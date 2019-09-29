@@ -1,16 +1,26 @@
-<form #wrapper class="mdl-grid cgt-content">
+<form #wrapper class="mdl-grid cgt-content" enctype="multipart/form-data">
     <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
-        <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">FACTURAS</div>
+        <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">CARGAR DATOS DEL BANCO:</div>
         <div style="padding: 20px">
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input value="1" autocomplete="off" class="mdl-textfield__input" type="number" id="progressive">
-                <label class="mdl-textfield__label" for="progressive">NUMERO DE FACTURA PROGRESSIVO {x}</label>
-            </div>
-            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input value="{x}" autocomplete="off" class="mdl-textfield__input" type="text" id="expression">
-                <label class="mdl-textfield__label" for="expression">EXSPRESION DE NUMERO DE FACTURA</label>
-            </div>
-            <br/>
+            <div #files></div>
+            <input type="file" value="ALLEGA UN FILE" name="fileUpload"
+                   id="csv_upload"/>
+        </div>
+        <button type="button"
+                style="position: absolute;right: 80px;bottom: 10px;"
+                onclick="this.form.uploadCsv()"
+                class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
+                data-upgraded=",MaterialButton,MaterialRipple">
+            <i class="material-icons" role="presentation">cloud_upload</i>
+            <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+        </button>
+    </div>
+    </div>
+    <div class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">REPORTES ENTRE FECHAS:</div>
+        <div style="padding: 20px">
             <div class="mdl-textfield mdl-js-textfield">
                 DESDE:
                 <input #from autocomplete="off" class="mdl-textfield__input" type="date" id="from">
@@ -25,26 +35,67 @@
                 <label class="mdl-textfield__label" for="maximum">MAXIMO EN EFECTIVO</label>
             </div>
             <br/>
-            <label style="width: auto;" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="salitre">
-                <input type="checkbox" id="salitre" class="mdl-switch__input">
-                <span class="mdl-switch__label">SALITRE</span>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input class="mdl-textfield__input" type="password" id="password">
+                <label class="mdl-textfield__label" for="password">PASSWORD DE SEGURIDAD</label>
+            </div>
+            <br/>
+            <label for="save" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect">
+                <input type="checkbox" id="save" class="mdl-checkbox__input">
+                <span class="mdl-checkbox__label">GUARDAR LOS NUMERO DE FACTURAS</span>
             </label>
-            <span style="display: inline-block; width: 100px;"></span>
-            <label style="width: auto;" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="compania">
-                <input type="checkbox" id="compania" class="mdl-switch__input">
-                <span class="mdl-switch__label">COMPAÑIA</span>
-            </label>
-            <span style="display: inline-block; width: 100px;"></span>
-            <label style="width: auto;" class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="buenaventura">
-                <input type="checkbox" id="buenaventura" class="mdl-switch__input">
-                <span class="mdl-switch__label">BUENAVENTURA</span>
-            </label>
+
+            <br/><br/>
             <button type="button"
-                    style="position: absolute;right: 80px;bottom: 10px;"
-                    onclick="this.form.print()"
-                    class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored"
-                    data-upgraded=",MaterialButton,MaterialRipple">
-                <i class="material-icons" role="presentation">print</i>
+                    onclick="this.form.print('bank')"
+                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                <i class="material-icons">table_chart</i>
+                XLSX BANCO
+                <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+            </button>
+            <button type="button"
+                    onclick="this.form.print('bill_buy_xlsx')"
+                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                <i class="material-icons">table_chart</i>
+                XLSX FACTURAS COMPRA
+                <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+            </button>
+            <button type="button"
+                    onclick="this.form.print('bill_buy_pdf')"
+                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                <i class="material-icons">picture_as_pdf</i>
+                PDF FACTURAS COMPRA
+                <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+            </button>
+            <button type="button"
+                    onclick="this.form.print('bill_sell_xlsx')"
+                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                <i class="material-icons">picture_as_pdf</i>
+                XLSX FACTURAS VENTA
+                <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+            </button>
+            <button type="button"
+                    onclick="this.form.print('bill_sell_pdf')"
+                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                <i class="material-icons">picture_as_pdf</i>
+                PDF FACTURAS VENTA
+                <span class="mdl-button__ripple-container">
+                        <span class="mdl-ripple"></span>
+            </span>
+            </button>
+            <button type="button"
+                    onclick="this.form.print('bill_sell_report')"
+                    class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                <i class="material-icons">picture_as_pdf</i>
+                SOMARIO CAJA
                 <span class="mdl-button__ripple-container">
                         <span class="mdl-ripple"></span>
             </span>

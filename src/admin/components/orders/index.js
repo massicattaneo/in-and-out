@@ -5,6 +5,7 @@ import bonusTpl from './bonus-edit.html';
 import * as style from './style.scss';
 import * as listStyle from './list.scss';
 import { createModal } from '../../utils';
+import createBillTpl from './create-bill.html';
 
 function filterClients(find) {
     return function (i) {
@@ -40,7 +41,7 @@ export default async function ({ locale, system, thread }) {
 
     view.style();
 
-    window.rx.connect({ width: () => system.deviceInfo().width }, function({ width }) {
+    window.rx.connect({ width: () => system.deviceInfo().width }, function ({ width }) {
         view.style('', { footer: { left: width > 1024 ? 240 : 0 } });
     });
 
@@ -86,11 +87,27 @@ export default async function ({ locale, system, thread }) {
         v.style();
         const date = new Date();
         date.setDate(1);
-        date.setHours(0,0,0,0);
-        view.get('month').innerText = `ESTE MESE: ${system.toCurrency(orders.filter(o => new Date(o.created).getTime() >= date.getTime()).reduce((tot, o) => tot + o.amount,0)/100)}`;
+        date.setHours(0, 0, 0, 0);
+        view.get('month').innerText = `ESTE MESE: ${system.toCurrency(orders.filter(o => new Date(o.created).getTime() >= date.getTime()).reduce((tot, o) => tot + o.amount, 0) / 100)}`;
         view.get('count').innerText = `NUMERO: ${orders.length}`;
-        view.get('total').innerText = `TOTAL: ${system.toCurrency(orders.reduce((tot, o) => tot + o.amount,0)/100)}`
+        view.get('total').innerText = `TOTAL: ${system.toCurrency(orders.reduce((tot, o) => tot + o.amount, 0) / 100)}`;
     });
+
+    view.get('wrapper').createBill = async function (orderId) {
+        const { modalView, modal } = createModal(createBillTpl, {}, async function (close) {
+            const name = modalView.get('name').value;
+            const nif = modalView.get('nif').value;
+            const address = modalView.get('address').value;
+            const cap = modalView.get('cap').value;
+            const city = modalView.get('city').value;
+            window.open(`/api/bills/orders/${orderId}?name=${name}&nif=${nif}&address=${address}&cap=${cap}&city=${city}`);
+            close();
+        });
+        const order = system.store.orders.find(o => o._id === orderId);
+        const client = system.store.clients.find(i => i.email === order.email);
+        if (client)
+            modalView.get('name').value = `${client.name} ${client.surname}`;
+    };
 
     view.get('wrapper').use = async function (orderId, index) {
         const order = system.store.orders.find(o => o._id === orderId);
@@ -104,7 +121,7 @@ export default async function ({ locale, system, thread }) {
                     method: 'put',
                     cart: order.cart
                 });
-                system.store.search = ''
+                system.store.search = '';
             }
         } else if (typeIndex === 0) {
             if (confirm('ESTAS SEGURO DE UTILIZAR ESTE TRATAMIENTO?')) {
@@ -114,7 +131,7 @@ export default async function ({ locale, system, thread }) {
                     method: 'put',
                     cart: order.cart
                 });
-                system.store.search = ''
+                system.store.search = '';
             }
         } else if (typeIndex === 1) {
             const { id } = order.cart[index];
@@ -122,7 +139,7 @@ export default async function ({ locale, system, thread }) {
             const amount = Number(bonus.price);
             const { modalView } = createModal(bonusTpl, {
                 bonus, amount: system.toCurrency(amount),
-                clients: system.store.clients.sort((a,b) => a.surname.localeCompare(b.surname) || a.name.localeCompare(b.name))
+                clients: system.store.clients.sort((a, b) => a.surname.localeCompare(b.surname) || a.name.localeCompare(b.name))
             }, async function (close) {
                 if (!this.clientId.value) {
                     const res = confirm(`SI NO SELECIONAS UN CLIENTE EL BONO "${bonus.title}" SE MARCARA' COMO USADO SIN CONVERTIRLO. ESTAS SEGURO?`);
@@ -139,7 +156,7 @@ export default async function ({ locale, system, thread }) {
                     return;
                 }
                 if (order.cart[index].used === true) {
-                    system.throw('generic')
+                    system.throw('generic');
                 }
                 await thread.execute('rest-api', {
                     api: 'bonus',

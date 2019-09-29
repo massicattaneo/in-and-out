@@ -3,10 +3,12 @@ node_modules/
 web-app-deploy/static/*
 web-app-deploy/private/*
 web-app-deploy/google/*
+web-app-deploy/excel/*
 web-app-deploy/extras/*
 web-app-deploy/order-qr-codes/*.png
 web-app-deploy/temp/*.ics
 backup/fb2b86b1ef42eee47e65ce27fc320948/
+backup_13-10-2019
 scripts/*.csv
 src/assets/uploads/*
 scripts/temp

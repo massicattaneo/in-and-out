@@ -8,13 +8,14 @@ import hourTpl from './hour.html';
 import processTpl from './process.html';
 import editEvent from './edit-event.html';
 import editNote from './edit-note.html';
+import editHours from './edit-hours.html';
 import eventTpl from './event.html';
 import { createModal } from '../../utils';
 import { getCalendar, getSpainOffset } from '../../../../web-app-deploy/shared';
 
 const stepHeight = 13;
 const minPeriod = 15;
-const topOffset = 60;
+const topOffset = 34;
 const startHour = 9;
 const startMinutes = 30;
 let clipboard;
@@ -107,14 +108,14 @@ export default async function ({ locale, system, thread }) {
         const target = window.event.target;
         target.classList.remove('hover');
         const params = config || JSON.parse(window.event.dataTransfer.getData('config'));
-        const configToRemove = Object.assign({} ,params);
+        const configToRemove = Object.assign({}, params);
         const date = new Date(params.date || reverseLocalTime(system.store.date, system));
         const id = config ? config.id : '';
         const hour = (params.date && params.userAction !== 'move')
             ? [new Date(date).getHours(), new Date(date).getMinutes()]
             : target.innerText.split(':').map(i => Number(i));
         date.setHours(hour[0], hour[1], 0, 0);
-        if (params.userAction === 'new' || params.userAction === 'move') date.setTime(reverseLocalTime(date, system))
+        if (params.userAction === 'new' || params.userAction === 'move') date.setTime(reverseLocalTime(date, system));
         const dbWorker = system.publicDb.workers.find(c => c.column === worker);
 
         const displayName = dbWorker.title;
@@ -134,6 +135,7 @@ export default async function ({ locale, system, thread }) {
         modalView.get('summary').setSelectionRange(0, modalView.get('summary').value.length);
 
         async function saveForm() {
+            close();
             if (configToRemove.id) {
                 await thread.execute('booking/delete', {
                     eventId: configToRemove.id,
@@ -154,7 +156,6 @@ export default async function ({ locale, system, thread }) {
                 description: evt.description,
                 label: evt.label
             });
-            close();
         }
 
         modalView.get('form').save = saveForm;
@@ -244,6 +245,30 @@ export default async function ({ locale, system, thread }) {
             modalView.get('close').click();
         };
     };
+
+    form.editHours = function ({ worker }) {
+        const workerItem = system.publicDb.workers.find(c => c.column === worker);
+        const calendar = getCalendar(system.publicDb, reverseLocalTime(system.store.date, system));
+        const { modalView } = createModal(editHours, {
+            workers: system.publicDb.workers,
+            days: dayNames
+                .map((title, index) => ({ title, index }))
+                .filter(item => item.index !== 0),
+            centers: system.publicDb.centers
+                .filter(item => item.closed !== true)
+        }, async function (close) {
+            modalView.clear();
+            close();
+        });
+        modalView.get('days').style.display = 'none';
+        modalView.get('workers').querySelector(`#edit-hours-worker-${workerItem.index}`).checked = true;
+        modalView.get('form').changeDate = function (index) {
+            if (index === 0) modalView.get('days').style.display = 'none';
+            if (index === 1) modalView.get('days').style.display = 'block';
+        }
+    };
+    window.system = system;
+
     view.destroy = function () {
 
     };
@@ -325,7 +350,7 @@ export default async function ({ locale, system, thread }) {
                     id,
                     worker: c.column,
                     processId,
-                    summary,
+                    summary: (summary || '').replace(/'/g, ' '),
                     description,
                     attendees,
                     date: startTime,

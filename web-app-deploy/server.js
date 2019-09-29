@@ -25,6 +25,9 @@ const QRCode = require('qrcode');
 const googleDb = require('./private/new-hours.js');
 const ObjectId = require('mongodb').ObjectID;
 const createPdfOrder = require('./pdf/createPdfOrder');
+const createPdfBills = require('./pdf/createPdfBills');
+const parseCart = require('./pdf/parseCart');
+const { formatItemForPdfBill, formatDateShort, convertNumber } = require('./pdf/common');
 const https = require('https');
 const http = require('http');
 const urlParse = require('url');
@@ -38,6 +41,9 @@ const createStaticHtmls = require('./seo/createStaticHtmls');
 const members = require('./extras/members.json');
 const wrongEmails = require('./extras/wrong.json');
 const shared = require('./shared');
+const BankSummary = require('./excel/bank-summary');
+const BillSummary = require('./excel/bill-summary');
+const CashSummary = require('./excel/cash-summary');
 
 (async function () {
     const { store, db } = await mongo.connect();
@@ -279,6 +285,64 @@ const shared = require('./shared');
                     res.status(500);
                     res.send(err.message);
                 });
+        });
+
+    app.get('/api/bills/cash/:clientId/:date',
+        requiresAdmin,
+        async function (req, res) {
+            const { clientId, date } = req.params;
+            const { name, nif, cap, address, city } = req.query;
+            const from = new Date(date);
+            from.setHours(2, 0, 0, 0);
+            const to = new Date(date);
+            to.setHours(23, 0, 0, 0);
+            const table = 'cash';
+            const cashEntries = await mongo.rest.get(table, `clientId=${clientId}&date>${from.getTime()}&date<${to.getTime()}`);
+            if (cashEntries.length === 0) return res.send('<html><body>SELECCIONA OTRA FECHA</body></html>');
+            let billNumber = (cashEntries.find(cash => cash.billNumber) || { billNumber: '' }).billNumber;
+            const isOld = to.getTime() < (new Date('2019-07-01').getTime());
+            if (!billNumber && !isOld) {
+                billNumber = (await mongo.nextBillNumber(cashEntries[0].user)).billNumber;
+            }
+            const user = (await mongo.rest.get('users', `_id=${cashEntries[0].clientId}`) || [])[0];
+            await Promise.all(cashEntries.map(cash => mongo.rest.update(table, cash._id, { billNumber })));
+            const userInfo = Object.assign({ nif, cap, address, city }, user);
+            userInfo.name = name ? name : userInfo.name;
+            userInfo.surname = name ? '' : userInfo.surname;
+            const formatted = formatItemForPdfBill(cashEntries, billNumber, formatDateShort(from), userInfo);
+            createPdfBills(res, [formatted]);
+        });
+
+    app.get('/api/bills/orders/:id',
+        requiresAdmin,
+        async function (req, res) {
+            const { id } = req.params;
+            const { name, nif, cap, address, city } = req.query;
+            const [order] = await mongo.rest.get('orders', `_id=${id}`) || [];
+            let { userId, billNumber = '', created, payed, cart, email } = order;
+            if (!payed) return res.send('<html><body>EL ORDEN NO ESTA FINALIZADO</body></html>');
+            const noUser = { name: '', surname: email };
+            const user = userId ? (await mongo.rest.get('users', `email=${email}`) || [])[0] : noUser;
+            const centerId = 'online';
+            const isOld = (new Date(created)).getTime() < (new Date('2019-07-01').getTime());
+            if (!billNumber && !isOld) {
+                billNumber = (await mongo.nextBillNumber(centerId)).billNumber;
+            }
+            await mongo.rest.update('orders', id, { billNumber });
+            const products = parseCart(cart, google.publicDb());
+            const entries = products.map(({ count, type, title, category, price }) => {
+                return {
+                    user: centerId,
+                    type: 'tarjeta',
+                    description: `${count} x ${category ? `${category}: ` : ''}${title}`,
+                    amount: Number(price)
+                };
+            });
+            const userInfo = Object.assign({ nif, cap, address, city }, user);
+            userInfo.name = name ? name : userInfo.name;
+            userInfo.surname = name ? '' : userInfo.surname;
+            const formatted = formatItemForPdfBill(entries, billNumber, formatDateShort(new Date(created)), userInfo);
+            createPdfBills(res, [formatted]);
         });
 
     app.get('/api/pdf/*',
@@ -557,7 +621,7 @@ const shared = require('./shared');
         });
 
     app.get('/api/upload/*',
-        requiresLogin,
+        requiresAdmin,
         async function (req, res) {
             const path = decodeURIComponent(req.url.replace('/api/upload/', ''));
             // const file = await dropbox.download(path);
@@ -565,8 +629,121 @@ const shared = require('./shared');
             // res.end(file.fileBinary, 'binary');
         });
 
+    app.post('/api/upload-bank',
+        requiresAdmin,
+        async function (req, res) {
+            const accounts = {
+                '0182- 410-1 -40 0201602867': 'main',
+                '0182- 410-1 -41 0201599433': 'secondary',
+                '': 'unknown'
+            };
+            const { data } = req.files.fileUpload;
+            const buffer = new Buffer(data);
+            const accountNumber = (buffer.toString().match(/Cuenta\s*:\s*([^EUR]*)\sEUR/) || ['', ''])[1];
+            const account = accounts[accountNumber];
+            const docs = buffer.toString()
+                .split('\n')
+                .filter(line => line.match(/^\d\d\/\d\d\/\d\d\d\d/))
+                .map(function (line) {
+                    const arr = line.split('\t');
+                    return {
+                        accountingDate: new Date(arr[0].split('/').reverse().join('-')),
+                        key: arr[2],
+                        description: arr[3],
+                        note: arr[4].replace('\t', '').replace(/\s+/, '').trim().replace(/'/g, ''),
+                        valueDate: new Date(arr[1].split('/').reverse().join('-')),
+                        amount: convertNumber(arr[6]),
+                        office: arr[5].replace(/'/g, ''),
+                        account,
+                        accountNumber
+                    };
+                });
+            for (let i = 0; i < docs.length; i++) {
+                const doc = docs[i];
+                await new Promise(resolve => db.collection('bank').update(doc, doc, { upsert: true }, resolve));
+            }
+            res.send({});
+        });
+
+    app.get('/api/summary/banco.xlsx',
+        requiresAdmin,
+        async function (req, res) {
+            const from = new Date(Number(req.query.from));
+            const to = new Date(Number(req.query.to));
+            const buffer = await BankSummary(db, google, {
+                from: from.getTime(),
+                to: to.getTime(),
+                title: `BANCO ${formatDateShort(from)} - ${formatDateShort(to)}`
+            });
+            res.send(buffer);
+        });
+
+    app.get('/api/summary/facturas_compra.xlsx',
+        requiresAdmin,
+        async function (req, res) {
+            const { excelBuffer } = await BillSummary(db, google, {
+                title: `FACTURAS DE COMPRA`
+            });
+            res.send(excelBuffer);
+        });
+
+    app.get('/api/summary/facturas_compra.pdf',
+        requiresAdmin,
+        async function (req, res) {
+            const { pdfBuffer } = await BillSummary(db, google, {
+                title: `FACTURAS DE COMPRA`
+            });
+            res.send(pdfBuffer);
+        });
+
+    app.get('/api/summary/facturas_venta.pdf',
+        requiresAdmin,
+        async function (req, res) {
+            const from = new Date(Number(req.query.from));
+            const to = new Date(Number(req.query.to));
+            const maxCashAmount = Number(Number(req.query.maxCashAmount));
+            const saveBillNumbers = req.query.saveBillNumbers === 'true';
+            const { pdfBuffer } = await CashSummary(db, google, {
+                from: from.getTime(),
+                to: to.getTime(),
+                maxCashAmount,
+                saveBillNumbers
+            });
+            res.send(pdfBuffer);
+        });
+
+    app.get('/api/summary/facturas_venta.xlsx',
+        requiresAdmin,
+        async function (req, res) {
+            const from = new Date(Number(req.query.from));
+            const to = new Date(Number(req.query.to));
+            const maxCashAmount = Number(Number(req.query.maxCashAmount));
+            const saveBillNumbers = req.query.saveBillNumbers === 'true';
+            const { excelBuffer } = await CashSummary(db, google, {
+                from: from.getTime(),
+                to: to.getTime(),
+                maxCashAmount,
+                saveBillNumbers
+            });
+            res.send(excelBuffer);
+        });
+
+    app.get('/api/summary/cash_summary.html',
+        requiresAdmin,
+        async function (req, res) {
+            const from = new Date(Number(req.query.from));
+            const to = new Date(Number(req.query.to));
+            const maxCashAmount = Number(Number(req.query.maxCashAmount));
+            const { report } = await CashSummary(db, google, {
+                from: from.getTime(),
+                to: to.getTime(),
+                maxCashAmount
+            });
+            res.send(report);
+        });
+
     app.post('/api/upload',
-        requiresLogin,
+        requiresAdmin,
         async function (req, res) {
             const name = req.files.fileUpload.name;
             const ext = path.extname(name);
@@ -577,7 +754,7 @@ const shared = require('./shared');
         });
 
     app.delete('/api/upload/:id',
-        requiresLogin,
+        requiresAdmin,
         async function (req, res) {
             const id = req.params.id;
             const file = await mongo.rest.delete('uploads', id);

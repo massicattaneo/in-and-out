@@ -3,9 +3,9 @@ import template from './template.html';
 import bonusTpl from './bonus.html';
 import giftNewTpl from './gift-new.html';
 import bonusNewTpl from './bonus-new.html';
+import createBillTpl from './create-bill.html';
 import * as style from './style.scss';
 import { createModal } from '../../utils';
-import staticLoc from '../../../localization/static.json';
 import {
     activePromotions,
     getDiscountsItems,
@@ -125,6 +125,21 @@ export default async function ({ locale, system, thread, wait }) {
             modalView.get('clientwrapper').style.display = 'none';
             modalView.get('description').setSelectionRange(0, modalView.get('description').value.length);
             // fillClients(modalView, '');
+        };
+
+        v.get('wrapper').createBill = async function () {
+            const { modalView, modal } = createModal(createBillTpl, {}, async function (close) {
+                const name = modalView.get('name').value;
+                const nif = modalView.get('nif').value;
+                const address = modalView.get('address').value;
+                const cap = modalView.get('cap').value;
+                const city = modalView.get('city').value;
+                const date = new Date(modalView.get('date').valueAsNumber).formatDay('yyyy-mm-dd');
+                window.open(`/api/bills/cash/${id}/${date}?name=${name}&nif=${nif}&address=${address}&cap=${cap}&city=${city}`);
+                close();
+            });
+            modalView.get('date').valueAsNumber = (new Date()).getTime();
+            modalView.get('name').value = `${client.name} ${client.surname}`;
         };
 
         v.get('wrapper').addPromotion = async function () {

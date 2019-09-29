@@ -1,9 +1,10 @@
 #wrapper {
   margin: 10px;
   overflow: hidden;
-  float: left;
-  display: flex;
+  display: inline-block;
   position: relative;
+  vertical-align: top;
+  border-radius: 15px;
 }
 
 #button {

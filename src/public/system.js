@@ -22,6 +22,7 @@ if (!window.jsEnabled) {
         const thread = system.createThread(() => {
             return { statements };
         });
+        document.body.className = ('ontouchstart' in window ? 'mobile' : 'desktop');
         thread.execute('set-up-environment');
         await thread.execute('create-store');
         thread.execute('set-up-navigation');

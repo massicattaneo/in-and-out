@@ -165,6 +165,14 @@ th {
     width: calc(100% - 138px);
 }
 
+.desktop .calendar-wrapper {
+    display: flex;
+}
+
+.desktop .calendar-item {
+    width: 100%;position: relative;
+}
+
 .day-card {
     overflow: visible !important;
 }
