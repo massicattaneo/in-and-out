@@ -31,7 +31,7 @@ function bookings({ system }) {
         const monthNames = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map(i => locale.get(`month_${i}`));
 
         let view;
-        const maximumDays = 14;
+        const maximumDays = 21;
         const oneDayMs = 1000 * 60 * 60 * 24;
         const model = system.book;
 
@@ -177,7 +177,7 @@ function bookings({ system }) {
         const timer = window.rx.connect({ t: () => system.store.spainTime, trt: () => system.store.treatments }, function ({ t, trt }) {
             if (system.store.logged && view.get('spain') && trt.filter(t => t.favourite).length)
                 {
-                    const dd = t + 60 * 60000;
+                    const dd = t + 120 * 60000;
                     view.get('spain').innerText = `Malaga: ${new Date(dd).formatDay('dddd, mm', dayNames)} ${new Date(dd).formatTime('hh:mm:ss')}`;
                 }
         });
