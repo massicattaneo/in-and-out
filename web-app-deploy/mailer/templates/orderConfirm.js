@@ -10,7 +10,7 @@ module.exports = function ({grayColor, id, cart, googleDb, footer, amount, host,
     <!-- COPY -->
     <tr>
         <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 40px 30px; color: #666666; font-family: 'Arial', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;" >
-            <p>Aqui tienes el QR te tu orden que puedes mostrar en nuestro centro:</p>
+            <p>Aqui tienes el QR te tu orden:</p>
             <p style="width: 100%; text-align: center;">
                 <img src="${host}/api/qr-code/${id}" />
             </p>

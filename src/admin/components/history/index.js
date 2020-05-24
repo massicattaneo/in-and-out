@@ -383,11 +383,14 @@ export default async function ({ locale, system, thread, wait }) {
                     if (find) {
                         used.splice(used.indexOf(find), 1);
                     }
+                    const treatment = system.publicDb.treatments.find(t => t.identificador === trId) || {
+                        titulo: 'EL TRATAMIENTO NO EXISTE'
+                    };
                     return {
                         id: trId,
                         icon,
                         date: find ? (new Date(find.created)).formatDay('dddd, dd-mm-yyyy', dayNames) : '',
-                        title: system.publicDb.treatments.find(t => t.identificador === trId).titulo
+                        title: treatment.titulo
                     };
                 }),
             transactions: bonus.transactions

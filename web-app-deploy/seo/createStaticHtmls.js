@@ -163,11 +163,11 @@ function map(template, googleDb, posts, isSpider, google) {
               "@context": "http://schema.org/",
               "@type": "Product",
               "name": "${item.titulo}",
+              "gtin": "${item.codigobarras}",
               "image": [
                 "${webSiteUrl}${photoRelPath}"
                ],
               "description": "${item.descripcion}",
-              "mpn": "925872",
               "brand": {
                 "@type": "Thing",
                 "name": "${item.marca}"
@@ -176,7 +176,8 @@ function map(template, googleDb, posts, isSpider, google) {
                 "@type": "Offer",
                 "priceCurrency": "EUR",
                 "price": "${item.precio}",
-                "priceValidUntil": "2020-11-05",
+                "shipping": "4,99 €",
+                "priceValidUntil": "2021-11-05",
                 "category": "beauty",
                 "seller": {
                   "@type": "Organization",

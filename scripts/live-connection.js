@@ -1,3 +1,4 @@
+const fs = require('fs');
 const { promiseSerial } = require('../web-app-deploy/pdf/common');
 const access = require('../web-app-deploy/private/mongo-db-access');
 const MongoClient = require('mongodb').MongoClient;
