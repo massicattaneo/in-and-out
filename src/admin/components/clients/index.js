@@ -116,7 +116,7 @@ export default async function ({ locale, system, thread }) {
 
     form.update = async function (id) {
         const p = system.store.clients.find(i => i._id === id);
-        const { modalView, modal } = createModal(editClient, Object.assign({}, p, { disabled: p.hash ? 'disabled' : '' }),
+        const { modalView, modal } = createModal(editClient, Object.assign({}, p),
             async function (close) {
                 if (!this.name.value) system.throw('custom', { message: 'FALTA EL NOMBRE' });
                 if (!this.surname.value) system.throw('custom', { message: 'FALTA EL APPELIDO' });

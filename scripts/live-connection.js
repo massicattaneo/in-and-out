@@ -14,6 +14,16 @@ MongoClient.connect(url, async function (err, db) {
     await google.authorize();
     await google.initDriveSheets();
 
+    // LOGOUT ALL ADMIN USERS
+    // const items = (await db.collection('sessions').find().toArray());
+    // items.forEach(item => {
+    //     const session = JSON.parse(item.session);
+    //     if (session.isAdmin === true) {
+    //         db.collection('sessions').deleteOne({ _id: item._id, })
+    //         console.warn(item)
+    //     }
+    // });
+
     // db.collection('centers').insertOne({
     //     id: 'salitre',
     //     name: 'In&Out Calle Salitre',

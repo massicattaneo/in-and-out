@@ -315,5 +315,6 @@ module.exports = {
     getSpainOffset,
     toICSDate: function toICSDate(date) {
         return new Date(date).toISOString().replace(/-/g, '').replace(/:/g, '').substr(0, 15);
-    }
+    },
+    spainOffsets
 };
