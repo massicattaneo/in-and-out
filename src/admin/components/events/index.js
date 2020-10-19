@@ -70,7 +70,7 @@ export default async function ({ locale, system, thread }) {
         const assign = Object.assign(def, params);
         const date = new Date(def.date);
         date.setUTCHours(startHour, startMinutes, 0, 0);
-        const number = (new Date(def.date).getTime() - date.getTime() + (getSpainOffset() * 60 * 60 * 1000)) / (15 * 60 * 1000);
+        const number = (new Date(def.date).getTime() - date.getTime() + (getSpainOffset(date) * 60 * 60 * 1000)) / (15 * 60 * 1000);
         assign.top = number * stepHeight + topOffset;
         assign.height = stepHeight * (def.duration / minPeriod);
         assign.json = JSON.stringify(assign);
@@ -114,7 +114,8 @@ export default async function ({ locale, system, thread }) {
         const hour = (params.date && params.userAction !== 'move')
             ? [new Date(date).getHours(), new Date(date).getMinutes()]
             : target.innerText.split(':').map(i => Number(i));
-        date.setHours(hour[0], hour[1], 0, 0);
+        const offDate = getSpainOffset(date) - getSpainOffset();
+        date.setHours(hour[0] + getSpainOffset(date) + offDate, hour[1], 0, 0);
         if (params.userAction === 'new' || params.userAction === 'move') date.setTime(reverseLocalTime(date, system));
         const dbWorker = system.publicDb.workers.find(c => c.column === worker);
 
@@ -130,7 +131,8 @@ export default async function ({ locale, system, thread }) {
         document.getElementById('modal').appendChild(modal);
         modal.showModal();
         componentHandler.upgradeDom();
-        modalView.get('date').valueAsNumber = date.getTime() + (getSpainOffset() * 60 * 60 * 1000);
+        console.warn(date)
+        modalView.get('date').valueAsNumber = date.getTime();
         modalView.get('summary').focus();
         modalView.get('summary').setSelectionRange(0, modalView.get('summary').value.length);
 
@@ -145,7 +147,7 @@ export default async function ({ locale, system, thread }) {
             const evt = createEvent(Object.assign({}, e, {
                 summary: this.summary.value,
                 duration: this.duration.value,
-                date: this.date.valueAsNumber - (getSpainOffset() * 60 * 60 * 1000)
+                date: this.date.valueAsNumber - (getSpainOffset(this.date.valueAsNumber) * 60 * 60 * 1000)
             }));
             await thread.execute('booking/add', {
                 duration: evt.duration * 60 * 1000,
@@ -265,7 +267,7 @@ export default async function ({ locale, system, thread }) {
         modalView.get('form').changeDate = function (index) {
             if (index === 0) modalView.get('days').style.display = 'none';
             if (index === 1) modalView.get('days').style.display = 'block';
-        }
+        };
     };
     window.system = system;
 
@@ -306,7 +308,7 @@ export default async function ({ locale, system, thread }) {
     async function getServerDayEvents(callServer, c) {
         if (callServer) {
             const { items } = await thread.execute('booking/get', {
-                date: new Date(reverseLocalTime(system.store.date, system)),
+                date: new Date(system.store.date),
                 calendarId: c.googleId
             });
             return items;
@@ -315,7 +317,7 @@ export default async function ({ locale, system, thread }) {
     }
 
     function drawCalendars(search, callServer = true) {
-        const calendar = getCalendar(system.publicDb, reverseLocalTime(system.store.date, system));
+        const calendar = getCalendar(system.publicDb, system.store.date);
         system.publicDb.workers.forEach(async function (c) {
             const dayView = view.clear(c.column).appendTo(c.column, dayTpl, [], c);
             dayView.style();

@@ -4,7 +4,7 @@
   "description": "In&Out",
   "main": "./server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "env TZ='Europe/Amsterdam' node server.js"
   },
   "author": "massicattaneo",
   "license": "ISC",

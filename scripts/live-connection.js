@@ -7,12 +7,61 @@ const ObjectId = require('mongodb').ObjectID;
 const url = `mongodb://${config.mongo.user}:${encodeURIComponent(access.password)}@${config.mongo.hostString}`;
 const CashSummary = require('../web-app-deploy/excel/cash-summary');
 const google = require('../web-app-deploy/google-api')({}, []);
-
+const newHours = require('../web-app-deploy/private/new-hours');
+const { getSpainOffset } = require('../web-app-deploy/shared');
+const oneDayMilliseconds = 24 * 60 * 60 * 1000;
 MongoClient.connect(url, async function (err, db) {
     if (err) return;
 
     await google.authorize();
     await google.initDriveSheets();
+
+    // CHANGE CALENDAR DATE
+    const date = new Date(2020, 8, 1, 8);
+    const until = new Date(2020, 9, 1, 12);
+    while (date.getTime() < until.getTime()) {
+        console.warn('PROCESSING DATE:', date);
+        await newHours.workers
+            .filter(({ column }) => column !== 'wendy')
+            .reduce(async (prev, { googleId, column }) => {
+                await prev;
+                const offset = getSpainOffset(date);
+                await google
+                    .calendarGet(googleId, date)
+                    .then(async (response) => {
+                        for (let index = 0; index < response.items.length; index++) {
+                            const { start, end, id, summary, location, description, extendedProperties } = response.items[index];
+                            const startDate = new Date(start.dateTime);
+                            const endDate = new Date(end.dateTime);
+                            startDate.setTime(startDate.getTime() - offset * 60 * 60 * 1000);
+                            endDate.setTime(endDate.getTime() - offset * 60 * 60 * 1000);
+                            if (extendedProperties.private.fixedHour) {
+                                console.warn('SKIPPED AS IT WAS PARSED BEFORE');
+                                return Promise.resolve();
+                            } else {
+                                // console.warn('CHANGING HOUR', column, response.items[index])
+                            }
+                            extendedProperties.private.fixedHour = true;
+                            await google.calendarUpdateTime({
+                                id: googleId,
+                                from: startDate,
+                                to: endDate,
+                                eventId: id,
+                                summary,
+                                location,
+                                description,
+                                extendedProperties
+                            }).catch(err => {
+                                console.warn(err);
+                                process.exit();
+                            });
+                        }
+
+                    });
+            }, Promise.resolve());
+        date.setTime(date.getTime() + oneDayMilliseconds);
+    }
+
 
     // LOGOUT ALL ADMIN USERS
     // const items = (await db.collection('sessions').find().toArray());
@@ -153,16 +202,16 @@ MongoClient.connect(url, async function (err, db) {
     // }));
 
     /** save cash billNumber */
-    // const from = new Date('2019-10-01:00:00');
-    // const to = new Date('2019-12-31:23:00');
+    // const from = new Date('2020-07-01:00:00');
+    // const to = new Date('2020-09-30:23:00');
     // const { report } = await CashSummary(db, google, {
     //     from: from.getTime(),
     //     to: to.getTime(),
-    //     maxCashAmount: 6000,
+    //     maxCashAmount: 4000,
     //     saveBillNumbers: true
     // });
-    //
+
 
     console.log('finish');
-
+    process.exit();
 });

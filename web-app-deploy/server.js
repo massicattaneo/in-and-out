@@ -412,11 +412,11 @@ const CashSummary = require('./excel/cash-summary');
                     formattedHour: `${date.getHours()}:${date.getMinutes().toString().length === 1 ? `0${date.getMinutes()}` : date.getMinutes()}`,
                     location: e.location
                 };
-
-                const filePath = path.resolve(__dirname, `temp/${e.eventId}.ics`);
-                const attachments = [{ filename: 'Cita.ics', path: filePath }];
-                fs.writeFileSync(filePath, createICS(event), 'utf8');
-                const emailTemplate = createTemplate('bookReminder', { email, event, attachments });
+                // TODO fix date for ICS
+                // const filePath = path.resolve(__dirname, `temp/${e.eventId}.ics`);
+                // const attachments = [{ filename: 'Cita.ics', path: filePath }];
+                // fs.writeFileSync(filePath, createICS(event), 'utf8');
+                const emailTemplate = createTemplate('bookReminder', { email, event });
                 mailer.send(emailTemplate);
             }).catch((e) => {
                 res.status(500);

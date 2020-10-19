@@ -398,6 +398,27 @@ module.exports = function (utils, posts) {
         });
     };
 
+    obj.calendarUpdateTime = function ({ id, from, to, eventId, summary, location, description, extendedProperties }) {
+        return new Promise(function (resolve, reject) {
+            const params = {
+                calendarId: id,
+                eventId,
+                resource: {
+                    start: { 'dateTime': (new Date(from)).toISOString() },
+                    end: { 'dateTime': (new Date(to)).toISOString() },
+                    summary,
+                    location,
+                    description,
+                    extendedProperties
+                }
+            };
+            calendar.events.update(params, function (e, o) {
+                if (e) return reject(new Error('error'));
+                resolve(o);
+            });
+        });
+    };
+
     obj.calendarDelete = function ({ eventId, calendarId }) {
         return new Promise(function (resolve, reject) {
             calendar.events.delete({ eventId, calendarId }, function (e, o) {

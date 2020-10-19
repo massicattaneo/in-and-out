@@ -159,6 +159,7 @@ function bookings({ system }) {
                 if (selTreatments.length && centers.filter(c => c === center).length) {
                     view.clear('hours').appendTo('hours', '<div style="text-align: center; width: 100%"><img style="width: 33px" src="/assets/images/loading.gif" /></div>', []);
                     const localDate = toLocalTime(date, system);
+                    console.warn({ date: localDate, treatments: selTreatments, center })
                     const freeBusy = await thread.execute('booking/get-hours',
                         { date: localDate, treatments: selTreatments, center });
                     system.store.serverTimestamp += 2 * 60 * 60 * 1000;
@@ -177,8 +178,18 @@ function bookings({ system }) {
         const timer = window.rx.connect({ t: () => system.store.spainTime, trt: () => system.store.treatments }, function ({ t, trt }) {
             if (system.store.logged && view.get('spain') && trt.filter(t => t.favourite).length)
                 {
-                    const dd = t + 120 * 60000;
-                    view.get('spain').innerText = `Malaga: ${new Date(dd).formatDay('dddd, mm', dayNames)} ${new Date(dd).formatTime('hh:mm:ss')}`;
+                    const spainStartTime = new Date(t).toLocaleString('es-ES', {
+                        timeZone: 'Europe/Madrid',
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: 'numeric',
+                        minute: 'numeric',
+                        second: 'numeric'
+                    });
+
+                    view.get('spain').innerText = `Malaga: ${spainStartTime}`;
                 }
         });
 

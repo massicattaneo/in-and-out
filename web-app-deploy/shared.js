@@ -8,8 +8,11 @@ const spainOffsets = [
     1635645600000 //new Date('2021-10-31T03:00').getTime()
 ];
 
-function getSpainOffset(date) {
-    return 0;
+function getSpainOffset(date = Date.now()) {
+    const reference = new Date(date);
+    const bigger = spainOffsets.find(item => item > reference.getTime());
+    const index = (spainOffsets.indexOf(bigger)) - 1;
+    return (index % 2) + 1;
 }
 
 function getCalendar({ calendars }, date) {
@@ -39,9 +42,9 @@ function getWorkersByHour({ calendars }, date, center) {
         .filter(d => {
             const dt = new Date(date);
             const from = new Date(date);
-            from.setUTCHours(...decimalToTime(d[2], -getSpainOffset()));
+            from.setUTCHours(...decimalToTime(d[2], -getSpainOffset(from)));
             const to = new Date(date);
-            to.setUTCHours(...decimalToTime(d[3], -getSpainOffset()));
+            to.setUTCHours(...decimalToTime(d[3], -getSpainOffset(to)));
             return from.getTime() <= dt.getTime() && to.getTime() > dt.getTime();
         })
         .reduce(function (ret, d) {
@@ -179,9 +182,9 @@ function getAvailableHours(db, date, center, treatments, selTreatments, freeBusy
                 .filter(wh => wh[0] === center)
                 .forEach(function (wh) {
                     for (let h = wh[2]; h <= (wh[3] - duration); h += 0.25) {
-                        dt.setUTCHours(...decimalToTime(h, -getSpainOffset()));
+                        dt.setUTCHours(...decimalToTime(h, -getSpainOffset(dt)));
                         const hStart = new Date(dt);
-                        dt.setUTCHours(...decimalToTime(h + duration, -getSpainOffset()));
+                        dt.setUTCHours(...decimalToTime(h + duration, -getSpainOffset(hStart)));
                         const hEnd = new Date(dt);
                         const filter = busy.filter(function ({ start, end }) {
                             const bStart = new Date(start);
@@ -243,12 +246,12 @@ module.exports = {
             .filter(a => a[1] === workerIndex)
             .filter(a => {
                 const start = new Date(date);
-                start.setUTCHours(...decimalToTime(a[2], -getSpainOffset()));
+                start.setUTCHours(...decimalToTime(a[2], -getSpainOffset(start)));
                 return start.getTime() <= bookDate.getTime();
             })
             .filter(a => {
                 const end = new Date(date);
-                end.setUTCHours(...decimalToTime(a[3], -getSpainOffset()));
+                end.setUTCHours(...decimalToTime(a[3], -getSpainOffset(end)));
                 return end.getTime() > bookDate.getTime();
             });
         return filter.length ? db.centers.find(c => c.index === filter[0][0]) : 'NO LOCATION';

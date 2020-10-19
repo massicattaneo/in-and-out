@@ -3,13 +3,18 @@ import { getSpainOffset } from '../../../../web-app-deploy/shared';
 export default async function ({ system, wait }) {
     const {model, hour} = this;
     const date = new Date(model.date);
-    date.setHours(hour[0], hour[1], 0, 0);
-    console.log(model.date,date.toISOString());
-    date.setTime(date.getTime() - (getSpainOffset(date) - system.store.localOffset) * 60 * 60 * 1000);
+    const yearDate = date.getFullYear();
+    const monthDate = date.getMonth();
+    const dayDate = date.getDate();
+    date.setUTCFullYear(yearDate);
+    date.setUTCMonth(monthDate);
+    date.setUTCDate(dayDate);
+    date.setUTCHours(Number(hour[0]) - getSpainOffset(date), hour[1], 0, 0);
     const req = RetryRequest('/google/calendar/insert', {
         timeout: 10000,
         headers: { 'Content-Type': 'application/json' }
     });
+
     const body = JSON.stringify({
         locationIndex: model.center,
         start: date.toISOString(),
