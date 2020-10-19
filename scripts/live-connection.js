@@ -17,50 +17,50 @@ MongoClient.connect(url, async function (err, db) {
     await google.initDriveSheets();
 
     // CHANGE CALENDAR DATE
-    const date = new Date(2020, 8, 1, 8);
-    const until = new Date(2020, 9, 1, 12);
-    while (date.getTime() < until.getTime()) {
-        console.warn('PROCESSING DATE:', date);
-        await newHours.workers
-            .filter(({ column }) => column !== 'wendy')
-            .reduce(async (prev, { googleId, column }) => {
-                await prev;
-                const offset = getSpainOffset(date);
-                await google
-                    .calendarGet(googleId, date)
-                    .then(async (response) => {
-                        for (let index = 0; index < response.items.length; index++) {
-                            const { start, end, id, summary, location, description, extendedProperties } = response.items[index];
-                            const startDate = new Date(start.dateTime);
-                            const endDate = new Date(end.dateTime);
-                            startDate.setTime(startDate.getTime() - offset * 60 * 60 * 1000);
-                            endDate.setTime(endDate.getTime() - offset * 60 * 60 * 1000);
-                            if (extendedProperties.private.fixedHour) {
-                                console.warn('SKIPPED AS IT WAS PARSED BEFORE');
-                                return Promise.resolve();
-                            } else {
-                                // console.warn('CHANGING HOUR', column, response.items[index])
-                            }
-                            extendedProperties.private.fixedHour = true;
-                            await google.calendarUpdateTime({
-                                id: googleId,
-                                from: startDate,
-                                to: endDate,
-                                eventId: id,
-                                summary,
-                                location,
-                                description,
-                                extendedProperties
-                            }).catch(err => {
-                                console.warn(err);
-                                process.exit();
-                            });
-                        }
-
-                    });
-            }, Promise.resolve());
-        date.setTime(date.getTime() + oneDayMilliseconds);
-    }
+    // const date = new Date(2020, 8, 1, 8);
+    // const until = new Date(2020, 9, 1, 12);
+    // while (date.getTime() < until.getTime()) {
+    //     console.warn('PROCESSING DATE:', date);
+    //     await newHours.workers
+    //         .filter(({ column }) => column !== 'wendy')
+    //         .reduce(async (prev, { googleId, column }) => {
+    //             await prev;
+    //             const offset = getSpainOffset(date);
+    //             await google
+    //                 .calendarGet(googleId, date)
+    //                 .then(async (response) => {
+    //                     for (let index = 0; index < response.items.length; index++) {
+    //                         const { start, end, id, summary, location, description, extendedProperties } = response.items[index];
+    //                         const startDate = new Date(start.dateTime);
+    //                         const endDate = new Date(end.dateTime);
+    //                         startDate.setTime(startDate.getTime() - offset * 60 * 60 * 1000);
+    //                         endDate.setTime(endDate.getTime() - offset * 60 * 60 * 1000);
+    //                         if (extendedProperties.private.fixedHour) {
+    //                             console.warn('SKIPPED AS IT WAS PARSED BEFORE');
+    //                             return Promise.resolve();
+    //                         } else {
+    //                             // console.warn('CHANGING HOUR', column, response.items[index])
+    //                         }
+    //                         extendedProperties.private.fixedHour = true;
+    //                         await google.calendarUpdateTime({
+    //                             id: googleId,
+    //                             from: startDate,
+    //                             to: endDate,
+    //                             eventId: id,
+    //                             summary,
+    //                             location,
+    //                             description,
+    //                             extendedProperties
+    //                         }).catch(err => {
+    //                             console.warn(err);
+    //                             process.exit();
+    //                         });
+    //                     }
+    //
+    //                 });
+    //         }, Promise.resolve());
+    //     date.setTime(date.getTime() + oneDayMilliseconds);
+    // }
 
 
     // LOGOUT ALL ADMIN USERS
