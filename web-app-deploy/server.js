@@ -38,7 +38,6 @@ const httpsOptions = {
 };
 const adminKeys = require('./private/adminKeys');
 const createStaticHtmls = require('./seo/createStaticHtmls');
-const members = require('./extras/members.json');
 const wrongEmails = require('./extras/wrong.json');
 const shared = require('./shared');
 const BankSummary = require('./excel/bank-summary');
@@ -577,7 +576,7 @@ const CashSummary = require('./excel/cash-summary');
         requiresAdmin,
         async function (req, res) {
             const emails = await mongo.getEmails();
-            const allMembers = members.concat(emails)
+            const allMembers = emails
                 .filter(e => wrongEmails.indexOf(e) === -1)
                 .filter((e, i, a) => a.indexOf(e) === i);
             const bcc = (req.body.test ? req.body.emails : allMembers);

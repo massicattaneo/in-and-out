@@ -1,25 +1,32 @@
 <form #wrapper class="mdl-grid cgt-content">
     <div style="line-height: 35px;padding: 10px;"
-            class="mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+         class="mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         {{client.surname}} {{client.name}}, {{client.email}} - {{client.tel}}
 
-        <button style="float: right;" type="button" class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="clienthdrbtn">
+        <button style="float: right;" type="button"
+                class="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--icon" id="clienthdrbtn">
             <i class="material-icons">more_vert</i>
         </button>
         <ul class="mdl-menu mdl-js-menu mdl-js-ripple-effect mdl-menu--bottom-right" for="clienthdrbtn">
-            <li class="mdl-menu__item"><output
-                    onclick="this.form.sendGoogleReviewEmail(0)"
-                    class="mdl-color-text--grey-700"
-                    style="display: block;"
-                    href="{{urls.about.href}}">
-                <i style="vertical-align: middle;" class="material-icons">email</i>
-                VALORACION GOOGLE (SALITRE)</output></li>
-            <li class="mdl-menu__item"><output
-                    onclick="this.form.sendGoogleReviewEmail(2)"
-                    class="mdl-color-text--grey-700"
-                    style="display: block;">
+            <li class="mdl-menu__item">
+                <output
+                        onclick="this.form.sendGoogleReviewEmail(0)"
+                        class="mdl-color-text--grey-700"
+                        style="display: block;"
+                        href="{{urls.about.href}}">
                     <i style="vertical-align: middle;" class="material-icons">email</i>
-                VALORACION GOOGLE (BUENAVENTURA)</output></li>
+                    VALORACION GOOGLE (SALITRE)
+                </output>
+            </li>
+            <li class="mdl-menu__item">
+                <output
+                        onclick="this.form.sendGoogleReviewEmail(2)"
+                        class="mdl-color-text--grey-700"
+                        style="display: block;">
+                    <i style="vertical-align: middle;" class="material-icons">email</i>
+                    VALORACION GOOGLE (BUENAVENTURA)
+                </output>
+            </li>
         </ul>
 
         <button type="button"
@@ -36,7 +43,7 @@
 
         <div style="clear:both;"></div>
     </div>
-    <div  class="mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+    <div class="mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         <button type="button"
                 onclick="this.form.addCash()"
                 class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
@@ -91,13 +98,14 @@
             <!-- Tab Bars -->
             <div class="mdl-tabs__tab-bar" id="history_bonus_tabs">
                 {{#each bonuses}}
-                    <a #bonus_{{this._id}} style="line-height: 1;" href="#bonus_{{this._id}}" onclick="this.setIndex()" class="mdl-tabs__tab is-active">{{this.title}}</a>
+                <a #bonus_{{this._id}} style="line-height: 1;" href="#bonus_{{this._id}}" onclick="this.setIndex()"
+                   class="mdl-tabs__tab is-active">{{this.title}}</a>
                 {{/each}}
             </div>
             {{#each bonuses}}
-                <div class="mdl-tabs__panel is-active" id="bonus_{{this._id}}">
-                    {{this.tab}}
-                </div>
+            <div class="mdl-tabs__panel is-active" id="bonus_{{this._id}}">
+                {{this.tab}}
+            </div>
             {{/each}}
 
         </div>
@@ -154,13 +162,22 @@
 
     <div style="line-height: 35px;padding: 0 10px;"
          class="mdl-shadow--2dp mdl-cell mdl-cell--12-col">
+        <label for="update_newsletter" class="mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" style="line-height: 22px;">
+            <input #updatenewsletter type="checkbox" id="update_newsletter" class="mdl-checkbox__input" onclick="this.form.updateNewsletter()">
+            <span class="mdl-checkbox__label">QUIERE NEWSLETTERS</span>
+        </label>
+    </div>
+
+    <div style="line-height: 35px;padding: 0 10px;"
+         class="mdl-shadow--2dp mdl-cell mdl-cell--12-col">
         BONOS ACABADOS
     </div>
 
     {{#each finished}}
     <div class="mdl-shadow--2dp mdl-cell mdl-cell--4-col mdl-cell--8-col-tablet">
         <div style="padding: 10px;font-size: 15px;"
-                class="mdl-card__title-text mdl-color-text--primary-contrast mdl-color--primary">{{this.title}}</div>
+             class="mdl-card__title-text mdl-color-text--primary-contrast mdl-color--primary">{{this.title}}
+        </div>
         <div style="line-height: 35px;padding: 0 10px; max-height: 100px; overflow-y: auto">
             <ol>{{this.list}}</ol>
         </div>

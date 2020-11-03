@@ -1,4 +1,4 @@
-import { HtmlView } from "gml-html";
+import { HtmlView } from 'gml-html';
 import template from './template.html';
 import * as style from './style.scss';
 
@@ -12,9 +12,18 @@ export default async function ({ locale, system, thread }) {
         }
     });
 
-    window.rx.connect({t: () => system.store.spainTime}, function ({ t }) {
-        view.get('spaintime').innerText = `Malaga: ${new Date(t + 120 * 60000).formatDay('dd/mm')}, h${new Date(t + 120 * 60000).formatTime('hh:mm:ss')}`
-    })
+    window.rx.connect({ t: () => system.store.spainTime }, function ({ t }) {
+        const spainStartTime = new Date(t).toLocaleString('es-ES', {
+            timeZone: 'Europe/Madrid',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+            second: 'numeric'
+        });
+
+        view.get('spaintime').innerText = `Malaga: ${spainStartTime}`;
+    });
 
     return view;
 }

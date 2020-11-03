@@ -37,7 +37,6 @@ export default async function ({ locale, system, thread, wait }) {
             method: 'get',
             api: `orders?email=${system.store.clients.find(c => c._id === id).email}`
         });
-        console.log(client.googleReview);
         const v = view.clear()
             .appendTo('', template, style, Object.assign({
                 client,
@@ -71,6 +70,7 @@ export default async function ({ locale, system, thread, wait }) {
                         };
                     })
             }, locale.get()));
+        v.get('updatenewsletter').checked = client.newsletter;
 
         bonuses.filter(b => !b.finished).forEach(function (b, i) {
             v.get(`bonus_${b._id}`).setIndex = () => selectedTab = i;
@@ -357,6 +357,16 @@ export default async function ({ locale, system, thread, wait }) {
                     method: 'delete'
                 });
             }
+        };
+
+        v.get('wrapper').updateNewsletter = async function () {
+            const newsletter = v.get('updatenewsletter').checked;
+            console.warn(newsletter);
+            await thread.execute('rest-api', {
+                api: `users/${client._id}`,
+                method: 'put',
+                newsletter
+            });
         };
 
     };

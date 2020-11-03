@@ -143,6 +143,12 @@
       "windowTitle": "IDEAS REGALO BELLEZA",
       "windowDescription": "",
       "url": "ideas-regalo-belleza"
+    },
+    "virtual": {
+      "iconText": "RUTA VIRTUAL",
+      "windowTitle": "RUTA VIRTUAL",
+      "windowDescription": "",
+      "url": "ruta-virtual"
     }
   },
   "treatmentsTypes": [

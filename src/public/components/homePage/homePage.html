@@ -7,7 +7,11 @@
             <div #iconswrapper class="homeMenu">
                 <span #icons></span>
             </div>
-            <hr class="homePage-line"/>
+            <a href="/es/{{apps.virtual.url}}" onclick="window.navigate(this, event)">
+                <div #vrsalitre style="margin-top: 10px;line-height: 23px;"
+                     class="clickable button green-bg-color white-color">VISITA EN VIRTUAL NUESTROS CENTROS</div>
+            </a>
+<!--            <hr class="homePage-line"/>-->
             <a href="/es/{{apps.bookings.url}}" onclick="window.navigate(this, event)">
             <marquee #comunication>
                 ESTAMOS ABIERTOS - RESERVA TU CITA ONLINE
