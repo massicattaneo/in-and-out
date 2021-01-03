@@ -609,6 +609,13 @@ const CashSummary = require('./excel/cash-summary');
         }
     );
 
+    app.get('/api/temp',
+        async function (req, res) {
+            const emails = await mongo.getEmails();
+            res.json(emails)
+        }
+    );
+
     app.post('/api/email/:type',
         requiresAdmin,
         async function (req, res) {

@@ -15,7 +15,7 @@ import { getCalendar, getSpainOffset } from '../../../../web-app-deploy/shared';
 
 const stepHeight = 13;
 const minPeriod = 15;
-const topOffset = 34;
+const topOffset = 60;
 const startHour = 9;
 const startMinutes = 30;
 let clipboard;

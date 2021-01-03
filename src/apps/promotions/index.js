@@ -34,6 +34,7 @@ function promotions({ system }) {
         obj.loadContent = async function () {
             if (promotionsList.length) {
                 const item = promotionsList.splice(0, 1)[0];
+                console.warn(item)
                 const newItem = system.getStorage('promotions').indexOf(item.identificador) === -1 ? locale.get('newItemTemplate') : '';
                 const discounts = getPromotionDiscounts(item);
                 const price = getDiscountsPrice(system.store, discounts);
@@ -41,8 +42,8 @@ function promotions({ system }) {
                 const bonusBuy = item.discounts ? buyTpl.replace('{{price}}', price ? system.toCurrency(price) : '').replace('{{ids}}', JSON.stringify(cartIds)) : '';
                 let itemToSell = '';
                 let itemPhoto = `/google/drive/promociones/${system.deviceInfo().deviceType}.${item.foto}`;
-                if (cartIds.length === 1 && cartIds[0].startsWith('PRD')) {
-                    const product = system.store.products.find(prd => prd.identificador === cartIds[0]);
+                if (cartIds.length === 1 && cartIds[0].startsWith('PRD') && !cartIds[0].startsWith('PRD-*')) {
+                    const product = system.store.products.find(prd => prd.identificador === cartIds[0]) || { titulo: '' };
                     itemToSell = `<div><h2>${product.titulo}</h2></div>`;
                     itemPhoto = `/google/drive/productos/${system.deviceInfo().deviceType}.${product.foto}`;
                 }
