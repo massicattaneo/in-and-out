@@ -639,19 +639,17 @@ const CashSummary = require('./excel/cash-summary');
         requiresAdmin,
         async function (req, res) {
             const accounts = {
-                '0182- 410-1 -40 0201602867': 'main',
-                '0182- 410-1 -41 0201599433': 'secondary',
-                '': 'unknown'
+                main: '0201602867',
+                secondary: '0201599433'
             };
-            const { data } = req.files.fileUpload;
+            const { data, name: account } = req.files.fileUpload;
             const buffer = new Buffer(data);
-            const accountNumber = (buffer.toString().match(/Cuenta\s*:\s*([^EUR]*)\sEUR/) || ['', ''])[1];
-            const account = accounts[accountNumber];
+            const accountNumber = accounts[account];
             const docs = buffer.toString()
                 .split('\n')
                 .filter(line => line.match(/^\d\d\/\d\d\/\d\d\d\d/))
                 .map(function (line) {
-                    const arr = line.split('\t');
+                    const arr = line.split(',');
                     return {
                         accountingDate: new Date(arr[0].split('/').reverse().join('-')),
                         key: arr[2],

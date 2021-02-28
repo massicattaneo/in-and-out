@@ -22,10 +22,9 @@ export default async function ({ locale, system, thread }) {
             v.get('to').valueAsDate = new Date();
             v.get().uploadCsv = async function () {
                 const file = this.fileUpload.files[0];
-                const newFileName = `temp.csv`;
+                const newFileName = `${v.get('account').value}`;
                 const formData = new FormData();
                 formData.append('fileUpload', file, newFileName);
-
                 await RetryRequest('/api/upload-bank', { timeout: 60000 }).post(formData)
                     .catch(function (e) {
                         system.throw('generic-error');
