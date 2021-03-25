@@ -2,16 +2,16 @@
     <h3>{{buy.title}}</h3>
     <p>
         {{buy.qrCode}}<br/>
-        <img style="width: 150px;" src="/api/qr-code/{{item.id}}" />
+        <img style="width: 150px;" src="/api/qr-code/{{paymentDone.id}}" />
     </p>
     <p>
         {{buy.sentEmail}}
-        {{item.email}}
+        {{paymentDone.email}}
     </p>
     <p>
         {{buy.pdf}}
         <a class="white-color green-bg-color button clickable"
-            href="/api/pdf/{{item.id}}" target="_blank">{{buy.downloadPdf}}</a>
+            href="/api/pdf/{{paymentDone.id}}" target="_blank">{{buy.downloadPdf}}</a>
     </p>
     <p>
         {{buy.homePage}}

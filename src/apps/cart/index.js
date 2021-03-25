@@ -1,5 +1,5 @@
 import { plugin } from 'gml-system';
-import { Node, HtmlStyle, HtmlView } from 'gml-html';
+import { HtmlView } from 'gml-html';
 import template from './index.html';
 import * as styles from './index.scss';
 import emptyCartHtml from './empty-cart.html';
@@ -105,7 +105,7 @@ function cart({ system }) {
                     totalProducts: system.toCurrency(totalProducts),
                     costs: system.toCurrency(costs),
                     hasProducts: hasProducts ? '' : 'none',
-                    showPrivacy: system.info().status.privacy ? 'none': 'block',
+                    showPrivacy: system.info().status.privacy ? 'none' : 'block',
                     showPartialGift: hasTreatments || hasBonusCards ? 'inline-block' : 'none'
                 }));
             items.map(item => {
@@ -167,32 +167,39 @@ function cart({ system }) {
                     if (!telRegEx.test(cartView.get('tel').value)) system.throw('malformedTel');
                 }
                 system.store.loading = true;
-                const { token, error } = await stripe.createToken(stripeCard);
-                if (error) {
+                const sendTo = hasProducts ? {
+                    name: cartView.get('name').value,
+                    address: cartView.get('address').value,
+                    city: cartView.get('city').value,
+                    cap: cartView.get('cap').value,
+                    tel: cartView.get('tel').value,
+                    isGift: view.get('products').gift.value
+                } : {};
+                const cart = system.store.cart.slice(0);
+                const email = view.get('products').email.value;
+                const { clientSecret, orderId } = await thread.execute('cart/secret', { cart, sendTo, email });
+
+                const result = await stripe.confirmCardPayment(clientSecret, {
+                    payment_method: {
+                        card: stripeCard,
+                        billing_details: {
+                            email
+                        }
+                    }
+                });
+                if (result.error) {
                     system.store.loading = false;
-                    system.throw('custom', error);
-                } else {
-                    const sendTo = hasProducts ? {
-                        name: cartView.get('name').value,
-                        address: cartView.get('address').value,
-                        city: cartView.get('city').value,
-                        cap: cartView.get('cap').value,
-                        tel: cartView.get('tel').value,
-                        isGift: view.get('products').gift.value
-                    } : {};
-                    const cart = system.store.cart.slice(0);
-                    view.get('products');
-                    const item = await thread.execute('cart/pay', {
-                        email: view.get('products').email.value,
-                        cart,
-                        token: token.id,
-                        sendTo
-                    });
+                    system.throw('custom', result.error);
+                } else if (result.paymentIntent.status === 'succeeded') {
+                    const paymentDone = await thread.execute('cart/payment-done', { email, orderId, cart, paymentIntent: result.paymentIntent });
                     system.store.cart.splice(0, system.store.cart.length);
                     setTimeout(function () {
                         system.store.loading = false;
-                        view.clear('products').appendTo('products', buyTemplate, [], Object.assign({ item }, locale.get()));
+                        view.clear('products').appendTo('products', buyTemplate, [], Object.assign({ paymentDone }, locale.get()));
                     }, 100);
+                } else {
+                    system.store.loading = false;
+                    system.throw('custom', error);
                 }
             });
         }

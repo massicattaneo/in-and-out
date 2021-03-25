@@ -117,7 +117,7 @@ module.exports = function createPdfOrder(res, googleDb, code, cart) {
             .lineCap('butt')
             .strokeColor('#dddddd')
             .moveTo(left, y + 5)
-            .lineTo(570, y + 5)
+            .lineTo(470, y + 5)
             .stroke();
 
         doc.font('burst-bold')

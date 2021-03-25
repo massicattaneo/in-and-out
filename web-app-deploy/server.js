@@ -241,49 +241,60 @@ const CashSummary = require('./excel/cash-summary');
                 });
         });
 
-    app.post('/api/stripe/pay',
+    app.post('/api/stripe/secret', async function (req, res) {
+        const { email, sendTo, cart } = req.body;
+        const cartAmount = shared.getCartTotal(google.publicDb(), cart).total;
+        const productsAmount = shared.getCartTotal(google.publicDb(), cart.filter(id => id.substr(0, 3) === 'PRD')).total;
+        const freeChargeLimit = google.publicDb().settings.freeChargeLimit;
+        const sendingCharge = google.publicDb().settings.sendingCharge;
+        const amount = Math.floor((cartAmount + ((productsAmount < freeChargeLimit && productsAmount !== 0) ? sendingCharge : 0)) * 100);
+        const mongoCart = req.body.cart.map(id => Object.assign({ id, used: false }));
+        const { id: orderId } = await mongo.buy({ cart: mongoCart, userId: req.session.userId, email, amount, sendTo });
+        stripe.clientSecret({ amount })
+            .catch(err => {
+                console.log(err);
+                res.status(500);
+                res.send(err.message);
+            })
+            .then(secretObject => {
+                res.json(Object.assign(secretObject, { orderId }));
+            });
+    });
+
+    app.post('/api/stripe/payment-done',
         async function (req, res) {
-            const { token, email, sendTo, privacy } = req.body;
+            const { email, privacy, orderId, paymentIntent } = req.body;
             const cart = req.body.cart.map(id => Object.assign({ id, used: false }));
             const cartAmount = shared.getCartTotal(google.publicDb(), req.body.cart).total;
             const productsAmount = shared.getCartTotal(google.publicDb(), req.body.cart.filter(id => id.substr(0, 3) === 'PRD')).total;
             const freeChargeLimit = google.publicDb().settings.freeChargeLimit;
             const sendingCharge = google.publicDb().settings.sendingCharge;
             const amount = Math.floor((cartAmount + ((productsAmount < freeChargeLimit && productsAmount !== 0) ? sendingCharge : 0)) * 100);
-            const { id } = await mongo.buy({ cart, userId: req.session.userId, email, amount, sendTo });
-            stripe.pay({ token, amount, orderId: id, cart, email })
-                .then(async function (stripeRes) {
-                    const emailParams = {
-                        id,
-                        email,
-                        amount: stripeRes.amount,
-                        cart,
-                        googleDb: google.publicDb()
-                    };
-                    try {
-                        await mongo.confirmBuy({
-                            id,
-                            stripeId: stripeRes.id,
-                            amount: stripeRes.amount,
-                            last4: stripeRes.source.last4
-                        });
-                        if (!privacy) {
-                            const user = await mongo.rest.get('users', `email=${email}`);
-                            if (user.length) await mongo.rest.update('users', user[0]._id, { privacy: true });
-                        }
-                        mailer.send(createTemplate('orderConfirmedEmail', emailParams));
-                    } catch (e) {
-                        console.log('ERROR ON CONFIRM BUY:', emailParams);
-                    } finally {
-                        delete emailParams.googleDb;
-                        await res.send(emailParams);
-                    }
-                })
-                .catch(function (err) {
-                    console.log(err);
-                    res.status(500);
-                    res.send(err.message);
+            const emailParams = {
+                id: orderId,
+                email,
+                amount,
+                cart,
+                googleDb: google.publicDb()
+            };
+            try {
+                await mongo.confirmBuy({
+                    id: new ObjectId(orderId),
+                    stripeId: paymentIntent.id,
+                    amount: paymentIntent.amount,
+                    last4: ''
                 });
+                if (!privacy) {
+                    const user = await mongo.rest.get('users', `email=${email}`);
+                    if (user.length) await mongo.rest.update('users', user[0]._id, { privacy: true });
+                }
+                mailer.send(createTemplate('orderConfirmedEmail', emailParams));
+            } catch (error) {
+                console.log('ERROR SENDING EMAIL ON CONFIRM BUY:', error);
+            } finally {
+                delete emailParams.googleDb;
+                await res.send(emailParams);
+            }
         });
 
     app.get('/api/bills/cash/:clientId/:date',
@@ -612,7 +623,7 @@ const CashSummary = require('./excel/cash-summary');
     app.get('/api/temp',
         async function (req, res) {
             const emails = await mongo.getEmails();
-            res.json(emails)
+            res.json(emails);
         }
     );
 
