@@ -202,12 +202,12 @@ MongoClient.connect(url, async function (err, db) {
     // }));
 
     /** save cash billNumber */
-    // const from = new Date('2020-10-01:00:00');
-    // const to = new Date('2020-12-31:23:00');
+    // const from = new Date('2021-01-01:00:00');
+    // const to = new Date('2021-03-31:23:00');
     // const { report } = await CashSummary(db, google, {
     //     from: from.getTime(),
     //     to: to.getTime(),
-    //     maxCashAmount: 2300,
+    //     maxCashAmount: 3000,
     //     saveBillNumbers: true
     // });
 

@@ -42,10 +42,14 @@ module.exports = async function (db, google, { title }) {
                             }));
                         }
                         if (extname.toLowerCase() === '.pdf') {
-                            await pdftoimage(pathFile, {
-                                format: 'jpeg',
-                                outdir: path.resolve(__dirname, 'temp')
-                            });
+                            try {
+                                await pdftoimage(pathFile, {
+                                    format: 'jpeg',
+                                    outdir: path.resolve(__dirname, 'temp')
+                                });
+                            } catch(e) {
+                                console.log(e)
+                            }
                             let fi = 1;
                             while (fs.existsSync(pathFile.replace(extname, `-${fi}.jpg`))) {
                                 doc.addPage();
