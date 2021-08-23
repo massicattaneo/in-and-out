@@ -5,7 +5,8 @@ const spainOffsets = [
     1585443600000, //new Date('2020-03-29T02:00').getTime(),
     1603591200000, //new Date('2020-10-25T03:00').getTime(),
     1616893200000, //new Date('2021-03-28T02:00').getTime(),
-    1635645600000 //new Date('2021-10-31T03:00').getTime()
+    1635645600000, //new Date('2021-10-31T03:00').getTime(),
+    1648342800000 //new Date('2022-03-27T02:00').getTime()
 ];
 
 function getSpainOffset(date = Date.now()) {

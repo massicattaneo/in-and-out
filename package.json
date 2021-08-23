@@ -1,6 +1,6 @@
 {
     "name": "in-and-out",
-    "version": "1.3.182",
+    "version": "1.3.186",
     "description": "In&Out web-app",
     "main": "./src/game.js",
     "private": true,

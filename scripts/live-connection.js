@@ -202,14 +202,28 @@ MongoClient.connect(url, async function (err, db) {
     // }));
 
     /** save cash billNumber */
-    // const from = new Date('2021-01-01:00:00');
-    // const to = new Date('2021-03-31:23:00');
+    // const from = new Date('2021-04-01:00:00');
+    // const to = new Date('2021-06-30:23:00');
     // const { report } = await CashSummary(db, google, {
     //     from: from.getTime(),
     //     to: to.getTime(),
     //     maxCashAmount: 3000,
     //     saveBillNumbers: true
     // });
+
+    // SAVE BILL NUMBERS:
+    db.collection('centers').updateOne(
+        { _id: ObjectId('5da2057be28a5ade820818b5')}, // SALITRE
+        { $set : { 'lastBillNumber' : 25863 } }
+    );
+    db.collection('centers').updateOne(
+        { _id: ObjectId('5da2057ce28a5ade820818b7')}, // BUENAVENTURA
+        { $set : { 'lastBillNumber' : 6866 } }
+    );
+    db.collection('centers').updateOne(
+        { _id: ObjectId('5da2057ce28a5ade820818b8')}, // ONLINE
+        { $set : { 'lastBillNumber' : 1112 } }
+    );
 
     console.log('finish');
     process.exit();
