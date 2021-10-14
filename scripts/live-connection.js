@@ -225,6 +225,19 @@ MongoClient.connect(url, async function (err, db) {
     //     { $set : { 'lastBillNumber' : 1199 } }
     // );
 
+
+    // orders not used - TOTAL AMOUNT
+    // const items = (await db.collection('orders').find().toArray());
+    // let total = 0;
+    // items.forEach(order => {
+    //     const hasNoItemUsed = order.cart.filter(item => item.used === true).length === 0;
+    //     if (order.payed && hasNoItemUsed) {
+    //         total += order.amount / 100
+    //         console.log(order)
+    //     }
+    // })
+    // console.log('TOTAL: €', total.toFixed(2))
+
     console.log('finish');
     process.exit();
 });

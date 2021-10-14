@@ -311,7 +311,11 @@ module.exports = {
             const it = store[type].find(i => i.identificador === id);
             return t + Number(it.precio);
         }, 0);
-        return { total: notDiscounted + discounted, discount: real - notDiscounted - discounted, real };
+        return {
+            total: Number((notDiscounted + discounted).toFixed(2)), 
+            discount: Number((real - notDiscounted - discounted).toFixed(2)), 
+            real: Number((real).toFixed(2))
+        };
     },
     sortByDate,
     activePromotions,

@@ -1,3 +1,12 @@
 #wrapper {
+    padding: 10px;
+}
 
+#listwrapper {
+    height: 100%;
+    overflow: hidden;
+}
+
+#list {
+    overflow: scroll;
 }

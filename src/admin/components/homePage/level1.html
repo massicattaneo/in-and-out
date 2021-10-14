@@ -3,7 +3,7 @@
         <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
             CAJA DE HOY:
         </div>
-        <table width="100%" style="padding: 10px">
+        <table width="100%" style="padding: 10px;font-size: 10px;">
         <tr>
                 <th></th>
                 {{#each users}}
@@ -11,19 +11,19 @@
                 {{/each}}
             </tr>
             <tr style="background-color: #eeeeee">
-                <td>CAJA EN TARJETAS</td>
+                <td>TARJETAS</td>
                 {{#each users}}
                 <td style="text-align: right;">{{this.creditCards}}</td>
                 {{/each}}
             </tr>
             <tr>
-                <td>CAJA EN EFECTIVO</td>
+                <td>EFECTIVO</td>
                 {{#each users}}
                 <td  style="text-align: right;">{{this.cash}}</td>
                 {{/each}}
             </tr>
             <tr style="background-color: #757575; color: #ffffff;">
-                <td>CAJA TOTAL</td>
+                <td>TOTAL</td>
                 {{#each users}}
                 <td  style="text-align: right;">{{this.total}}</td>
                 {{/each}}
@@ -39,7 +39,7 @@
             <tr>
                 <td><a href="{{this.href}}" onclick="window.navigate(this, event)">{{this.client}}</a></td>
                 <td>{{this.title}}</td>
-                <td style="text-align: right">{{this.price}}</td>
+                <td style="text-align: right;     width: 80px;">{{this.price}}</td>
             </tr>
         {{/each}}
         <table>

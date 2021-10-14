@@ -54,8 +54,10 @@ export default async function ({ system, thread, locale }) {
     window.rx.connect({
         cash: () => model.cash,
         orders: () => system.store.orders,
-        adminLevel: () => system.store.adminLevel
-    }, ({ cash, orders, adminLevel }) => {
+        adminLevel: () => system.store.adminLevel,
+        'cashSalitre': () => system.store['cash-salitre'],
+        'cashBuenaventura': () => system.store['cash-buenaventura'],
+    }, ({ cash, orders, adminLevel, cashSalitre, cashBuenaventura }) => {
         if (adminLevel === 2) {
             const monthNames = new Array(12).fill(0).map((v, i) => locale.get(`month_${i}`).toUpperCase());
             const today = new Date();
@@ -154,7 +156,9 @@ export default async function ({ system, thread, locale }) {
                         month: system.toCurrency(result[key].month),
                         trimonth: system.toCurrency(result[key].trimonth),
                         year: system.toCurrency(result[key].year)
-                    }), [])
+                    }), []),
+                cashSalitre: system.toCurrency(cashSalitre), 
+                cashBuenaventura: system.toCurrency(cashBuenaventura)
             });
 
             var ctx = view.get('chart').getContext('2d');

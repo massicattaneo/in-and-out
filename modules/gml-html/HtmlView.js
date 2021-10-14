@@ -1,3 +1,5 @@
+import { renderToDOM } from './render-to-dom'
+
 function addItem(node, items) {
     for (let i=0; i<node.attributes.length; i++) {
         if (node.attributes[i].name && node.attributes[i].name.indexOf('#') === 0) {
@@ -141,6 +143,10 @@ export function HtmlView(markup, styles, variables = {}) {
         view.get(item).innerHTML = '';
         return view;
     };
+    view.renderToDOM = (item, callback) => {
+        view.clear(item);
+        renderToDOM(view.get(item), callback);
+    }
 
     return view;
 }

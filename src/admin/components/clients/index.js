@@ -114,6 +114,13 @@ export default async function ({ locale, system, thread }) {
         }
     };
 
+    form.goToCart = id => {
+        thread.execute(({ gos }) => {
+            gos.cart.addCart(id, `${locale.get('urls.clients.href')}`);
+        })
+        system.navigateTo(`${locale.get('urls.cart.href')}`);
+    }
+
     form.update = async function (id) {
         const p = system.store.clients.find(i => i._id === id);
         const { modalView, modal } = createModal(editClient, Object.assign({}, p),

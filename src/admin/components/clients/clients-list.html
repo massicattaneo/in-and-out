@@ -50,6 +50,14 @@
                         <span class="mdl-ripple"></span>
                     </span>
             </button>
+            <button type="button" onclick="this.form.goToCart('{{this._id}}')"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                data-upgraded=",MaterialButton,MaterialRipple">
+                <i class="material-icons">shopping_cart</i>
+                <span class="mdl-button__ripple-container">
+                    <span class="mdl-ripple"></span>
+                </span>
+            </button>
         <div style="clear: both"></div>
     </li>
     {{/each}}

@@ -423,5 +423,44 @@ module.exports = function (isDeveloping, utils) {
         }
     };
 
+    const CASH_STARTING_DATE = new Date('2021-10-12').getTime();
+    const CASH_STARTING_AMOUNT = {
+        salitre: 80,
+        buenaventura: 50
+    }
+    obj.getActualCash = async user => {
+        const [{ total = 0 } = {}] = await db.collection('cash')
+                .aggregate([ 
+                    { $match: { 
+                        type: 'efectivo', 
+                        user,
+                        date: { $gte: CASH_STARTING_DATE } }
+                    },
+                    { 
+                        $group: { 
+                            _id: null, 
+                            total: { 
+                                $sum: "$amount" 
+                            } 
+                        } 
+                    }
+                ]).toArray();
+        return total + CASH_STARTING_AMOUNT[user];
+    }
+
+    obj.cartPriority = async () => {
+        const list = await db.collection('cash').aggregate([ 
+            { 
+                $group: { 
+                    _id: "$itemKey", 
+                    count: { $count: { } } 
+                } 
+            }
+        ]).toArray();
+        return list
+            .sort((first, second) => first.count - second.count)
+            .map(item => item._id)
+    }
+
     return obj;
 };

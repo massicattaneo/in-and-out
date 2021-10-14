@@ -85,6 +85,13 @@ export default async function ({ locale, system, thread, wait }) {
             system.nfc.send(id);
         };
 
+        v.get('wrapper').goToCart = function () {
+            thread.execute(({ gos }) => {
+                gos.cart.addCart(id, `${locale.get('urls.history.href')}?id=${id}`);
+            })
+            system.navigateTo(`${locale.get('urls.cart.href')}`);
+        };
+
         v.get('wrapper').sendGoogleReviewEmail = async function (centerIndex) {
             if (client.emails && client.emails.filter(e => e.centerIndex === centerIndex).length) {
                 const items = client.emails

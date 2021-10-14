@@ -4,7 +4,9 @@ import list from './cash-list.html';
 import * as style from './style.scss';
 import * as listStyle from './list.scss';
 import editCash from './edit-cash.html';
+import editDeposit from './edit-deposit.html';
 import { createModal } from '../../utils';
+import { fillSelectWithClients } from './utils';
 
 const IVA = 21;
 
@@ -22,9 +24,11 @@ export default async function({ locale, system, thread }) {
         view.style('', { footer: { left: width > 1024 ? 240 : 0 } });
     });
 
-    window.rx.connect({ search: () => system.store.search, cash: () => system.store.cash }, function({ search, cash }) {
-            const filter = cash
-                .filter(filterCash(search));
+    window.rx.connect({ 
+        search: () => system.store.search, 
+        cash: () => system.store.cash 
+    }, function({ search, cash }) {
+            const filter = cash.filter(filterCash(search));
             const v = view.clear('cash').appendTo('cash', list, listStyle, {
                 cash: filter
                     .sort((a, b) => b.date - a.date)
@@ -47,6 +51,10 @@ export default async function({ locale, system, thread }) {
             view.get('iva').innerText = `TOTAL IVA: ${system.toCurrency(total - net)}`;
             v.style();
         });
+
+    window.rx.connect({ actualCash: () => system.store[`cash-${system.store.users[0]}`] }, ({ actualCash }) => {
+        view.get('actualcash').innerHTML = system.toCurrency(actualCash)
+    })
 
     window.rx.connect({ date: () => model.date }, async function({ date }) {
             from = new Date(date);
@@ -94,11 +102,30 @@ export default async function({ locale, system, thread }) {
         modalView.get('date').valueAsNumber = new Date(p.date).getTime();
         modalView.get('user').value = p.user;
         const trans = system.store.cash.find(t => t._id === id);
-        fillClients(modalView, trans ? trans.clientId : '');
+        fillSelectWithClients(modalView.get('client'), system, trans ? trans.clientId : '');
     };
 
     view.destroy = function() {
 
+    };
+
+    view.get('wrapper').deposit = function() {
+        const { modalView, modal } = createModal(editDeposit, { users: system.store.users }, async function(close) {
+            if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
+            await thread.execute('rest-api', {
+                api: 'cash',
+                method: 'post',
+                date: this.date.valueAsNumber,
+                description: 'Deposito en Banco',
+                isDeposit: true,
+                amount: - Number(this.amount.value),
+                type: 'efectivo',
+                user: this.user.value
+            });
+            close();
+        });
+        modalView.get('date').valueAsNumber = (new Date()).getTime();
+        modalView.get('amount').focus();
     };
 
     view.get('wrapper').add = function() {
@@ -122,17 +149,8 @@ export default async function({ locale, system, thread }) {
         modalView.get('date').valueAsNumber = (new Date()).getTime();
         modalView.get('description').focus();
         modalView.get('description').setSelectionRange(0, modalView.get('description').value.length);
-        fillClients(modalView, '');
+        fillSelectWithClients(modalView.get('client'), system);
     };
-
-
-    function fillClients(modalView, value) {
-        modalView.get('client').innerHTML = `<option ${value === '' ? 'selected' : '' } value="">SIN CONTACTO</option>` + system.store.clients
-            .sort((a, b) => a.surname.localeCompare(b.surname))
-            .map(function(c) {
-                return `<option ${value === c._id ? 'selected' : '' } value="${c._id}">${c.surname} ${c.name}</option>`;
-            }).join('');
-    }
 
     function filterCash(find) {
         return function(item) {

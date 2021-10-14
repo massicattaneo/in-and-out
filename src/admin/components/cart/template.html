@@ -1,32 +1,36 @@
-<div #wrapper>
-    <div class="mdl-shadow--2dp mdl-card mdl-cell mdl-cell--4-col mdl-cell--12-col-phone">
-        <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
-            TRATAMIENTOS
+<form #wrapper class="mdl-grid" style="height: calc(100% - 20px);">
+    <div class="mdl-shadow--2dp mdl-cell mdl-cell--5-col mdl-cell--8-col-tablet">
+        <div style="padding: 5px">
+            <button type="button" onclick="this.form.addCart()"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                <i class="material-icons">add</i>
+            </button>
+            &nbsp;
+            <button type="button" onclick="this.form.removeCart()"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                <i class="material-icons">delete</i>
+            </button>
+            &nbsp;
+            <button type="button" onclick="this.form.cartToCash()"
+                class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
+                CESTA A CAJA <i class="material-icons">attach_money</i>
+            </button>
+            <hr />
+            <div class="mdl-tabs mdl-js-tabs mdl-js-ripple-effect">
+                <div #cartsbuttons></div>
+                <div #cart></div>
+            </div>
         </div>
-        <table width="100%" style="padding: 10px">
-            {{#each treatments}}
-            <tr>
-                <td><a href="{{this.href}}" onclick="window.navigate(this, event)">{{this.client}}</a></td>
-                <td>{{this.titulo}}</td>
-                <td style="text-align: right">{{this.price}}</td>
-            </tr>
-            {{/each}}
-            </table>
     </div>
-    <div class="mdl-shadow--2dp mdl-card mdl-cell mdl-cell--4-col mdl-cell--12-col-phone">
-        <div class="mdl-card__title mdl-color--primary mdl-color-text--primary-contrast">
-            TARJETAS
+    <div #listwrapper class="mdl-cell mdl-cell--7-col mdl-cell--8-col-tablet mdl-grid mdl-grid--no-spacing">
+        <div class="mdl-list__item">
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input autocomplete="off" onkeyup="this.form.search(event, this)" class="mdl-textfield__input" type="text" id="subject">
+                <label class="mdl-textfield__label" for="subject">BUSCAR</label>
+            </div>
         </div>
-        <table width="100%" style="padding: 10px">
-            {{#each bonusCards}}
-            <tr>
-                <td><a href="{{this.href}}" onclick="window.navigate(this, event)">{{this.client}}</a></td>
-                <td>{{this.titulo}}</td>
-                <td style="text-align: right">{{this.price}}</td>
-            </tr>
-            {{/each}}
-            </table>
+        <div #list style="height: calc(100% - 100px); width: 100%;">
+
+        </div>
     </div>
-
-
-</div>
+</form>

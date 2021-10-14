@@ -153,15 +153,16 @@ const CashSummary = require('./excel/cash-summary');
     });
 
     app.get('/api/public-db', async function (req, res) {
-
         if (req.session && req.session.isAdmin) {
             res.send(Object.assign({}, google.publicDb(), {
                 reviews: await mongo.getReviewsInfo(),
+                cartPriority: await mongo.cartPriority(),
                 wrongEmails
             }));
         } else {
             res.send(Object.assign({}, google.publicDb(), {
-                reviews: await mongo.getReviewsInfo()
+                reviews: await mongo.getReviewsInfo(),
+                cartPriority: await mongo.cartPriority()
             }));
         }
     });
@@ -507,7 +508,11 @@ const CashSummary = require('./excel/cash-summary');
                 clients: await mongo.getAll('users'),
                 orders: await mongo.getAll('orders'),
                 reminders: await mongo.getAll('reminders'),
-                bills: await mongo.getAll('bills')
+                bills: await mongo.getAll('bills'),
+                actualCash: {
+                    salitre: await mongo.getActualCash('salitre'),
+                    buenaventura: await mongo.getActualCash('buenaventura')
+                }
             });
         });
 
@@ -767,6 +772,14 @@ const CashSummary = require('./excel/cash-summary');
                 res.send(file);
             }).catch(console.log);
         });
+
+    app.get('/api/actual-cash', 
+        requiresAdmin,
+        async function (req, res) {
+            const { user } = req.query;
+            const total = await mongo.getActualCash(user);
+            res.send({ total })
+        })
 
     app.delete('/api/upload/:id',
         requiresAdmin,

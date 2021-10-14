@@ -37,6 +37,9 @@ export default async function ({ system, thread }) {
                 : []
         });
     });
+    publicDb.products = publicDb.products.map(item => {
+        return Object.assign({}, item, { barcodes: item.codigobarras.split(',').map(item => item.trim()) })
+    })
     system.publicDb = publicDb;
 
     const localTimestamp = Date.now();
@@ -48,6 +51,7 @@ export default async function ({ system, thread }) {
     const localOffset = new Date().getTimezoneOffset() / -60;
     const spainTime = getSpainTime();
 
+    const cookieUsers = ((decodeURI(system.cookies.getItem('users')) || '')).split('|');
     system.store = window.rx.create({
         logged: status.logged,
         adminLevel: status.adminLevel,
@@ -61,9 +65,11 @@ export default async function ({ system, thread }) {
         cash: [],
         bills: [],
         cart: system.getStorage('cart') || [],
-        users: [...((decodeURI(system.cookies.getItem('users')) || '')).split('|')],
+        users: [...cookieUsers],
         date: spainTime,
-        keysPressed: []
+        keysPressed: [],
+        'cash-salitre': 0,
+        'cash-buenaventura': 0
     });
 
     setInterval(() => system.store.spainTime = getSpainTime(), 1000);
@@ -99,6 +105,8 @@ export default async function ({ system, thread }) {
         system.store.bills.splice(0, system.store.bills.length);
         system.store.bills.push(...data.bills);
         system.store.users.splice(0, system.store.users.length);
+        system.store['cash-salitre'] = data.actualCash.salitre;
+        system.store['cash-buenaventura'] = data.actualCash.buenaventura;
         if (logged) {
             system.store.users.push(...((decodeURI(system.cookies.getItem('users')) || '')).split('|'));
         }
