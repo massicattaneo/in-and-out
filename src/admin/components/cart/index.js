@@ -95,20 +95,20 @@ export default async function ({ locale, system, thread }) {
                 const clientId = this.clientId.value;
                 const date = this.date.valueAsNumber;
                 const cartTotal = getCartTotal(system.publicDb, cart).total;
-                let discount = cartTotal - Number(this.amount.value);
-                await Promise.all(cart.map(async id => {
+                const discount = Number(this.amount.value) / cartTotal;
+                let discountSum = cartTotal - Number(this.amount.value);
+                await Promise.all(cart.map(async (id, cartIndex) => {
                     const isBonus = id.startsWith('TAR-');
-                    const amount = getCartTotal(system.publicDb, [id]).total;
-                    const discounted = discount < amount ? amount - discount : 0;
-                    const originalAmount = discount > 0 ? amount : undefined;
-                    discount = Math.max(discount - amount, 0);
+                    const originalAmount = getCartTotal(system.publicDb, [id]).total;
+                    const amount = (cartIndex === cart.length -1) ? originalAmount - discountSum : originalAmount * discount;
+                    discountSum -= originalAmount - amount;
                     const transaction = await thread.execute('rest-api', {
                         api: `cash`,
                         method: 'post',
                         date: date,
                         clientId,
                         description: list.find(i => i.id === id).title,
-                        amount: discounted,
+                        amount: amount,
                         type: this.type.value,
                         user: this.user.value,
                         itemKey: id,
@@ -122,8 +122,8 @@ export default async function ({ locale, system, thread }) {
                             clientId,
                             created: date,
                             credit: bonus.credit,
-                            payed: Number(this.amount.value),
-                            price: getCartTotal(system.publicDb, [id]).total,
+                            payed: originalAmount,
+                            price: originalAmount,
                             finished: false,
                             title: bonus.title,
                             transactionId: transaction._id,
@@ -220,8 +220,6 @@ export default async function ({ locale, system, thread }) {
                 <strong>${system.toCurrency(cartTotal.total)}</strong>
                 </td>
                 </tr>
-                ${cartTotal.discount ? `
-                ` : ''}
             </table>
             </div>`;
         })

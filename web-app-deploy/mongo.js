@@ -452,12 +452,13 @@ module.exports = function (isDeveloping, utils) {
         const list = await db.collection('cash').aggregate([ 
             { 
                 $group: { 
-                    _id: "$itemKey", 
-                    count: { $count: { } } 
+                    _id: "$itemKey",
+                    count:{ $sum:1 }
                 } 
             }
         ]).toArray();
         return list
+            .filter(ii => ii)
             .sort((first, second) => first.count - second.count)
             .map(item => item._id)
     }
