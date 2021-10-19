@@ -22,10 +22,10 @@
             </div>
         </div>
     </div>
-    <div #listwrapper class="mdl-cell mdl-cell--7-col mdl-cell--8-col-tablet mdl-grid mdl-grid--no-spacing">
-        <div class="mdl-list__item">
+    <div #listwrapper class="mdl-cell mdl-cell--7-col mdl-cell--8-col-tablet">
+        <div>
             <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                <input autocomplete="off" onkeyup="this.form.search(event, this)" class="mdl-textfield__input" type="text" id="subject">
+                <input #search autocomplete="off" onkeyup="this.form.search(event, this)" class="mdl-textfield__input" type="text" id="subject">
                 <label class="mdl-textfield__label" for="subject">BUSCAR</label>
             </div>
         </div>

@@ -29,6 +29,12 @@ function escapeSingleQuote(string) {
 export default async function ({ locale, system, thread }) {
     const view = HtmlView('<div></div>');
 
+    view.destroy = function () {
+
+    };
+
+    return view;
+
     rx.connect({ bills: () => system.store.bills }, function () {
         const companies = system.store.bills.filter((o, i, a) => a.indexOf(a.find(e => e.emitter.company === o.emitter.company)) === i);
         const bills = system.store.bills.sort((a, b) => (new Date(b.date)).getTime() - (new Date(a.date)).getTime());
@@ -145,9 +151,5 @@ export default async function ({ locale, system, thread }) {
         };
     });
 
-    view.destroy = function () {
-
-    };
-
-    return view;
+    
 }

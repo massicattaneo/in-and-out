@@ -458,9 +458,29 @@ module.exports = function (isDeveloping, utils) {
             }
         ]).toArray();
         return list
-            .filter(ii => ii)
             .sort((first, second) => first.count - second.count)
             .map(item => item._id)
+            .filter(ii => ii)
+    }
+
+    obj.getBarCodes = async ({ products }) => {
+        const codes = products.map(item => {
+            const barcodes = item.codigobarras
+                .split(',')
+                .map(item => item.trim())
+                .filter(item => item);
+            return { itemKey: item.identificador, barcodes }
+        })
+        const dbCodes = await db.collection('barcodes').find().toArray();
+        dbCodes.forEach(({ itemKey, barcode }) => {
+            const item = codes.find(item => item.itemKey === itemKey);
+            if (item) {
+                item.barcodes.push(barcode)
+            } else {
+                codes.push({ itemKey, barcodes: [barcode] })
+            }
+        })
+        return codes;
     }
 
     return obj;

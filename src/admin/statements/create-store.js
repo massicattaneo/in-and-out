@@ -37,9 +37,6 @@ export default async function ({ system, thread }) {
                 : []
         });
     });
-    publicDb.products = publicDb.products.map(item => {
-        return Object.assign({}, item, { barcodes: item.codigobarras.split(',').map(item => item.trim()) })
-    })
     system.publicDb = publicDb;
 
     const localTimestamp = Date.now();
@@ -59,7 +56,6 @@ export default async function ({ system, thread }) {
         spainTime,
         localOffset,
         loading: false,
-        search: '',
         clients: [],
         orders: [],
         cash: [],

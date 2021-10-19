@@ -25,10 +25,9 @@ export default async function({ locale, system, thread }) {
     });
 
     window.rx.connect({ 
-        search: () => system.store.search, 
         cash: () => system.store.cash 
-    }, function({ search, cash }) {
-            const filter = cash.filter(filterCash(search));
+    }, function({ cash }) {
+            const filter = cash.filter(filterCash());
             const v = view.clear('cash').appendTo('cash', list, listStyle, {
                 cash: filter
                     .sort((a, b) => b.date - a.date)
@@ -87,6 +86,7 @@ export default async function({ locale, system, thread }) {
                 if (!this.description.value) system.throw('custom', { message: 'FALTA LA DESCRIPCION' });
                 if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
                 if (!this.type.value) system.throw('custom', { message: 'TARJETA O EFECTIVO?' })
+                if (this.date.valueAsNumber > Date.now()) system.throw('custom', { message: 'NO PUEDE SER UNA FECHA FUTURA' })
                 await thread.execute('rest-api', {
                     api: `cash/${id}`,
                     method: 'put',
@@ -112,6 +112,7 @@ export default async function({ locale, system, thread }) {
     view.get('wrapper').deposit = function() {
         const { modalView, modal } = createModal(editDeposit, { users: system.store.users }, async function(close) {
             if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
+            if (this.date.valueAsNumber > Date.now()) system.throw('custom', { message: 'NO PUEDE SER UNA FECHA FUTURA' })
             await thread.execute('rest-api', {
                 api: 'cash',
                 method: 'post',
@@ -133,6 +134,7 @@ export default async function({ locale, system, thread }) {
             if (!this.description.value) system.throw('custom', { message: 'FALTA LA DESCRIPCION' });
             if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
             if (!this.type.value) system.throw('custom', { message: 'TARJETA O EFECTIVO?' });
+            if (this.date.valueAsNumber > Date.now()) system.throw('custom', { message: 'NO PUEDE SER UNA FECHA FUTURA' })
             await thread.execute('rest-api', {
                 api: 'cash',
                 method: 'post',
@@ -152,11 +154,10 @@ export default async function({ locale, system, thread }) {
         fillSelectWithClients(modalView.get('client'), system);
     };
 
-    function filterCash(find) {
+    function filterCash() {
         return function(item) {
             if (system.store.users.indexOf(item.user) === -1) return false;
-            if (find === '') return true;
-            return item.description.toLowerCase().indexOf(find) !== -1 || item.type.toLowerCase().indexOf(find) !== -1;
+            return true;
         };
     }
 

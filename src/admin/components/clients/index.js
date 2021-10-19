@@ -25,13 +25,14 @@ function filterClients(find) {
 export default async function ({ locale, system, thread }) {
     const params = Object.assign({}, locale.get());
     const view = HtmlView(template, style, params);
+    const model = window.rx.create({ search: '' });
 
     window.rx.connect({ width: () => system.deviceInfo().width }, function ({ width }) {
         view.style('', { footer: { left: width > 1024 ? 240 : 0 } });
     });
 
     window.rx.connect({
-        search: () => system.store.search,
+        search: () => model.search,
         clients: () => system.store.clients
     }, function ({ search, clients }) {
         const filter = clients
@@ -52,7 +53,9 @@ export default async function ({ locale, system, thread }) {
     });
     const form = view.get('wrapper');
 
-
+    form.search = (event, el) => {
+        model.search = el.value;
+    }
     form.dragStart = function (params) {
         window.event.dataTransfer.setData('config', JSON.stringify(params));
     };
@@ -185,6 +188,11 @@ export default async function ({ locale, system, thread }) {
             console.error(e);
         });
     };
+
+    view.update = function () {
+        view.get('search').focus()
+        view.get('search').setSelectionRange(0, view.get('search').value.length)
+    }
 
     view.destroy = function () {
 

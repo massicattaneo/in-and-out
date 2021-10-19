@@ -7,6 +7,7 @@ import editCash from '../cash/edit-cash.html';
 import { createModal } from '../../utils';
 import { fillSelectWithClients } from '../cash/utils';
 import EventEmitter from 'gml-event-emitter';
+import addBarCode from './add-barcode.html';
 
 export default async function ({ locale, system, thread }) {
     const params = Object.assign({  }, locale.get(), system.publicDb);
@@ -41,21 +42,21 @@ export default async function ({ locale, system, thread }) {
     em.on('barcode', value => {
         const isThisRoute = location.pathname === locale.get('urls.cart.href');
         const isHistoryRoute = location.pathname === locale.get('urls.history.href');
-        const product = system.publicDb.products.find(prod => prod.barcodes.includes(value))
-        if (product && isThisRoute) {
+        const item = system.publicDb.barcodes.find(code => code.barcodes.includes(value))
+        if (item && isThisRoute) {
             if (!carts.length) form.addCart()
-            form.addToCart(product.identificador)
-        } else if (product && isHistoryRoute) {
+            form.addToCart(item.itemKey)
+        } else if (item && isHistoryRoute) {
             const clientId = new URLSearchParams(location.search).get('id');
             view.addCart(clientId, `${location.pathname}${location.search}`);
-            form.addToCart(product.identificador);
+            form.addToCart(item.itemKey);
             system.navigateTo(locale.get('urls.cart.href'));
-        } else if (product) {
+        } else if (item) {
             view.addCart('', `${location.pathname}${location.search}`);
-            form.addToCart(product.identificador);
+            form.addToCart(item.itemKey);
             system.navigateTo(locale.get('urls.cart.href'));
         } else {
-            system.throw('custom', { message: 'PRODUCTO NO ENCONTRADO' });
+            system.throw('custom', { message: 'CODIGO NO ENCONTRADO' });
         }
     });
 
@@ -81,6 +82,22 @@ export default async function ({ locale, system, thread }) {
         refresh();
     }
 
+    form.addBarCode = (identificador) => {
+        const item = list.find(item => item.id === identificador)
+        const { modalView, modal } = createModal(addBarCode, item,
+            async function (close) {
+                if (!this.barcode.value) system.throw('custom', { message: 'FALTA EL CODIGO DE BARRAS' });
+                const res = await thread.execute('rest-api', {
+                    api: 'barcodes',
+                    method: 'post',
+                    itemKey: identificador,
+                    barcode: this.barcode.value
+                });
+                close();
+            });
+            modalView.get('barcode').focus();
+    }
+
     form.cartToCash = () => {
         if (settings.selectedCartId === undefined) return;
         const { cart = [], clientId: startClientId, redirectUrl } = carts.find(item => item.id === settings.selectedCartId) || {};
@@ -92,8 +109,9 @@ export default async function ({ locale, system, thread }) {
                 if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
                 if (!this.type.value) system.throw('custom', { message: 'TARJETA O EFECTIVO?' });
                 if (bonuses.length && !this.clientId.value) system.throw('custom', { message: 'TIENES QUE SELECIONAR UN USARIO PARA VENDER UN BONO' });
-                const clientId = this.clientId.value;
                 const date = this.date.valueAsNumber;
+                if (date > Date.now()) system.throw('custom', { message: 'NO PUEDE SER UNA FECHA FUTURA' })
+                const clientId = this.clientId.value;
                 const cartTotal = getCartTotal(system.publicDb, cart).total;
                 const discount = Number(this.amount.value) / cartTotal;
                 let discountSum = cartTotal - Number(this.amount.value);
@@ -236,8 +254,8 @@ export default async function ({ locale, system, thread }) {
                     const found = settings.search.filter(string => item.title.toLowerCase().indexOf(string) !== -1).length
                     return found === settings.search.length;
                 });
-            if (!filtered.length) return '<div>NINGUN RESULTADO</div>'
-            return `<div><table cellspacing="0" cellpadding="3">
+            if (!filtered.length) return '<div style="width: 100%;">NINGUN RESULTADO</div>'
+            return `<div style="overflow: scroll; height: 100%;"><table cellspacing="0" cellpadding="3">
                 ${filtered.map(prod => {
                 return `<tr style="background-color: ${getColor(prod)}">
                     <td>
@@ -245,6 +263,11 @@ export default async function ({ locale, system, thread }) {
                         class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">
                         <i class="material-icons">add</i>
                     </button>
+                    </td>
+                    <td>
+                        <button type="button" onclick="this.form.addBarCode('${prod.id}')" >
+                            <i class="material-icons">flip</i>
+                        </button>
                     </td>
                     <td><strong>${prod.label}</strong></td>
                     <td><em>${prod.title}</em></td>
@@ -261,6 +284,11 @@ export default async function ({ locale, system, thread }) {
     view.destroy = function () {
 
     };
+
+    view.update = function () {
+        view.get('search').focus()
+        view.get('search').setSelectionRange(0, view.get('search').value.length)
+    }
 
     view.addCart = (clientId, redirectUrl) => {
         const id = form.addCart(clientId, redirectUrl);

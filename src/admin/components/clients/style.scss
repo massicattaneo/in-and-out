@@ -1,9 +1,9 @@
 #wrapper {
-
+  height: 100%;
 }
 
 #wrapperbuttons {
-  position: absolute;
+  position: relative;
   padding: 5px;
   background: white;
   top: 0;
@@ -15,7 +15,9 @@
   right: 0;
 }
 
+#clientswrapper {
+  overflow: scroll;
+}
 #clients {
   padding-bottom: 90px;
-  padding-top: 53px;
 }

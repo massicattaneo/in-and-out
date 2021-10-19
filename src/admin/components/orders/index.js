@@ -7,6 +7,20 @@ import * as listStyle from './list.scss';
 import { createModal } from '../../utils';
 import createBillTpl from './create-bill.html';
 
+function getNotUsedOrdersAmount(orders, system) {
+    const sum = orders.reduce((total, order) => {
+        const cartSum = order.cart.reduce((cartTotal, { id, used }) => {
+            const typeIndex = getBuytypeIndex(id);
+            const buyTypes = ['treatments', 'bonusCards', 'products'];
+            const type = buyTypes[typeIndex];
+            const item = system.publicDb[type].find(i => i.identificador === id || i.id === id);
+            return cartTotal + (!used && item) ? Number(item.precio || item.price) : 0;
+        }, 0);
+        return total + cartSum;
+    }, 0);
+    return sum;
+}
+
 function filterClients(find) {
     return function (i) {
         if (find === '') return true;
@@ -38,7 +52,8 @@ export default async function ({ locale, system, thread }) {
     const params = Object.assign({}, locale.get());
     const view = HtmlView(template, style, params);
     const dayNames = new Array(7).fill(0).map((v, i) => locale.get(`day_${i}`));
-
+    const model = window.rx.create({ search: '', onlyActive: false });
+    
     view.style();
 
     window.rx.connect({ width: () => system.deviceInfo().width }, function ({ width }) {
@@ -46,19 +61,21 @@ export default async function ({ locale, system, thread }) {
     });
 
     window.rx.connect({
-        search: () => system.store.search,
+        onlyActive: () => model.onlyActive,
+        search: () => model.search,
         orders: () => system.store.orders
-    }, function ({ search, orders }) {
+    }, function ({ search, orders, onlyActive }) {
         const v = view.clear('orders').appendTo('orders', list, listStyle, {
             orders: orders
                 .filter(filterClients(search))
                 .sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime())
+                .filter(({ cart }) => onlyActive ? cart.filter(c => !c.used).length > 0 : true)
+                .filter((item, index) => index < 200)
                 .map(i => {
-                    const date = new Date(i.created).formatDay('dddd, dd-mm-yyyy', dayNames);
+                    const date = new Date(i.created).formatDay('dd-mm-yyyy', dayNames);
                     const hour = new Date(i.created).formatTime('hh:mm');
                     return {
                         date: `${date} - ${hour}`,
-                        payed: i.payed ? 'SI' : 'NO',
                         email: i.email,
                         amount: system.toCurrency(i.amount / 100),
                         id: i._id,
@@ -91,7 +108,15 @@ export default async function ({ locale, system, thread }) {
         view.get('month').innerText = `ESTE MESE: ${system.toCurrency(orders.filter(o => new Date(o.created).getTime() >= date.getTime()).reduce((tot, o) => tot + o.amount, 0) / 100)}`;
         view.get('count').innerText = `NUMERO: ${orders.length}`;
         view.get('total').innerText = `TOTAL: ${system.toCurrency(orders.reduce((tot, o) => tot + o.amount, 0) / 100)}`;
+        view.get('notused').innerText = `NO USADO: ${system.toCurrency(getNotUsedOrdersAmount(orders, system))}`;
     });
+
+    view.get('wrapper').search = (event, el) => {
+        model.search = el.value;
+    }
+    view.get('wrapper').onlyActive = (event, el) => {
+        model.onlyActive = el.checked;
+    }
 
     view.get('wrapper').createBill = async function (orderId) {
         const { modalView, modal } = createModal(createBillTpl, {}, async function (close) {
@@ -121,7 +146,7 @@ export default async function ({ locale, system, thread }) {
                     method: 'put',
                     cart: order.cart
                 });
-                system.store.search = '';
+                model.search = '';
             }
         } else if (typeIndex === 0) {
             if (confirm('ESTAS SEGURO DE UTILIZAR ESTE TRATAMIENTO?')) {
@@ -131,7 +156,7 @@ export default async function ({ locale, system, thread }) {
                     method: 'put',
                     cart: order.cart
                 });
-                system.store.search = '';
+                model.search = '';
             }
         } else if (typeIndex === 1) {
             const { id } = order.cart[index];
@@ -150,7 +175,7 @@ export default async function ({ locale, system, thread }) {
                             method: 'put',
                             cart: order.cart
                         });
-                        system.store.search = '';
+                        model.search = '';
                         close();
                     }
                     return;
@@ -179,7 +204,7 @@ export default async function ({ locale, system, thread }) {
                     method: 'put',
                     cart: order.cart
                 });
-                system.store.search = '';
+                model.search = '';
                 close();
             });
             const client = system.store.clients.find(i => i.email === order.email);
@@ -193,7 +218,7 @@ export default async function ({ locale, system, thread }) {
         scanner.addListener('scan', function (content) {
             scanner.stop();
             const order = system.store.orders.find(i => i._id === content);
-            system.store.search = order._id;
+            model.search = order._id;
         });
         Instascan.Camera.getCameras().then(function (cameras) {
             if (cameras.length > 0) {
@@ -205,6 +230,11 @@ export default async function ({ locale, system, thread }) {
             console.error(e);
         });
     };
+
+    view.update = function () {
+        view.get('search').focus()
+        view.get('search').setSelectionRange(0, view.get('search').value.length)
+    }
 
     view.destroy = function () {
 

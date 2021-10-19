@@ -11,10 +11,15 @@ export const template = (html, variables) => {
 };
 
 const takeOrGenerate = (dom, virtual, index = 0) => {
-    let element = dom.children.item(index);
+    const element = dom.childNodes[index];
     if (!element) {
-        element = document.createElement(virtual.name);
-        dom.appendChild(element);
+        const child = document.createElement(virtual.name);
+        dom.appendChild(child);
+        return child;
+    } else if (element.tagName !== virtual.name.toUpperCase()) {
+        const child = document.createElement(virtual.name);
+        dom.replaceChild(child, element);
+        return child;
     }
     return element;
 };
@@ -42,6 +47,9 @@ const generate = (dom, virtual) => {
         if (dom.getAttribute(name) !== virtual.attributes[name]) {
             dom.setAttribute(name, virtual.attributes[name]);
         }
+    });
+    Array.prototype.slice.call(dom.attributes).forEach(function(attr) {
+        if (!virtual.attributes[attr.name]) dom.removeAttribute(attr.name);
     });
     if (virtual.content) takeOrGenerateText(dom, virtual);
     virtual.children.forEach((child, index) => {

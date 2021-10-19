@@ -144,7 +144,6 @@ export function HtmlView(markup, styles, variables = {}) {
         return view;
     };
     view.renderToDOM = (item, callback) => {
-        view.clear(item);
         renderToDOM(view.get(item), callback);
     }
 

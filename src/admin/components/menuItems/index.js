@@ -6,9 +6,15 @@ function isAdmin(level) {
     return Number(level) === 2;
 }
 
-export default async function ({ locale, system }) {
+export default async function ({ locale, thread, system }) {
     const view = HtmlView(template, style, locale.get());
 
+    view.get('form').logout = async () => {
+        system.cookies.removeItem('users', '/');
+        system.store.logged = false;
+        await thread.execute('user/logout');
+        system.navigateTo('/admin/es/entra');
+    }
     // window.rx.connect({ level: () => system.store.adminLevel }, function ({ level }) {
     //
     // });

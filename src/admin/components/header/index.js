@@ -10,20 +10,8 @@ export default async function ({ system, locale, thread }) {
         view.get('progress').style.opacity = loading ? 1 : 0;
     });
 
-    view.get('wrapper').change = function (event) {
-        (event || window.event).preventDefault();
-        system.store.search = this.search.value.toLowerCase();
-    };
-
-    view.get('wrapper').logout = async function () {
-        system.cookies.removeItem('users', '/');
-        system.store.logged = false;
-        await thread.execute('user/logout');
-        system.navigateTo('/admin/es/entra');
-    };
-
     view.setTitle = function (title) {
-        view.get('title').innerHTML = title;
+        // view.get('title').innerHTML = title;
     };
 
     return view;

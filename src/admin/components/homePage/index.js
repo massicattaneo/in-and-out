@@ -8,7 +8,7 @@ const numberOfMonths = 13;
 function monthDiff(start, end) {
     var tempDate = new Date(start);
     var monthCount = 0;
-    while ((tempDate.getMonth() + '' + tempDate.getFullYear()) != (end.getMonth() + '' + end.getFullYear())) {
+    while ((tempDate.getMonth() + '' + tempDate.getFullYear()) != (end.getMonth() + '' + end.getFullYear()) && monthCount < numberOfMonths) {
         monthCount++;
         tempDate.setMonth(tempDate.getMonth() + 1);
     }
@@ -19,13 +19,14 @@ function calculateMOnth(d) {
     const now = new Date();
     now.setDate(d.getDate());
     now.setHours(d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds());
-    return numberOfMonths - monthDiff(d, now);
+    const monthDiffCalc = monthDiff(d, now);
+    return numberOfMonths - monthDiffCalc;
 }
 
 export default async function ({ system, thread, locale }) {
     const htmlView = HtmlView('<div><div #level1></div><div #level2></div></div>', []);
     const model = window.rx.create({ cash: [], bonus: [] });
-
+    
     htmlView.refresh = async function () {
         htmlView.clear('level1').clear('level2');
         model.bonus.splice(0, 1000000000);
@@ -49,7 +50,7 @@ export default async function ({ system, thread, locale }) {
             model.bonus.push(...bonus);
         }
     };
-
+    
     window.rx.connect({ adminLevel: () => system.store.adminLevel }, htmlView.refresh);
     window.rx.connect({
         cash: () => model.cash,
@@ -114,7 +115,6 @@ export default async function ({ system, thread, locale }) {
                     }
                     acc.total.months[calculateMOnth(thisMonth)] += i.amount;
                     acc[user].months[calculateMOnth(thisMonth)] += i.amount;
-
 
                     return acc;
                 }, result);

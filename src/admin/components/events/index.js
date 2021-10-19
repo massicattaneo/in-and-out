@@ -275,15 +275,10 @@ export default async function ({ locale, system, thread }) {
 
     };
 
-    window.rx.connect({ search: () => system.store.search }, function ({ search }) {
-        if (system.store.logged)
-            drawCalendars(search, false);
-    });
-
     window.rx.connect({ date: () => system.store.date }, function ({ date }) {
         changeMiniCalendarDate(new Date(date));
         if (system.store.logged)
-            drawCalendars(system.store.search);
+            drawCalendars('');
     });
 
     window.rx.connect({ keys: () => system.store.keysPressed }, function ({ keys }) {

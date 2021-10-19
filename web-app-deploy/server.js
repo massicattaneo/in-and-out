@@ -157,12 +157,15 @@ const CashSummary = require('./excel/cash-summary');
             res.send(Object.assign({}, google.publicDb(), {
                 reviews: await mongo.getReviewsInfo(),
                 cartPriority: await mongo.cartPriority(),
+                barcodes: await mongo.getBarCodes(google.publicDb()),
                 wrongEmails
             }));
         } else {
             res.send(Object.assign({}, google.publicDb(), {
                 reviews: await mongo.getReviewsInfo(),
-                cartPriority: await mongo.cartPriority()
+                barcodes: await mongo.getBarCodes(google.publicDb()),
+                cartPriority: await mongo.cartPriority(),
+                wrongEmails: []
             }));
         }
     });
@@ -781,6 +784,13 @@ const CashSummary = require('./excel/cash-summary');
             res.send({ total })
         })
 
+    app.get('/api/get-bar-codes', 
+        requiresAdmin,
+        async function (req, res) {
+            const barcodes = await mongo.getBarCodes(google.publicDb());
+            res.send(barcodes)
+        })
+
     app.delete('/api/upload/:id',
         requiresAdmin,
         async function (req, res) {
@@ -808,7 +818,7 @@ const CashSummary = require('./excel/cash-summary');
                 res.sendFile(path.join(__dirname, 'static/templates/admin.html'));
             } else {
                 if (req.isSpider()) {
-                    console.log('***** CRAWLER: requesting:', req.path);
+                    // console.log('***** CRAWLER: requesting:', req.path);
                 }
                 res.write(createStaticHtmls.addCss(htmls[req.path] || htmls[''], req.isSpider()));
                 res.end();

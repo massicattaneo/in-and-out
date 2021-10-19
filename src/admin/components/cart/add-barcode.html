@@ -1,0 +1,19 @@
+<dialog class="mdl-dialog">
+    <form #form>
+        <div class="mdl-dialog__content">
+            <h5>CODIGO BARRAS POR:</h5>
+            <h6>{{title}}</h6>
+            <h6>{{quantity}}</h6>
+            <p>
+            <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+                <input #barcode autocomplete="off" value="" class="mdl-textfield__input" type="text" id="barcode"/>
+                <label class="mdl-textfield__label" for="barcode">BARCODE</label>
+            </div>
+            </p>
+        </div>
+        <div class="mdl-dialog__actions mdl-dialog__actions--full-width">
+            <button type="button" class="mdl-button" onclick="this.form.save()">GUARDAR</button>
+            <button type="button" class="mdl-button close" onclick="this.form.close()">ANULAR</button>
+        </div>
+    </form>
+</dialog>

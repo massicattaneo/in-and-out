@@ -64,11 +64,18 @@ export default function ({ system, gos }) {
             function onMessage(ev) {
                 const { type, data } = JSON.parse(ev.data);
                 const { clients } = system.store;
-                gos.homePage.refresh();
                 if (type === 'insert-rest-uploads') return;
                 if (type.indexOf('-rest-') !== -1) {
                     const a = type.split('-');
                     const storeElement = system.store[restMapping[a[2]] || a[2]];
+                    if (a[2] === 'cash') {
+                        gos.homePage.refresh();
+                    }
+                    if (a[2] === 'barcodes') {
+                        fetch(`/api/get-bar-codes`)
+                                .then(res => res.json())
+                                .then(json => system.publicDb.barcodes = json)
+                    }
                     if (a[2] === 'cash') {
                         system.store.users.forEach(user => {
                             fetch(`/api/actual-cash?user=${user}`)
