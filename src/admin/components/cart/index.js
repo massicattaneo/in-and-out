@@ -157,7 +157,9 @@ export default async function ({ locale, system, thread }) {
         modalView.get('date').valueAsNumber = Date.now();
         modalView.get('amount').value = getCartTotal(system.publicDb, cart).total;
         modalView.get('descriptionwrapper').style.display = 'none';
+        modalView.get('amountnote').innerHTML = 'CAMBIANDO EL VALOR SE APLICARA\' UN DESCUENTO.';
         modalView.get('user').value = system.store.users[0];
+        modalView.get('amount').focus();
         fillSelectWithClients(modalView.get('client'), system, startClientId);
     }
 
