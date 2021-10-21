@@ -168,7 +168,8 @@ export default async function ({ locale, system, thread, wait }) {
                     date: date,
                     type: this.type.value,
                     user: system.store.users[0],
-                    description: `COMPRA ${item.titulo} (${system.toCurrency(payed)})`
+                    description: `COMPRA ${item.titulo} (${system.toCurrency(payed)})`,
+                    itemKey: cartIds[0]
                 });
                 await thread.execute('rest-api', {
                     api: 'bonus',
@@ -204,7 +205,8 @@ export default async function ({ locale, system, thread, wait }) {
                     date: date,
                     type: this.type.value,
                     user: system.store.users[0],
-                    description: `COMPRA ${bonus.title} (${system.toCurrency(amount)})`
+                    description: `COMPRA ${bonus.title} (${system.toCurrency(amount)})`,
+                    itemKey: bonus.identificador
                 });
                 await thread.execute('rest-api', {
                     api: 'bonus',

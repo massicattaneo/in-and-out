@@ -35,11 +35,10 @@ const takeOrGenerateText = (dom, virtual) => {
             break;
         }
     }
-    if (!element) {
+    if (!element && virtual.content) {
         element = document.createTextNode(virtual.content);
         dom.appendChild(element);
     }
-    return element;
 };
 
 const generate = (dom, virtual) => {
@@ -51,7 +50,7 @@ const generate = (dom, virtual) => {
     Array.prototype.slice.call(dom.attributes).forEach(function(attr) {
         if (!virtual.attributes[attr.name]) dom.removeAttribute(attr.name);
     });
-    if (virtual.content) takeOrGenerateText(dom, virtual);
+    takeOrGenerateText(dom, virtual);
     virtual.children.forEach((child, index) => {
         const existing = takeOrGenerate(dom, child, index);
         generate(existing, child);

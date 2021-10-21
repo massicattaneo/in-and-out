@@ -6,8 +6,10 @@ export default async function ({ system, locale, thread }) {
     const view = HtmlView(template, style, locale.get());
     view.style();
 
-    let form = view.get('wrapper');
-    form.login = async function login() {
+    const form = view.get('wrapper');
+
+    const enterListener = async (event) => {
+        event.preventDefault();
         system.store.loading = true;
         const data = {
             password: form.password.value
@@ -15,11 +17,13 @@ export default async function ({ system, locale, thread }) {
         await thread.execute('user/adminLogin', data);
         system.store.loading = false;
         system.store.logged = true;
+        window.removeEventListener('keyup', enterListener);
         system.navigateTo(locale.get('urls.homePage.href'))
     };
+    form.addEventListener('submit', enterListener);
 
     view.destroy = function () {
-
+        window.removeEventListener('keyup', enterListener);
     };
 
     return view;
