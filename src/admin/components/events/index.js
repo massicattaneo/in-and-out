@@ -52,8 +52,10 @@ export default async function ({ locale, system, thread }) {
         system.publicDb.processes.forEach(function (p) {
             view.appendTo('processes', processTpl, [], p);
         });
-    else
+    else {
         view.get('processes').parentNode.removeChild(view.get('processes'));
+        view.get('cart').style.display = 'none';
+    }
 
     function createEvent(params) {
         const def = {
