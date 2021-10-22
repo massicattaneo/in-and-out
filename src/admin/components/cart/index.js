@@ -28,15 +28,17 @@ export default async function ({ locale, system, thread }) {
     };
     window.addEventListener('keyup', ev => {
         clearTimeout(barcode.timeout);
-        if (barcode.reading && ev.key === 'Enter' && barcode.value.length > 6) {
-            em.emit('barcode', barcode.value);
+        if (barcode.reading && ev.key === 'Enter' && barcode.value.length >= 3) {
+            const value = barcode.value;
+            barcode.value = '';
+            em.emit('barcode', value);
         }
         barcode.value += ev.key;
         barcode.reading = true;
         barcode.timeout = setTimeout(() => {
             barcode.reading = false;
             barcode.value = '';
-        }, 20);
+        }, 300);
     });
 
     em.on('barcode', value => {
@@ -87,6 +89,7 @@ export default async function ({ locale, system, thread }) {
         const { modalView, modal } = createModal(addBarCode, item,
             async function (close) {
                 if (!this.barcode.value) system.throw('custom', { message: 'FALTA EL CODIGO DE BARRAS' });
+                if (this.barcode.value.length < 3) system.throw('custom', { message: 'EL CODIGO DE BARRAS NECESITA 3 LETRAS MINIMO' });
                 const res = await thread.execute('rest-api', {
                     api: 'barcodes',
                     method: 'post',
@@ -152,7 +155,13 @@ export default async function ({ locale, system, thread }) {
                 }));
                 close();
                 form.removeCart();
-                if (redirectUrl) system.navigateTo(redirectUrl);
+                const hasBonus = cart.some(id => id.startsWith('TAR-'));
+                if (hasBonus) 
+                    system.navigateTo(`${locale.get('urls.history.href')}?id=${clientId}`);
+                else if (redirectUrl) 
+                    system.navigateTo(redirectUrl);
+                if (location.pathname !== locale.get('urls.cart.href'))
+                    system.throw('custom', { message: 'CAJA ANADIDA CORRECTAMENTE', green: true });
             });
         modalView.get('date').valueAsNumber = Date.now();
         modalView.get('amount').value = getCartTotal(system.publicDb, cart).total;
@@ -297,6 +306,13 @@ export default async function ({ locale, system, thread }) {
         settings.selectedCartId = id;
         refresh();
     }
+
+    view.addToCart = (id) => {
+        form.addToCart(id);
+        refresh();
+    }
+
+    view.cartToCash = form.cartToCash
 
     return view;
 }

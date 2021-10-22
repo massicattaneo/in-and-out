@@ -129,7 +129,7 @@ export default async function({ locale, system, thread }) {
         modalView.get('amount').focus();
     };
 
-    view.get('wrapper').add = function() {
+    view.get('wrapper').add = function(description, clientId, redirectUrl) {
         const { modalView, modal } = createModal(editCash, { users: system.store.users }, async function(close) {
             if (!this.description.value) system.throw('custom', { message: 'FALTA LA DESCRIPCION' });
             if (!this.amount.value) system.throw('custom', { message: 'FALTA EL VALOR' });
@@ -146,12 +146,18 @@ export default async function({ locale, system, thread }) {
                 user: this.user.value
             });
             close();
+            if (redirectUrl) return system.navigateTo(redirectUrl);
+            if (location.pathname !== locale.get('urls.cash.href'))
+                system.throw('custom', { message: 'CAJA ANADIDA CORRECTAMENTE', green: true });
         });
 
         modalView.get('date').valueAsNumber = (new Date()).getTime();
+        if (description) {
+            modalView.get('description').value = description
+        }
         modalView.get('description').focus();
         modalView.get('description').setSelectionRange(0, modalView.get('description').value.length);
-        fillSelectWithClients(modalView.get('client'), system);
+        fillSelectWithClients(modalView.get('client'), system, clientId);
     };
 
     function filterCash() {
@@ -159,6 +165,10 @@ export default async function({ locale, system, thread }) {
             if (system.store.users.indexOf(item.user) === -1) return false;
             return true;
         };
+    }
+
+    view.addCash = (description, clientId, redirectUrl) => {
+        view.get('wrapper').add(description, clientId, redirectUrl);
     }
 
     return view;

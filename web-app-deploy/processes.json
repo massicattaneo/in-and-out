@@ -2,151 +2,181 @@
   {
     "processId": 2,
     "summary": "cejas",
-    "duration": 15
+    "duration": 15,
+    "itemKey": "TRT-47"
   },
   {
     "processId": 10,
     "summary": "cejas y labio",
-    "duration": 15
+    "duration": 15,
+    "itemKey": ""
   },
   {
     "processId": 14,
     "summary": "labio",
-    "duration": 15
+    "duration": 15,
+    "itemKey": "TRT-48"
   },
   {
     "processId": 13,
     "summary": "completo",
-    "duration": 30
+    "duration": 30,
+    "itemKey": "TRT-53"
   },
   {
     "processId": 1,
     "summary": "depilación",
-    "duration": 15
+    "duration": 15,
+    "itemKey": ""
   },
   {
     "processId": 20,
     "summary": "caramelo",
-    "duration": 30
+    "duration": 30,
+    "itemKey": ""
   },
   {
     "processId": 6,
     "summary": "manicura",
-    "duration": 45
+    "duration": 45,
+    "itemKey": "TRT-55"
   },
   {
     "processId": 8,
     "summary": "pedicura",
-    "duration": 45
+    "duration": 45,
+    "itemKey": "TRT-57"
   },
   {
     "processId": 15,
     "summary": "manipedi",
-    "duration": 90
+    "duration": 90,
+    "itemKey": ""
   },
   {
     "processId": 3,
     "summary": "higiene",
-    "duration": 90
+    "duration": 90,
+    "itemKey": "TRT-11"
   },
   {
     "processId": 11,
     "summary": "carita",
-    "duration": 120
+    "duration": 120,
+    "itemKey": "TRT-10"
   },
   {
     "processId": 17,
     "summary": "hidroexpress",
-    "duration": 75
+    "duration": 75,
+    "itemKey": "TRT-6"
   },
   {
     "processId": 16,
     "summary": "rf",
-    "duration": 60
+    "duration": 60,
+    "itemKey": ""
   },
   {
     "processId": 19,
     "summary": "microdermoabrasion",
-    "duration": 60
+    "duration": 60,
+    "itemKey": "TRT-9"
   },
   {
     "processId": 4,
     "summary": "masaje",
-    "duration": 45
+    "duration": 45,
+    "itemKey": ""
   },
   {
     "processId": 5,
     "summary": "vela",
-    "duration": 60
+    "duration": 60,
+    "itemKey": "TRT-16"
   },
   {
     "processId": 7,
     "summary": "microblading",
-    "duration": 75
+    "duration": 75,
+    "itemKey": "TRT-67"
   },
   {
     "processId": 9,
     "summary": "maderox",
-    "duration": 60
+    "duration": 60,
+    "itemKey": "TRT-77"
   },
   {
     "processId": 12,
     "summary": "maquillaje",
-    "duration": 60
+    "duration": 60,
+    "itemKey": ""
   },
   {
     "processId": 18,
     "summary": "lifting pestañas",
-    "duration": 45
+    "duration": 45,
+    "itemKey": "TRT-80"
   },
   {
     "processId": 21,
     "summary": "micro puncture",
-    "duration": 60
+    "duration": 60,
+    "itemKey": "TRT-81"
   },
   {
     "processId": 22,
     "summary": "indiba",
-    "duration": 60
+    "duration": 60,
+    "itemKey": "TRT-86"
   },
   {
     "processId": 23,
     "summary": "bbglow",
-    "duration": 60
+    "duration": 60,
+    "itemKey": "TRT-90"
   },
   {
     "processId": 24,
     "summary": "remodeling",
-    "duration": 75
+    "duration": 75,
+    "itemKey": "TRT-95"
   },
   {
     "processId": 98,
     "summary": "15 minutos",
-    "duration": 15
+    "duration": 15,
+    "itemKey": ""
   },
   {
     "processId": 98,
     "summary": "30 minutos",
-    "duration": 30
+    "duration": 30,
+    "itemKey": ""
   },
   {
     "processId": 98,
     "summary": "45 minutos",
-    "duration": 45
+    "duration": 45,
+    "itemKey": ""
   },
   {
     "processId": 98,
     "summary": "1 hora",
-    "duration": 60
+    "duration": 60,
+    "itemKey": ""
   },
   {
     "processId": 99,
     "summary": "turno",
-    "duration": 120
+    "duration": 120,
+    "itemKey": ""
   },
   {
     "processId": 99,
     "summary": "dia libre",
-    "duration": 600
+    "duration": 600,
+    "itemKey": ""
   }
 ]

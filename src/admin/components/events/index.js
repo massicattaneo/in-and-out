@@ -65,9 +65,11 @@ export default async function ({ locale, system, thread }) {
             duration: minPeriod,
             date: Date.now(),
             description: '',
-            label: ''
+            label: '',
+            treatments: JSON.stringify([])
         };
         const assign = Object.assign(def, params);
+        assign.treatments = JSON.parse(assign.treatments || JSON.stringify([]))
         const date = new Date(def.date);
         date.setUTCHours(startHour, startMinutes, 0, 0);
         const number = (new Date(def.date).getTime() - date.getTime() + (getSpainOffset(date) * 60 * 60 * 1000)) / (15 * 60 * 1000);
@@ -81,7 +83,6 @@ export default async function ({ locale, system, thread }) {
 
     form.changeDate = function () {
         const d = new Date(system.store.date);
-        console.log(d);
         d.setDate(window.event.target.value);
         system.store.date = d.getTime();
     };
@@ -103,6 +104,41 @@ export default async function ({ locale, system, thread }) {
     };
     form.dragOver = function () {
         window.event.preventDefault();
+    };
+    form.cartDragOver = function () {
+        window.event.preventDefault();
+        view.get('cart').style['border-style'] = 'solid';
+    };
+    form.cartDragLeave = function () {
+        window.event.preventDefault();
+        view.get('cart').style['border-style'] = 'dotted';
+    };
+    form.cartDrop = function () {
+        window.event.preventDefault();
+        view.get('cart').style['border-style'] = 'dotted';
+        const config = JSON.parse(window.event.dataTransfer.getData('config'));
+        const treatment = system.publicDb.treatments.find(item => item.identificador === config.itemKey);
+        const client = system.store.clients.find(user => user.email === config.description)
+        thread.execute(({ gos }) => {
+            if (client) {
+                gos.cart.addCart(client._id, `${locale.get('urls.events.href')}`);
+            } else {
+                gos.cart.addCart('', `${locale.get('urls.events.href')}`);
+            }
+            if (config.treatments && config.treatments.length) {
+                config.treatments.forEach(id => gos.cart.addToCart(id))
+                system.navigateTo(`${locale.get('urls.cart.href')}`);
+                gos.cart.cartToCash()
+            } else if (treatment) {
+                gos.cart.addToCart(treatment.identificador)
+                system.navigateTo(`${locale.get('urls.cart.href')}`);
+                gos.cart.cartToCash()
+            } else {
+                const des = config.label || config.summary;
+                system.navigateTo(`${locale.get('urls.cash.href')}`);
+                gos.cash.addCash(des, client ? client._id : null, `${locale.get('urls.events.href')}`)
+            }
+        })
     };
     form.drop = function ({ worker }, config) {
         const target = window.event.target;
@@ -340,6 +376,7 @@ export default async function ({ locale, system, thread }) {
             c.items.forEach(function ({ id, start, end, description, summary, extendedProperties, attendees }) {
                 const processId = extendedProperties && extendedProperties.private && extendedProperties.private.processId;
                 const label = extendedProperties && extendedProperties.private && extendedProperties.private.label;
+                const treatments = extendedProperties && extendedProperties.private && extendedProperties.private.treatments;
                 const startTime = new Date(start.dateTime).getTime();
                 const endTime = new Date(end.dateTime).getTime();
                 const duration = Math.ceil((endTime - startTime) / (60 * 1000));
@@ -352,7 +389,8 @@ export default async function ({ locale, system, thread }) {
                     attendees,
                     date: startTime,
                     duration,
-                    label
+                    label,
+                    treatments
                 });
                 if (!search || summary.toLowerCase().indexOf(search) !== -1)
                     dayView.appendTo('wrapper', eventTpl, [], e);

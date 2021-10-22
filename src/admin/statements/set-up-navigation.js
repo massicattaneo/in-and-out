@@ -66,12 +66,13 @@ export default async function ({ system, gos }) {
 
     system
         .catch()
-        .subscribe(function (errorName, { message }) {
+        .subscribe(function (errorName, { message, green }) {
             const errorMessage = context.locale.get(`errors.${errorName}`);
             const errorGeneric = context.locale.get(`errors.generic`);
             const msg = errorName !== 'custom' ? (typeof errorMessage === 'string' ? errorMessage : errorGeneric) : message;
             const error = document.getElementById('errors');
             error.MaterialSnackbar.showSnackbar({ message: msg });
+            error.style.backgroundColor = green ? 'green' : ''
             system.store.loading = false;
         });
 

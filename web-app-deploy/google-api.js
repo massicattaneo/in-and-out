@@ -360,7 +360,7 @@ module.exports = function (utils, posts) {
             .join(' - ');
     };
 
-    obj.calendarInsert = function ({ id, from, to, label, description = '', summary, processId = 97 }) {
+    obj.calendarInsert = function ({ id, from, to, label, description = '', summary, processId = 97, treatments = [] }) {
         return new Promise(function (resolve, reject) {
             const location = shared.getLocation(googleDb, from, id).address;
             const params = {
@@ -371,7 +371,7 @@ module.exports = function (utils, posts) {
                     start: { 'dateTime': (new Date(from)).toISOString() },
                     end: { 'dateTime': (new Date(to)).toISOString() },
                     description,
-                    extendedProperties: { private: { processId, label } }
+                    extendedProperties: { private: { processId, label, treatments: JSON.stringify(treatments) } }
                 }
             };
             calendar.events.insert(params, function (e, o) {
@@ -390,7 +390,8 @@ module.exports = function (utils, posts) {
                     duration: (end.getTime() - start.getTime()) / (60 * 1000),
                     description,
                     label,
-                    processId
+                    processId,
+                    treatments: JSON.stringify(treatments)
                 };
                 utils.wss.broadcast(JSON.stringify({ type: 'insertEvent', data: evt }));
                 resolve(evt);
@@ -464,7 +465,8 @@ module.exports = function (utils, posts) {
                             calendarId,
                             summary: summary, location,
                             start: new Date(start.dateTime).toISOString(),
-                            end: new Date(end.dateTime).toISOString()
+                            end: new Date(end.dateTime).toISOString(),
+                            treatments: extendedProperties.private ? JSON.parse(extendedProperties.private.treatments || JSON.stringify([])) || [] : []
                         };
                     }));
                 });

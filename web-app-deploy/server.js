@@ -366,8 +366,12 @@ const CashSummary = require('./excel/cash-summary');
             if (!fs.existsSync(filePath)) {
                 await QRCode.toFile(filePath, `${orderId}`);
             }
-            const { cart } = await mongo.getOrderInfo(orderId);
-            createPdfOrder(res, google.publicDb(), orderId, cart);
+            if (orderId === 'exemplo') {
+                createPdfOrder(res, google.publicDb(), orderId, []);
+            } else {
+                const { cart } = await mongo.getOrderInfo(orderId);
+                createPdfOrder(res, google.publicDb(), orderId, cart);    
+            }
         });
 
     app.post('/google/calendar/insert',
@@ -411,7 +415,8 @@ const CashSummary = require('./excel/cash-summary');
                 to: new Date(dateMin.getTime() + shared.getTreatmentsDuration(googleDb, all, treatments, workerIndex) * 60 * 1000).toISOString(),
                 summary: `${name} (TEL. ${tel}) ${label}`,
                 description: email,
-                label
+                label,
+                treatments
             }).then(async (e) => {
                 res.send(e);
                 const date = new Date(new Date(e.start).getTime() - (((-shared.getSpainOffset()) + google.publicDb().serverOffset) * 60 * 60 * 1000));
