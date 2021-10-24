@@ -67,9 +67,11 @@ export default async function ({ locale, system, thread }) {
             duration: minPeriod,
             date: Date.now(),
             description: '',
-            label: '',
-            treatments: JSON.stringify([])
+            label: ''
         };
+        if (params.treatments && (typeof params.treatments !== 'string')) {
+            params.treatments = JSON.stringify(params.treatments)
+        }
         const assign = Object.assign(def, params);
         assign.treatments = JSON.parse(assign.treatments || JSON.stringify([]))
         const date = new Date(def.date);
@@ -122,16 +124,14 @@ export default async function ({ locale, system, thread }) {
         const treatment = system.publicDb.treatments.find(item => item.identificador === config.itemKey);
         const client = system.store.clients.find(user => user.email === config.description)
         thread.execute(({ gos }) => {
-            if (client) {
-                gos.cart.addCart(client._id, `${locale.get('urls.events.href')}`);
-            } else {
-                gos.cart.addCart('', `${locale.get('urls.events.href')}`);
-            }
             if (config.treatments && config.treatments.length) {
-                config.treatments.forEach(id => gos.cart.addToCart(id))
+                addCart(client, gos, locale);
+                const trts = (typeof config.treatments === 'string') ? JSON.parse(config.treatments) : config.treatments;
+                trts.forEach(id => gos.cart.addToCart(id))
                 system.navigateTo(`${locale.get('urls.cart.href')}`);
                 gos.cart.cartToCash()
             } else if (treatment) {
+                addCart(client, gos, locale);
                 gos.cart.addToCart(treatment.identificador)
                 system.navigateTo(`${locale.get('urls.cart.href')}`);
                 gos.cart.cartToCash()
@@ -456,3 +456,11 @@ export default async function ({ locale, system, thread }) {
 
     return view;
 }
+function addCart(client, gos, locale) {
+    if (client) {
+        gos.cart.addCart(client._id, `${locale.get('urls.events.href')}`);
+    } else {
+        gos.cart.addCart('', `${locale.get('urls.events.href')}`);
+    }
+}
+

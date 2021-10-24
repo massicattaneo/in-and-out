@@ -1,6 +1,6 @@
 import { HtmlView } from 'gml-html';
 import template from './template.html';
-import list from './clients-list.html';
+import clientList from './clients-list.html';
 import * as style from './style.scss';
 import * as listStyle from './list.scss';
 import editClient from './edit-client.html';
@@ -39,12 +39,13 @@ export default async function ({ locale, system, thread }) {
             .filter(filterClients(search))
             .sort((a, b) => a.name.localeCompare(b.name))
             .map(c => Object.assign(c, {
+                formattedTel: formatPhoneNumber(c),
                 deleteDisabled: c.hash ? 'disabled' : '',
                 emailBgColor: system.publicDb.wrongEmails.indexOf(c.email) !== -1 ? '#ffb4b4' : 'none',
                 online: `<output ondragstart="this.form.dragStart('${c._id}')" draggable="true" class="circle-indicator ${c.hash && 'mdl-color--primary'}"></output>`
             }));
         const p = Object.assign({ clients: filter.filter((a, i) => i < 100) }, locale.get());
-        const v = view.clear('clients').appendTo('clients', list, listStyle, p);
+        const v = view.clear('clients').appendTo('clients', clientList, listStyle, p);
         view.get('count').innerText = `CLIENTES: ${filter.length}`;
         view.get('useweb').innerText = `ON-LINE: ${filter.filter(i => i.hash).length}`;
         view.get('withorders').innerText = `PEDIDOS ONLINE: ${filter.filter(i => system.store.orders.find(o => o.email === i.email)).length}`;
@@ -201,3 +202,12 @@ export default async function ({ locale, system, thread }) {
 
     return view;
 }
+function formatPhoneNumber(c) {
+    const phone = c.tel || '';
+    if (phone.length === 9)
+        return `${phone.substr(0, 3)} ${c.tel.substr(3, 3)} ${c.tel.substr(6)}`;
+    if (phone.length === 12)
+        return `${phone.substr(0, 3)} ${c.tel.substr(3, 3)} ${c.tel.substr(6, 2)} ${c.tel.substr(8,2)} ${c.tel.substr(10,2)}`;
+    return phone;
+}
+

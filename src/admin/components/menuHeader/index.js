@@ -13,7 +13,7 @@ export default async function ({ locale, system, thread }) {
     });
 
     window.rx.connect({ t: () => system.store.spainTime }, function ({ t }) {
-        const spainStartTime = new Date(t).toLocaleString('es-ES', {
+        const spainStartTime = new Date().toLocaleString('es-ES', {
             timeZone: 'Europe/Madrid',
             month: 'long',
             day: 'numeric',
@@ -22,7 +22,7 @@ export default async function ({ locale, system, thread }) {
             second: 'numeric'
         });
 
-        view.get('spaintime').innerText = `Malaga: ${spainStartTime}`;
+        view.get('spaintime').innerText = `${spainStartTime}`;
     });
 
     return view;

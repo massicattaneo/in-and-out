@@ -178,7 +178,7 @@ function bookings({ system }) {
         const timer = window.rx.connect({ t: () => system.store.spainTime, trt: () => system.store.treatments }, function ({ t, trt }) {
             if (system.store.logged && view.get('spain') && trt.filter(t => t.favourite).length)
                 {
-                    const spainStartTime = new Date(t).toLocaleString('es-ES', {
+                    const spainStartTime = new Date().toLocaleString('es-ES', {
                         timeZone: 'Europe/Madrid',
                         weekday: 'long',
                         year: 'numeric',

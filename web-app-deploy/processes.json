@@ -3,7 +3,7 @@
     "processId": 2,
     "summary": "cejas",
     "duration": 15,
-    "itemKey": "TRT-47"
+    "itemKey": ""
   },
   {
     "processId": 10,
@@ -15,13 +15,13 @@
     "processId": 14,
     "summary": "labio",
     "duration": 15,
-    "itemKey": "TRT-48"
+    "itemKey": ""
   },
   {
     "processId": 13,
     "summary": "completo",
     "duration": 30,
-    "itemKey": "TRT-53"
+    "itemKey": ""
   },
   {
     "processId": 1,
@@ -39,13 +39,13 @@
     "processId": 6,
     "summary": "manicura",
     "duration": 45,
-    "itemKey": "TRT-55"
+    "itemKey": ""
   },
   {
     "processId": 8,
     "summary": "pedicura",
     "duration": 45,
-    "itemKey": "TRT-57"
+    "itemKey": ""
   },
   {
     "processId": 15,
@@ -57,19 +57,19 @@
     "processId": 3,
     "summary": "higiene",
     "duration": 90,
-    "itemKey": "TRT-11"
+    "itemKey": ""
   },
   {
     "processId": 11,
     "summary": "carita",
     "duration": 120,
-    "itemKey": "TRT-10"
+    "itemKey": ""
   },
   {
     "processId": 17,
     "summary": "hidroexpress",
     "duration": 75,
-    "itemKey": "TRT-6"
+    "itemKey": ""
   },
   {
     "processId": 16,
@@ -81,7 +81,7 @@
     "processId": 19,
     "summary": "microdermoabrasion",
     "duration": 60,
-    "itemKey": "TRT-9"
+    "itemKey": ""
   },
   {
     "processId": 4,
@@ -93,19 +93,19 @@
     "processId": 5,
     "summary": "vela",
     "duration": 60,
-    "itemKey": "TRT-16"
+    "itemKey": ""
   },
   {
     "processId": 7,
     "summary": "microblading",
     "duration": 75,
-    "itemKey": "TRT-67"
+    "itemKey": ""
   },
   {
     "processId": 9,
     "summary": "maderox",
     "duration": 60,
-    "itemKey": "TRT-77"
+    "itemKey": ""
   },
   {
     "processId": 12,
@@ -117,31 +117,31 @@
     "processId": 18,
     "summary": "lifting pestañas",
     "duration": 45,
-    "itemKey": "TRT-80"
+    "itemKey": ""
   },
   {
     "processId": 21,
     "summary": "micro puncture",
     "duration": 60,
-    "itemKey": "TRT-81"
+    "itemKey": ""
   },
   {
     "processId": 22,
     "summary": "indiba",
     "duration": 60,
-    "itemKey": "TRT-86"
+    "itemKey": ""
   },
   {
     "processId": 23,
     "summary": "bbglow",
     "duration": 60,
-    "itemKey": "TRT-90"
+    "itemKey": ""
   },
   {
     "processId": 24,
     "summary": "remodeling",
     "duration": 75,
-    "itemKey": "TRT-95"
+    "itemKey": ""
   },
   {
     "processId": 98,

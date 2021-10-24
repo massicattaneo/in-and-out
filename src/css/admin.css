@@ -415,4 +415,15 @@ th {
     }
 }
 
+.mdl-layout--fixed-drawer > .mdl-layout__content {
+    margin-left: 190px;
+}
+@media screen and (max-width: 1024px) {
+    .mdl-layout--fixed-drawer > .mdl-layout__content {
+        margin-left: 0;
+    }
+}
 
+.mdl-layout__drawer {
+    width: 190px;
+}

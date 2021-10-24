@@ -25,7 +25,7 @@
     "orders": {
       "href": "/admin/es/pedidos",
       "title": "COMPRAS ONLINE",
-      "menu": "COMPRAS ONLINE"
+      "menu": "ONLINE"
     },
     "events": {
       "href": "/admin/es/citas",

@@ -6,6 +6,7 @@ export default async function ({ system, wait }) {
 
     await wait.all([
         system.loadStageFiles('system').start(),
+        system.loadStageFiles('fonts').start(),
         system.navigateTo(`/admin/${lang}`)
     ]);
 
