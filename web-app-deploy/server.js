@@ -477,7 +477,7 @@ const CashSummary = require('./excel/cash-summary');
     app.post('/google/calendar/add',
         requiresAdmin,
         async function (req, res) {
-            const { duration, calendarId, date, summary, label = '', processId, description } = req.body;
+            const { duration, calendarId, date, summary, label = '', processId, description, treatments = [] } = req.body;
             const from = new Date(date);
             google.calendarInsert({
                 id: calendarId,
@@ -486,7 +486,8 @@ const CashSummary = require('./excel/cash-summary');
                 summary,
                 description,
                 label,
-                processId
+                processId,
+                treatments
             })
                 .then((e) => {
                     res.send(e);

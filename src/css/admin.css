@@ -427,3 +427,7 @@ th {
 .mdl-layout__drawer {
     width: 190px;
 }
+.mdl-layout--fixed-drawer.is-upgraded:not(.is-small-screen) > .mdl-layout__header {
+    margin-left: 190px;
+    width: calc(100% - 190px);
+}

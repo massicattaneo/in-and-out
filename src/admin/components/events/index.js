@@ -169,7 +169,6 @@ export default async function ({ locale, system, thread }) {
         document.getElementById('modal').appendChild(modal);
         modal.showModal();
         componentHandler.upgradeDom();
-        console.warn(date)
         modalView.get('date').valueAsNumber = date.getTime();
         modalView.get('summary').focus();
         modalView.get('summary').setSelectionRange(0, modalView.get('summary').value.length);
@@ -194,7 +193,8 @@ export default async function ({ locale, system, thread }) {
                 summary: evt.summary,
                 processId: evt.processId,
                 description: evt.description,
-                label: evt.label
+                label: evt.label,
+                treatments: evt.treatments || []
             });
         }
 
@@ -410,7 +410,6 @@ export default async function ({ locale, system, thread }) {
 
         let date = new Date(dt);
         date.setDate(1);
-        console.warn(year, month, day);
         const today = new Date();
         miniView.get('month').innerText = date.formatDay('mmm yy', [], monthNames);
         today.setHours(0, 0, 0, 0);
