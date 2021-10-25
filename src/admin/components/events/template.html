@@ -2,17 +2,24 @@
     <div #minicalendar
         class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--3-col-desktop">
     </div>
-    <output #cart
+    <div
         class="mdl-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--1-col-desktop"
-        style="    text-align: center; padding-top: 50px;border: 2px dotted #56ab2b;"
-        ondrop="this.form.cartDrop()"
-        ondragenter="this.form.cartDragOver()"
-        ondragover="this.form.cartDragOver()"
-        ondragleave="this.form.cartDragLeave()">
-        <i class="material-icons">system_update_alt</i>
-        <br/>
-        <i class="material-icons">shopping_cart</i>
-    </output>
+        style="text-align: center;">
+        <output #cart
+            ondrop="this.form.cartDrop('cart')"
+            ondragenter="this.form.cartDragOver('cart')"
+            ondragover="this.form.cartDragOver('cart')"
+            ondragleave="this.form.cartDragLeave('cart')">
+            <i class="material-icons">shopping_cart</i>
+        </output>
+        <output #client
+            ondrop="this.form.cartDrop('client')"
+            ondragenter="this.form.cartDragOver('client')"
+            ondragover="this.form.cartDragOver('client')"
+            ondragleave="this.form.cartDragLeave('client')">
+            <i class="material-icons">face</i>
+        </output>
+    </div>
     <div #processes
         class="day-card mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--8-col-desktop">
     </div>

@@ -109,38 +109,52 @@ export default async function ({ locale, system, thread }) {
     form.dragOver = function () {
         window.event.preventDefault();
     };
-    form.cartDragOver = function () {
+    form.cartDragOver = function (type) {
         window.event.preventDefault();
-        view.get('cart').style['border-style'] = 'solid';
+        view.get(type).style['border-style'] = 'solid';
     };
-    form.cartDragLeave = function () {
+    form.cartDragLeave = function (type) {
         window.event.preventDefault();
-        view.get('cart').style['border-style'] = 'dotted';
+        view.get(type).style['border-style'] = 'dotted';
     };
-    form.cartDrop = function () {
+    form.cartDrop = function (type) {
         window.event.preventDefault();
-        view.get('cart').style['border-style'] = 'dotted';
+        view.get(type).style['border-style'] = 'dotted';
         const config = JSON.parse(window.event.dataTransfer.getData('config'));
         const treatment = system.publicDb.treatments.find(item => item.identificador === config.itemKey);
-        const client = system.store.clients.find(user => user.email === config.description)
-        thread.execute(({ gos }) => {
-            if (config.treatments && config.treatments.length) {
-                addCart(client, gos, locale);
-                const trts = (typeof config.treatments === 'string') ? JSON.parse(config.treatments) : config.treatments;
-                trts.forEach(id => gos.cart.addToCart(id))
-                system.navigateTo(`${locale.get('urls.cart.href')}`);
-                gos.cart.cartToCash()
-            } else if (treatment) {
-                addCart(client, gos, locale);
-                gos.cart.addToCart(treatment.identificador)
-                system.navigateTo(`${locale.get('urls.cart.href')}`);
-                gos.cart.cartToCash()
+        const client = system.store.clients.find(user => user.email === config.description);
+        if (type === 'cart') {
+            dropToCart(thread, config, client, locale, system, treatment);
+        } else if (type === 'client' && config.action !== 'add') {
+            if (client) {
+                system.navigateTo(`${locale.get('urls.history.href')}?id=${client._id}`);
             } else {
-                const des = config.label || config.summary;
-                system.navigateTo(`${locale.get('urls.cash.href')}`);
-                gos.cash.addCash(des, client ? client._id : null, `${locale.get('urls.events.href')}`)
+                const [phone = ''] = config.summary.match(/\d+\s?\d+\s?\d+\s?\d+\s?\d+/g) || []
+                if (phone.length > 5) {
+                    const client1 = system.store.clients.find(user => {
+                        const tel = user.tel.toString().replace(/\s/g, '')
+                        return tel.indexOf(phone.replace(/\s/g, '')) !== -1;
+                    });
+                    if (client1) {
+                        system.navigateTo(`${locale.get('urls.history.href')}?id=${client1._id}`);
+                    }
+                } else {
+                    const client2 = system.store.clients.filter(client => {
+                        return config.summary.toLowerCase().indexOf(client.name.toLowerCase()) !== -1
+                    })
+                    const client3 = client2.filter(client => {
+                        const parts = client.surname.toLowerCase().split(' ')
+                        return parts.some(text => text.trim() && config.summary.toLowerCase().indexOf(text.trim()) !== -1)
+                    })
+                    if (client2.length === 1) {
+                        system.navigateTo(`${locale.get('urls.history.href')}?id=${client2[0]._id}`);
+                    } else if (client3.length === 1) {
+                        system.navigateTo(`${locale.get('urls.history.href')}?id=${client3[0]._id}`);
+                    }
+                }
+                
             }
-        })
+        }
     };
     form.drop = function ({ worker }, config) {
         const target = window.event.target;
@@ -455,6 +469,28 @@ export default async function ({ locale, system, thread }) {
 
     return view;
 }
+
+function dropToCart(thread, config, client, locale, system, treatment) {
+    thread.execute(({ gos }) => {
+        if (config.treatments && config.treatments.length) {
+            addCart(client, gos, locale);
+            const trts = (typeof config.treatments === 'string') ? JSON.parse(config.treatments) : config.treatments;
+            trts.forEach(id => gos.cart.addToCart(id));
+            system.navigateTo(`${locale.get('urls.cart.href')}`);
+            gos.cart.cartToCash();
+        } else if (treatment) {
+            addCart(client, gos, locale);
+            gos.cart.addToCart(treatment.identificador);
+            system.navigateTo(`${locale.get('urls.cart.href')}`);
+            gos.cart.cartToCash();
+        } else {
+            const des = config.label || config.summary;
+            system.navigateTo(`${locale.get('urls.cash.href')}`);
+            gos.cash.addCash(des, client ? client._id : null, `${locale.get('urls.events.href')}`);
+        }
+    });
+}
+
 function addCart(client, gos, locale) {
     if (client) {
         gos.cart.addCart(client._id, `${locale.get('urls.events.href')}`);
