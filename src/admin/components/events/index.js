@@ -162,11 +162,11 @@ export default async function ({ locale, system, thread }) {
         const params = config || JSON.parse(window.event.dataTransfer.getData('config'));
         const configToRemove = Object.assign({}, params);
         const date = new Date(params.date || reverseLocalTime(system.store.date, system));
+        const offDate = (!params.action && !params.userAction) ? 0 :getSpainOffset(date) - getSpainOffset();
         const id = config ? config.id : '';
         const hour = (params.date && params.userAction !== 'move')
             ? [new Date(date).getHours(), new Date(date).getMinutes()]
             : target.innerText.split(':').map(i => Number(i));
-        const offDate = getSpainOffset(date) - getSpainOffset();
         date.setHours(hour[0] + getSpainOffset(date) + offDate, hour[1], 0, 0);
         if (params.userAction === 'new' || params.userAction === 'move') date.setTime(reverseLocalTime(date, system));
         const dbWorker = system.publicDb.workers.find(c => c.column === worker);
@@ -329,8 +329,7 @@ export default async function ({ locale, system, thread }) {
 
     window.rx.connect({ date: () => system.store.date }, function ({ date }) {
         changeMiniCalendarDate(new Date(date));
-        if (system.store.logged)
-            drawCalendars('');
+        if (system.store.logged) drawCalendars('');
     });
 
     window.rx.connect({ keys: () => system.store.keysPressed }, function ({ keys }) {
