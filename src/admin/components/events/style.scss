@@ -1,5 +1,16 @@
 #wrapper {
+    height: 100%;
+    padding: 0;
+}
 
+#minicalendar {
+    height: 180px;
+}
+#central {
+    height: 180px;
+}
+#processes {
+    height: 180px;
 }
 
 #cart {
@@ -12,16 +23,20 @@
     flex: auto;
     padding-top: 25px;
 }
+#headerwrapper {
+    width: 100%;
+    display:flex;
+    margin: 0 8px;
+}
+#calendar {
+    position: relative; 
+    overflow-y: scroll;
+    display:flex;
+}
 
-#carmen {height: 615px;}
-#carmen_v {height: 615px;}
-#estefania {height: 615px;}
-#ana {height: 615px;}
-#inma {height: 615px;}
-#maria {height: 615px;}
-#elsa {height: 615px;}
-#wendy {height: 615px;}
-#chloe {height: 615px;}
-#susana {height: 615px;}
-#eila {height: 615px;}
-#msepulveda {height: 615px;}
+#ana_header {
+    display: none;
+}
+#ana {
+    display: none;
+}

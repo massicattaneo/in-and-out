@@ -169,13 +169,19 @@
   },
   {
     "processId": 99,
-    "summary": "turno",
-    "duration": 120,
+    "summary": "dia libre",
+    "duration": 600,
     "itemKey": ""
   },
   {
     "processId": 99,
-    "summary": "dia libre",
+    "summary": "vacaciones",
+    "duration": 600,
+    "itemKey": ""
+  },
+  {
+    "processId": 99,
+    "summary": "festivo",
     "duration": 600,
     "itemKey": ""
   }

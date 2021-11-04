@@ -6,6 +6,7 @@ import * as miniCalStyle from './mini-calendar.scss';
 import dayTpl from './day.html';
 import hourTpl from './hour.html';
 import processTpl from './process.html';
+import editHolidays from './edit-holidays.html';
 import editEvent from './edit-event.html';
 import editNote from './edit-note.html';
 import editHours from './edit-hours.html';
@@ -15,7 +16,7 @@ import { getCalendar, getSpainOffset } from '../../../../web-app-deploy/shared';
 
 const stepHeight = 13;
 const minPeriod = 15;
-const topOffset = 60;
+const topOffset = 7;
 const startHour = 9;
 const startMinutes = 30;
 let clipboard;
@@ -47,6 +48,11 @@ export default async function ({ locale, system, thread }) {
     const miniView = view.appendTo('minicalendar', miniCalTpl, miniCalStyle);
     miniView.style();
 
+    const onResize = () => {
+        const height = window.innerHeight - view.get('minicalendar').getBoundingClientRect().height
+        view.get('calendar').style.height = `${height - 70}px`
+    }
+    window.addEventListener('resize', onResize)
 
     if (system.deviceInfo().deviceType === 'desktop')
         system.publicDb.processes.forEach(function (p) {
@@ -54,7 +60,7 @@ export default async function ({ locale, system, thread }) {
         });
     else {
         view.get('processes').parentNode.removeChild(view.get('processes'));
-        view.get('cart').style.display = 'none';
+        view.get('central').parentNode.removeChild(view.get('central'));
     }
 
     function createEvent(params) {
@@ -78,7 +84,9 @@ export default async function ({ locale, system, thread }) {
         date.setUTCHours(startHour, startMinutes, 0, 0);
         const number = (new Date(def.date).getTime() - date.getTime() + (getSpainOffset(date) * 60 * 60 * 1000)) / (15 * 60 * 1000);
         assign.top = number * stepHeight + topOffset;
-        assign.height = stepHeight * (def.duration / minPeriod);
+        if ((assign.processId || '').toString() !== '96') {
+            assign.height = stepHeight * (def.duration / minPeriod);
+        }
         assign.json = JSON.stringify(assign);
         return assign;
     }
@@ -160,6 +168,7 @@ export default async function ({ locale, system, thread }) {
         const target = window.event.target;
         target.classList.remove('hover');
         const params = config || JSON.parse(window.event.dataTransfer.getData('config'));
+        
         const configToRemove = Object.assign({}, params);
         const date = new Date(params.date || reverseLocalTime(system.store.date, system));
         const offDate = (!params.action && !params.userAction) ? 0 :getSpainOffset(date) - getSpainOffset();
@@ -167,10 +176,98 @@ export default async function ({ locale, system, thread }) {
         const hour = (params.date && params.userAction !== 'move')
             ? [new Date(date).getHours(), new Date(date).getMinutes()]
             : target.innerText.split(':').map(i => Number(i));
-        date.setHours(hour[0] + getSpainOffset(date) + offDate, hour[1], 0, 0);
-        if (params.userAction === 'new' || params.userAction === 'move') date.setTime(reverseLocalTime(date, system));
         const dbWorker = system.publicDb.workers.find(c => c.column === worker);
+        if (params.processId === 99 && params.summary === 'dia libre' && params.action === 'add') {
+            const calendar = getCalendar(system.publicDb, date);
+            const pepe = calendar.week[new Date(date).getDay()].find(item => item[1] === dbWorker.index)
+            hour[0] = Math.floor(pepe[2])
+            hour[1] = 60 * (pepe[2] - Math.floor(pepe[2]))
+            params.duration = (pepe[3] - pepe[2]) * 60
+            date.setHours(hour[0], hour[1], 0, 0);
+            return thread.execute('booking/add', {
+                duration: params.duration * 60 * 1000,
+                calendarId: dbWorker.googleId,
+                date: new Date(date).toISOString(),
+                summary: params.summary,
+                processId: params.processId,
+                description: params.description,
+                label: params.label,
+                treatments: []
+            });
+        } else if (params.processId === 99 && params.summary === 'festivo' && params.action === 'add') {
+            const calendar = getCalendar(system.publicDb, date);
+            const dayCal = calendar.week[new Date(date).getDay()]
+            dayCal.forEach(cal => {
+                const workerHere = system.publicDb.workers.find(c => c.index === cal[1]);
+                const newDate = new Date(date)
+                const newHour = hour.slice(0)
+                newHour[0] = Math.floor(cal[2])
+                newHour[1] = 60 * (cal[2] - Math.floor(cal[2]))
+                const duration = (cal[3] - cal[2]) * 60
+                newDate.setHours(newHour[0], newHour[1], 0, 0);
+                thread.execute('booking/add', {
+                    duration: duration * 60 * 1000,
+                    calendarId: workerHere.googleId,
+                    date: new Date(newDate).toISOString(),
+                    summary: 'festivo',
+                    processId: params.processId
+                });
+            })
+            return
+        } else if (params.processId === 99 && params.summary === 'vacaciones' && params.action === 'add') { 
+            const modalView = HtmlView(editHolidays, {});
+            const modal = modalView.get();
+            document.getElementById('modal').appendChild(modal);
+            modal.showModal();
+            componentHandler.upgradeDom();
+            modalView.get('start').valueAsNumber = date.getTime();
+            modalView.get('end').valueAsNumber = date.getTime();
 
+            async function saveForm() {
+                close();
+                const startDate = new Date(modalView.get('start').valueAsNumber)
+                const endDate = new Date(modalView.get('end').valueAsNumber)
+                endDate.setHours(23,0,0,0)
+                for (var actualDate = new Date(startDate); actualDate <= endDate; actualDate.setDate(actualDate.getDate() + 1)) {
+                    const calendar = getCalendar(system.publicDb, actualDate);
+                    const cal = calendar.week[new Date(actualDate).getDay()].find(item => item[1] === dbWorker.index)
+                    if (!cal) continue
+                    hour[0] = Math.floor(cal[2])
+                    hour[1] = 60 * (cal[2] - Math.floor(cal[2]))
+                    const duration = (cal[3] - cal[2]) * 60
+                    actualDate.setHours(hour[0], hour[1], 0, 0);
+                    const addParams = {
+                        duration: duration * 60 * 1000,
+                        calendarId: dbWorker.googleId,
+                        date: new Date(actualDate).toISOString(),
+                        summary: params.summary,
+                        processId: params.processId
+                    };
+                    thread.execute('booking/add', addParams);
+                }
+            }
+
+            modalView.get('form').save = saveForm;
+            modalView.get('form').close = close;
+            function enterKey(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    saveForm.call(modalView.get('form'));
+                }
+            }
+            window.addEventListener('keydown', enterKey);
+            function close() {
+                modal.close();
+                window.removeEventListener('keydown', enterKey);
+            }
+
+            return
+        }
+        date.setHours(hour[0] + getSpainOffset(date) + offDate, hour[1], 0, 0);
+        if (params.processId === 99) {
+            
+        }
+        if (params.userAction === 'new' || params.userAction === 'move') date.setTime(reverseLocalTime(date, system));
         const displayName = dbWorker.title;
         const e = createEvent(Object.assign(params, {
             id,
@@ -321,11 +418,14 @@ export default async function ({ locale, system, thread }) {
             if (index === 1) modalView.get('days').style.display = 'block';
         };
     };
-    window.system = system;
 
     view.destroy = function () {
-
+        window.removeEventListener('resize', onResize);
     };
+
+    view.update = () => {
+        onResize();
+    }
 
     window.rx.connect({ date: () => system.store.date }, function ({ date }) {
         changeMiniCalendarDate(new Date(date));
@@ -362,10 +462,14 @@ export default async function ({ locale, system, thread }) {
         return c.items || [];
     }
 
+    system.publicDb.workers.forEach(async function (c) {
+        view.clear(`${c.column}_header`).appendTo(`${c.column}_header`, dayTpl, [], c);
+    })
+
     function drawCalendars(search, callServer = true) {
         const calendar = getCalendar(system.publicDb, system.store.date);
         system.publicDb.workers.forEach(async function (c) {
-            const dayView = view.clear(c.column).appendTo(c.column, dayTpl, [], c);
+            const dayView = view.clear(c.column).appendTo(c.column, '<div #wrapper></div>', [], c);
             dayView.style();
             c.items = await getServerDayEvents(callServer, c);
 
@@ -465,7 +569,6 @@ export default async function ({ locale, system, thread }) {
         if (!sameDay(new Date(system.store.date), new Date(ev.start))) return;
         dayViews[dbWorker.column].appendTo('wrapper', eventTpl, [], createEvent(Object.assign({ worker: dbWorker.column }, ev)));
     };
-
     return view;
 }
 

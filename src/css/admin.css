@@ -170,11 +170,18 @@ th {
 }
 
 .desktop .calendar-item {
-    width: 100%;position: relative;
+    width: 100%;
+    position: relative;
 }
-
-.day-card {
-    overflow: visible !important;
+.mobile .calendar-wrapper .calendar-item {
+    
+    display: none;
+}
+.mobile .calendar-wrapper .calendar-item.carmen {
+    display: block;
+}
+.mobile .calendar-header-wrapper {
+    display: none !important;
 }
 
 .day-card .mdl-button .mdl-badge[data-badge]:after {
@@ -352,8 +359,8 @@ th {
 }
 
 .process-color-99 {
-    background: repeating-linear-gradient(45deg, #555, #555 10px, rgba(0, 0, 0, 0) 10px, rgba(0, 0, 0, 0) 20px) !important;
-    color: white !important;
+    background: repeating-linear-gradient(45deg, #9c9c9c, #888 10px, rgba(0, 0, 0, 0) 10px, rgba(0, 0, 0, 0) 20px) !important;
+    color: black !important;
 }
 
 .event {
