@@ -466,7 +466,7 @@ module.exports = function (utils, posts) {
                             summary: summary, location,
                             start: new Date(start.dateTime).toISOString(),
                             end: new Date(end.dateTime).toISOString(),
-                            treatments: extendedProperties.private ? JSON.parse(extendedProperties.private.treatments || JSON.stringify([])) || [] : []
+                            treatments: (extendedProperties && extendedProperties.private) ? JSON.parse(extendedProperties.private.treatments || JSON.stringify([])) || [] : []
                         };
                     }));
                 });
