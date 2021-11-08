@@ -235,7 +235,7 @@ export default async function ({ locale, system, thread }) {
                         </td>
                         <td>${cartItem.label.substr(0,4)}</td>
                         <td>${cartItem.title}</td>
-                        <td style="text-align: right;">${getFormattedTotal(system, discountedItems, id)}</td>
+                        <td style="text-align: right;">${getFormattedTotal(system, [], id, true)}</td>
                     </tr>`;
                 }).join('')}
                 <tr><td colspan="4"><hr/></td></tr>

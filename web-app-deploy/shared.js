@@ -266,9 +266,12 @@ module.exports = {
         let notDiscounted = 0;
         let real = 0;
         let discTypes = [];
+        
         if (activePromotions(store.promotions).filter(p => p.discounts.indexOf('*') !== -1).length) {
-            const allItemsDiscount = activePromotions(store.promotions).find(p => p.discounts.indexOf('*') !== -1);
-            const typeDiscounted = allItemsDiscount.discounts.split('&').map(d => [d.match(/\d*x(.*)-\*/)[1], Number(d.match(/\d*x\w*-\*=(.*)/)[1])]);
+            const allItemsDiscount = activePromotions(store.promotions).filter(p => p.discounts.indexOf('*') !== -1);
+            const all = allItemsDiscount.map(item => item.discounts)
+            const typeDiscounteds = all.map(ii => ii.split('&').map(d => [d.match(/\d*x(.*)-\*/)[1], Number(d.match(/\d*x\w*-\*=(.*)/)[1])]));
+            const typeDiscounted = typeDiscounteds.reduce((acc,item) => acc.concat(item), [])
             discTypes.push(...typeDiscounted.map(i => i[0]));
             typeDiscounted.forEach(function ([type, disc]) {
                 cart.forEach(function (id) {

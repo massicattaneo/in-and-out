@@ -72,8 +72,9 @@ export const getId = carts => {
     return id;
 }
 
-export const getFormattedTotal = (system, discountedItems, id) => {
-    const sum = getCartTotal(system.publicDb, [id]);
+export const getFormattedTotal = (system, discountedItems, id, excludePromos = false) => {
+    const db = Object.assign({}, system.publicDb, { promotions: [] });
+    const sum = getCartTotal(excludePromos ? db : system.publicDb, [id]);
     if (discountedItems.includes(id)) return `
     <span style="text-decoration: line-through; font-size: 9px;">${system.toCurrency(sum.real)}</span>
     <br/>
