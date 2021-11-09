@@ -9,6 +9,18 @@ import { fillSelectWithClients } from '../cash/utils';
 import EventEmitter from 'gml-event-emitter';
 import addBarCode from './add-barcode.html';
 
+function ignoreBarcodeScan(em, element, callback) {
+    em.on('barcode', value => {
+        const old = element.value;
+        if (old.indexOf(value) !== -1) {
+            element.value = old.substr(0, old.length - value.length);
+            callback();
+            element.focus()
+            element.setSelectionRange(0, element.value.length)
+        }
+    });
+}
+
 export default async function ({ locale, system, thread }) {
     const params = Object.assign({  }, locale.get(), system.publicDb);
     const view = HtmlView(template, style, params);
@@ -26,9 +38,11 @@ export default async function ({ locale, system, thread }) {
         value: '',
         timeout: null
     };
-    window.addEventListener('keyup', ev => {
+    
+    window.addEventListener('keydown', ev => {
         clearTimeout(barcode.timeout);
         if (barcode.reading && ev.key === 'Enter' && barcode.value.length >= 3) {
+            ev.preventDefault()
             const value = barcode.value;
             barcode.value = '';
             em.emit('barcode', value);
@@ -41,10 +55,13 @@ export default async function ({ locale, system, thread }) {
         }, 300);
     });
 
+    ignoreBarcodeScan(em, view.get('search'), () => form.search());
+
     em.on('barcode', value => {
         const isThisRoute = location.pathname === locale.get('urls.cart.href');
         const isHistoryRoute = location.pathname === locale.get('urls.history.href');
         const item = system.publicDb.barcodes.find(code => code.barcodes.includes(value))
+
         if (item && isThisRoute) {
             if (!carts.length) form.addCart()
             form.addToCart(item.itemKey)
@@ -198,12 +215,12 @@ export default async function ({ locale, system, thread }) {
         refresh();
     }
 
-    form.search = (event, el) => {
-
+    form.search = () => {
+        const el = view.get('search')
         settings.search = [...el.value.toLowerCase().replace(/\s\s/g, ' ').split(' ')];
         refreshList();
     }
-
+    
     const refresh = () => {
         view.renderToDOM('cartsbuttons', () => {
             return `<div>
@@ -316,3 +333,4 @@ export default async function ({ locale, system, thread }) {
 
     return view;
 }
+

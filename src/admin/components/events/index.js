@@ -464,7 +464,17 @@ export default async function ({ locale, system, thread }) {
 
     system.publicDb.workers.forEach(async function (c) {
         view.clear(`${c.column}_header`).appendTo(`${c.column}_header`, dayTpl, [], c);
+        view.clear(`${c.column}_button`).appendTo(`${c.column}_button`, '<span>{{title}}</span>', [], c);
     })
+
+    form.showCal = workerId => {
+        document.querySelectorAll('.calendar-wrapper .calendar-item').forEach(el => {
+            el.style.display = 'none';
+        })
+        view.get(`${workerId}`).style.display = 'block';
+    }
+
+    form.showCal('carmen')
 
     function drawCalendars(search, callServer = true) {
         const calendar = getCalendar(system.publicDb, system.store.date);

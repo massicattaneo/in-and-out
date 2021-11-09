@@ -173,15 +173,20 @@ th {
     width: 100%;
     position: relative;
 }
-.mobile .calendar-wrapper .calendar-item {
-    
+.mobile .calendar-wrapper .calendar-item {    
     display: none;
 }
-.mobile .calendar-wrapper .calendar-item.carmen {
-    display: block;
-}
+
 .mobile .calendar-header-wrapper {
     display: none !important;
+}
+
+.calendar-button {
+    display: inline-block;
+    padding: 6px;
+    background: #56ab2b;
+    color: white;
+    margin: 3px;
 }
 
 .day-card .mdl-button .mdl-badge[data-badge]:after {

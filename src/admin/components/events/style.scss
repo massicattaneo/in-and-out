@@ -34,6 +34,15 @@
     display:flex;
 }
 
+#buttonwrapper {
+    display: none;
+}
+
+.mobile #buttonwrapper {
+    display: block;
+    margin: 0 6px;
+}
+
 #ana_header {
     display: none;
 }
