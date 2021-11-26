@@ -278,7 +278,7 @@ module.exports = {
                     const t = storeTypes[id.substr(0, 3)];
                     const it = store[t].find(i => i.identificador === id);
                     const tot = Number(it.precio);
-                    const isDisc = (!Number(it.credito) > 0) && (id.match(/(.*)-\d*/)[1] === type);
+                    const isDisc = (!isBiologique(it)) && (!Number(it.credito) > 0) && (id.match(/(.*)-\d*/)[1] === type);
                     discounted += isDisc ? tot * disc : 0;
                     real += isDisc ? tot : 0;
                 });
@@ -298,7 +298,7 @@ module.exports = {
                 });
             }
             return { discounted, notDiscounted };
-        }, { discounted: [], notDiscounted: cart.filter(c => discTypes.indexOf(c.match(/(.*)-.*/)[1]) === -1) });
+        }, { discounted: [], notDiscounted: getNotDisocunted(cart, discTypes, store) });
         notDiscounted += items.notDiscounted.reduce((t, id) => {
             const type = storeTypes[id.substr(0, 3)];
             const it = store[type].find(i => i.identificador === id);
@@ -309,7 +309,7 @@ module.exports = {
             const it = store[type].find(i => i.identificador === id);
             return t + roundDiscount(Number(it.precio), discount);
         }, 0);
-        real += cart.filter(c => discTypes.indexOf(c.match(/(.*)-.*/)[1]) === -1).reduce((t, id) => {
+        real += getNotDisocunted(cart, discTypes, store).reduce((t, id) => {
             const type = storeTypes[id.substr(0, 3)];
             const it = store[type].find(i => i.identificador === id);
             return t + Number(it.precio);
@@ -329,3 +329,19 @@ module.exports = {
     },
     spainOffsets
 };
+
+function isBiologique(it) {
+    return it.marca === 'Biologique Recherche';
+}
+
+function getNotDisocunted(cart, discTypes, store) {
+    return cart.filter(id => {
+        const t = storeTypes[id.substr(0, 3)];
+        const it = store[t].find(i => i.identificador === id);
+        if (isBiologique(it)) return true
+        
+        if (Number(it.credito) > 0) return true
+        return discTypes.indexOf(id.match(/(.*)-.*/)[1]) === -1
+    });
+}
+
