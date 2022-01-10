@@ -603,7 +603,9 @@ const CashSummary = require('./excel/cash-summary');
             const emails = await mongo.getEmails();
             const allMembers = emails
                 .filter(e => wrongEmails.indexOf(e) === -1)
-                .filter((e, i, a) => a.indexOf(e) === i);
+                .filter((e, i, a) => a.indexOf(e) === i)
+                .filter(e => e.indexOf('@') !== -1);
+
             const bcc = (req.body.test ? req.body.emails : allMembers);
             if (!req.body.test) {
                 console.log('SENDING NEWSLETTER');
@@ -628,7 +630,7 @@ const CashSummary = require('./excel/cash-summary');
                     } catch (e) {
                         console.log('ERROR NEWSLETTER', bcc, e);
                     }
-                }, index * 60 * 1000);
+                }, index * 20 * 1000);
             });
             res.send('ok');
         }

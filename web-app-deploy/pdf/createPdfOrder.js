@@ -47,7 +47,7 @@ module.exports = function createPdfOrder(res, googleDb, code, cart) {
         .text(`lunes-viernes 10:00-20:00 h.`, 90, 185)
         .text(`lunes-viernes 10:00-19:00 h.`, 295, 185)
         .text(`sabado 10:00-14:00 h.`, 90, 195)
-        .text(`sabado 10:00-14:00 h.`, 295, 195)
+        .text(`sabado CERRADO`, 295, 195)
         .text(`1 hora de parking GRATIS *`, marginLeft + 420, 210);
 
     doc.text(`(*) 1 hora de parking gratis a partir de 30€`, marginLeft, 690);
