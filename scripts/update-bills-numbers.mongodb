@@ -1,0 +1,21 @@
+// MongoDB Playground
+// Use Ctrl+Space inside a snippet or a string literal to trigger completions.
+
+// The current database to use.
+use('fb2b86b1ef42eee47e65ce27fc320948');
+
+// The 2021 is still to close. also we have to put bill numbers
+// EFECTIVO 11.390
+
+db.getCollection('centers').updateOne(
+    { _id: ObjectId('5da2057be28a5ade820818b5')}, // SALITRE
+    { $set : { 'lastBillNumber' : 29977 } }
+);
+db.getCollection('centers').updateOne(
+    { _id: ObjectId('5da2057ce28a5ade820818b7')}, // BUENAVENTURA
+    { $set : { 'lastBillNumber' : 8623 } }
+);
+db.getCollection('centers').updateOne(
+    { _id: ObjectId('5da2057ce28a5ade820818b8')}, // ONLINE
+    { $set : { 'lastBillNumber' : 1431 } }
+);

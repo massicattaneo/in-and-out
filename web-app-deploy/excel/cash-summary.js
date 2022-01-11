@@ -77,8 +77,8 @@ module.exports = async function (db, google, { from, to, maxCashAmount, saveBill
     let subTot = 0;
     const oneDay = 24 * 60 * 60 * 1000;
     let lastDate = from - oneDay;
-    const toAdd = array.filter(i => i.type === 'efectivo' && i.amount > 0);
-    const others = array.filter(i => i.type !== 'efectivo' || i.amount < 0);
+    const toAdd = array.filter(i => i.type === 'efectivo' && i.amount > 0 && !i.isDeposit);
+    const others = array.filter(i => (i.type !== 'efectivo' || i.amount < 0) && !i.isDeposit);
     while (toAdd.length && subTot < maxCashAmount) {
         for (let i = 0; i < toAdd.length; i++) {
             const date = new Date(toAdd[i].date);
