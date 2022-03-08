@@ -34,7 +34,6 @@ function bookings({ system }) {
         const maximumDays = 14;
         const oneDayMs = 1000 * 60 * 60 * 24;
         const model = system.book;
-
         const disc1 = window.rx.connect({
             logged: () => system.store.hasLogged,
             trt: () => system.store.treatments
@@ -53,13 +52,19 @@ function bookings({ system }) {
                         model.treatments.splice(model.treatments.indexOf(id), 1);
                     }
                 };
+                const getCalcDay = (sign) => {
+                    const calcDay = new Date(model.date + (sign * oneDayMs)).getDay();
+                    if (calcDay === 0 && sign -1) return 3
+                    if (calcDay === 0) return 2
+                    if (calcDay === 6) return 3
+                    return 1
+                }
                 view.get('booking').next = () => {
-                    const calcDay = new Date(model.date + oneDayMs).getDay();
-                    model.date = model.date + oneDayMs * (calcDay === 0 ? 2 : 1);
+                    model.date = model.date + oneDayMs * (getCalcDay(1));
                 };
                 view.get('booking').prev = () => {
-                    const calcDay = new Date(model.date - oneDayMs).getDay();
-                    model.date = model.date - oneDayMs * (calcDay === 0 ? 2 : 1);
+                    console.log(getCalcDay(-1))
+                    model.date = model.date - oneDayMs * (getCalcDay(-1));
                 };
                 view.get('booking').book = async function () {
                     if (this.hour && this.hour.value !== '') {

@@ -1,3 +1,5 @@
+// FROM: https://www.worlddata.info/europe/italy/timezones.php
+
 const spainOffsets = [
     1540692000000, //new Date('2018-10-28T03:00').getTime(),
     1553994000000, //new Date('2019-03-31T02:00').getTime(),
@@ -6,7 +8,15 @@ const spainOffsets = [
     1603591200000, //new Date('2020-10-25T03:00').getTime(),
     1616893200000, //new Date('2021-03-28T02:00').getTime(),
     1635645600000, //new Date('2021-10-31T03:00').getTime(),
-    1648342800000 //new Date('2022-03-27T02:00').getTime()
+    1648342800000, //new Date('2022-03-27T02:00').getTime()
+    1667095200000, //new Date('2022-10-30T03:00').getTime()
+    1679792400000, //new Date('2023-03-26T02:00').getTime()
+    1698544800000, //new Date('2023-10-29T03:00').getTime()
+    1711846800000, //new Date('2024-03-31T02:00').getTime()
+    1729994400000, //new Date('2024-10-27T03:00').getTime()
+    1743296400000, //new Date('2025-03-30T02:00').getTime()
+    1761444000000, //new Date('2025-10-26T03:00').getTime()
+    1774746000000, //new Date('2026-03-29T02:00').getTime()
 ];
 
 function getSpainOffset(date = Date.now()) {

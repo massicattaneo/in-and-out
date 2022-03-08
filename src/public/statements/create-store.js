@@ -90,6 +90,7 @@ export default async function ({ system, wait, thread }) {
 
     const spainDate = new Date(system.store.spainTime);
     if (spainDate.getDay() === 0) spainDate.setTime(spainDate.getTime() + 24 * 60 * 60 * 1000);
+    if (spainDate.getDay() === 6) spainDate.setTime(spainDate.getTime() + 48 * 60 * 60 * 1000);
     system.book = window.rx.create({
         center: 0,
         treatments: [],
