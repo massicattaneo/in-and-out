@@ -54,7 +54,7 @@
         "pdftoimage": "^1.0.0",
         "qrcode": "^1.2.0",
         "raw-loader": "^0.5.1",
-        "sharp": "^0.18.4",
+        "sharp": "^0.30.5",
         "sitemap": "^1.13.0",
         "spider-detector": "^1.0.18",
         "stripe": "^5.4.0",
