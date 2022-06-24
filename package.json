@@ -44,7 +44,7 @@
         "mongodb": "^2.2.33",
         "mongodb-backup": "^1.6.9",
         "mongodb-restore": "^1.6.2",
-        "node-fetch": "^1.7.1",
+        "node-fetch": "^2.6.7",
         "nodemailer": "^4.4.1",
         "nodemon": "^1.18.9",
         "open": "0.0.5",
