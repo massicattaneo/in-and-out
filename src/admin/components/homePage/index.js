@@ -89,7 +89,7 @@ export default async function ({ system, thread, locale }) {
             cash
                 .filter(acc => acc.user !== 'compania')
                 .reduce((acc, i) => {
-                    const user = i.user || 'salitre';
+                    const user = (i.user === "null" || !i.user) ? 'salitre' : i.user;
                     if (i.date >= today.getTime()) {
                         acc[user].today += i.amount;
                         acc.total.today += i.amount;
@@ -221,13 +221,14 @@ export default async function ({ system, thread, locale }) {
 
                 cash
                     .reduce((acc, i) => {
+                        const user = (i.user === "null" || !i.user) ? 'salitre' : i.user;
                         if (i.date >= today.getTime() && i.amount > 0) {
                             if (i.type === 'efectivo') {
-                                acc[i.user].cash += i.amount;
+                                acc[user].cash += i.amount;
                                 acc.total.cash += i.amount;
                             }
                             if (i.type === 'tarjeta') {
-                                acc[i.user].creditCards += i.amount;
+                                acc[user].creditCards += i.amount;
                                 acc.total.creditCards += i.amount;
                             }
                         }

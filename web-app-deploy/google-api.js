@@ -450,6 +450,9 @@ module.exports = function (utils, posts) {
     };
 
     obj.getBookings = async function (hash) {
+        if (!hash) return [];
+        const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        if (!emailRegEx.test(hash)) return [];
         const results = await Promise.all(googleDb.workers.map(({ googleId: id }) => {
             return new Promise(function (resolve, reject) {
                 const calendarId = id;

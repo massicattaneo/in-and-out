@@ -196,9 +196,10 @@ module.exports = async function (db, google, { from, to, maxCashAmount, saveBill
 
     // fs.writeFileSync(path.resolve(__dirname, './somario_facturas_de_venta.xlsx'), buf);
     console.log(`BILLS NUMBERS FOR NEXT TRIMESTRAL:
-        SALITRE:      ${billNumber.salitre.num}
-        BUENAVENTURA: ${billNumber.buenaventura.num}
-        ONLINE:       ${billNumber.online.num}
+        SALITRE:            ${billNumber.salitre.num}
+        BUENAVENTURA:       ${billNumber.buenaventura.num}
+        ONLINE:             ${billNumber.online.num}
+        MAX CASH AMOUNT:    ${maxCashAmount}
     `);
 
     if (saveBillNumbers) {

@@ -17,6 +17,18 @@ MongoClient.connect(url, async function (err, db) {
     await google.authorize();
     await google.initDriveSheets();
 
+    // LOGOUT ONE USER
+    // const items = (await db.collection('sessions').find({ session: { $regex: "irina.kiryiak@gmail.com" } }).toArray());
+    // await Promise.all(items.map(item => db.collection('sessions').deleteOne({ _id: item._id, })));
+    // console.warn(`${items.length} SESSIONS REMOVED`)
+
+//     await db.collection('users').updateOne(
+//             { _id: ObjectId("5bb1feceaccfa5001f6ee590") },
+//             { $set: { activationCode: "", hash: "", email: "elo@assur.es" } }
+//     );
+//    const pepe = await db.collection('users').find({ _id: ObjectId("5bb1feceaccfa5001f6ee590")}).toArray()
+//     console.log(pepe[0])
+
     // CHANGE CALENDAR DATE
     // const date = new Date(2022, 2, 27);
     // const until = new Date(2022, 9, 30);
@@ -64,14 +76,9 @@ MongoClient.connect(url, async function (err, db) {
 
 
     // LOGOUT ALL ADMIN USERS
-    // const items = (await db.collection('sessions').find().toArray());
-    // items.forEach(item => {
-    //     const session = JSON.parse(item.session);
-    //     if (session.isAdmin === true) {
-    //         db.collection('sessions').deleteOne({ _id: item._id, })
-    //         console.warn(item)
-    //     }
-    // });
+    // const items = (await db.collection('sessions').find({ session: { $regex: '"isAdmin":true' } }).toArray())
+    // await Promise.all(items.map(item => db.collection('sessions').deleteOne({ _id: item._id, })));
+    // console.warn(`${items.length} SESSIONS REMOVED`)
 
     // db.collection('centers').insertOne({
     //     id: 'salitre',
@@ -202,29 +209,28 @@ MongoClient.connect(url, async function (err, db) {
     // }));
 
     /** save cash billNumber */
-    // const from = new Date('2022-01-01:00:00');
-    // const to = new Date('2022-03-31:23:00');
+    // const from = new Date('2022-04-01:00:00');
+    // const to = new Date('2022-06-30:23:00');
     // const { report } = await CashSummary(db, google, {
     //     from: from.getTime(),
     //     to: to.getTime(),
-    //     maxCashAmount: 11265,
-    //     saveBillNumbers: true
+    //     maxCashAmount: 12000,
+    //     saveBillNumbers: false
     // });
 
     // SAVE BILL NUMBERS:
-    // db.collection('centers').updateOne(
+    // await db.collection('centers').updateOne(
     //     { _id: ObjectId('5da2057be28a5ade820818b5')}, // SALITRE
-    //     { $set : { 'lastBillNumber' : 29977 } }
+    //     { $set : { 'lastBillNumber' : 34160 } }
     // );
-    // db.collection('centers').updateOne(
+    // await db.collection('centers').updateOne(
     //     { _id: ObjectId('5da2057ce28a5ade820818b7')}, // BUENAVENTURA
-    //     { $set : { 'lastBillNumber' : 8623 } }
+    //     { $set : { 'lastBillNumber' : 10171 } }
     // );
-    // db.collection('centers').updateOne(
+    // await db.collection('centers').updateOne(
     //     { _id: ObjectId('5da2057ce28a5ade820818b8')}, // ONLINE
-    //     { $set : { 'lastBillNumber' : 1431 } }
+    //     { $set : { 'lastBillNumber' : 1611 } }
     // );
-
 
     // orders not used - TOTAL AMOUNT
     // const items = (await db.collection('orders').find().toArray());
@@ -237,6 +243,20 @@ MongoClient.connect(url, async function (err, db) {
     //     }
     // })
     // console.log('TOTAL: €', total.toFixed(2))
+    
+    // get cash between dates
+    // const list = await (await db.collection('cash').find({ date: { $gt: 1664180192398 }, user: 'null' }).toArray())
+    // await Promise.all(list.map(function (doc) {
+    //     return db.collection('cash').updateOne(
+    //         { _id: doc._id },
+    //         { $set: { user: 'salitre' } }
+    //     );
+    // }))
+
+
+    // GET CASH WITH NULL USER
+    // const list = await (await db.collection('cash').find({ date: { $gt: 1654041600000 }, user: 'null' }).toArray())
+    // console.log(list.length)
 
     console.log('finish');
     process.exit();

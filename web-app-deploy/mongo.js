@@ -38,7 +38,8 @@ function padLeft(string, size, char) {
     return (Array(size + 1).join(char) + string).slice(-size);
 }
 
-module.exports = function (isDeveloping, utils) {
+module.exports = function (_, utils) {
+    const isDeveloping = false
     const obj = {};
     const url = isDeveloping ? `mongodb://localhost:27017/in-and-out` : `mongodb://${config.mongo.user}:${encodeURIComponent(access.password)}@${config.mongo.hostString}`;
     let db;
