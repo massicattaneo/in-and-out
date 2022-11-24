@@ -29,10 +29,12 @@ module.exports = function ({
             if (anonymous) {
                 res.send({});
             } else {
+                const bonusCards = (await mongo.rest.get('bonus', `clientId=${userId}`))
                 const data = {
                     id: _id,
                     favourites: await mongo.getUserData(userId),
                     hasBonusCards: (await mongo.rest.get('bonus', `clientId=${userId}`)).length > 0,
+                    bonusCards: bonusCards.filter(card => !card.finished),
                     bookings: await google.getBookings(email),
                     privacy,
                     newsletter

@@ -404,7 +404,6 @@ const CashSummary = require('./excel/cash-summary');
 
             if (workerIndex === undefined) {
                 res.status(500);
-                console.log(treatments, start, locationIndex, busy, workerIndex);
                 res.send('error');
                 return;
             }

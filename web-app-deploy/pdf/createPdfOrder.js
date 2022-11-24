@@ -14,8 +14,8 @@ module.exports = function createPdfOrder(res, googleDb, code, cart) {
     doc.pipe(res);
     const products = parseCart(cart, googleDb);
 
-    doc.registerFont('burst', path.resolve(`${__dirname}/../static/assets/fonts/busrt-my-bubble/burstmybubble.ttf`));
-    doc.registerFont('burst-bold', path.resolve(`${__dirname}/../static/assets/fonts/busrt-my-bubble/burstmybubblebold.ttf`));
+    doc.registerFont('burst', path.resolve(`${__dirname}/../static/assets/fonts/burst-my-bubble/burstmybubble.ttf`));
+    doc.registerFont('burst-bold', path.resolve(`${__dirname}/../static/assets/fonts/burst-my-bubble/burstmybubblebold.ttf`));
 
     doc
         .image(path.resolve(`${__dirname}/../static/assets/images/pdf-buy-background.png`), 0, 0, { width: 615 });

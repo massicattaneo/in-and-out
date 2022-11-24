@@ -45,9 +45,11 @@ function bonusCards({ system }) {
             const { treatments } = item;
             const newItem = system.getStorage('bonusCards').indexOf(item.identificador) === -1
                 ? locale.get('newItemTemplate') : '';
-            const ps = system.store.promotions.map(getPromotionDiscounts)
+            const allPromos = system.store.promotions.map(getPromotionDiscounts)
                 .reduce((a, i) => a.concat(i), [])
+            let ps = allPromos
                 .filter(i => i.items.filter(o => o.id === item.identificador).length === i.items.length).length;
+            ps = ps || (allPromos.find(i => i.items.find(sub => sub.id === "TAR-*")) && item.credito === "0")
             const card = view.appendTo('bonus', cardTemplate, null, Object.assign({
                 card: Object.assign({}, item, {
                     price: system.toCurrency(item.precio),

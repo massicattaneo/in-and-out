@@ -147,12 +147,13 @@ function getDiscountsPrice(store, discounts) {
 function futurePromotions(promotions) {
     return promotions.filter(function (i) {
         const date = Date.now();
-        const from = (new Date(i.creacion.split('/').reverse().join('-')));
+        const from = (new Date(i.desde.split('/').reverse().join('-')));
         const to = (new Date(i.hasta.split('/').reverse().join('-')));
-        from.setHours(0, 0, 0, 0);
+        const [hour = 0, minute = 0] = i.desde_hora ? i.desde_hora.split(':') : [0,0]
+        from.setHours(Number(hour), Number(minute), 0, 0);
         to.setHours(23, 59, 59, 59);
         return date >= from.getTime() && date <= to.getTime();
-    }).sort(sortByDate('creacion'));
+    }).sort(sortByDate('desde'));
 }
 
 function getCenters({ calendars }, date) {
