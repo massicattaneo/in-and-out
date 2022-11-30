@@ -13,12 +13,12 @@ export default async function ({ system, wait, thread }) {
         'desktop' : system.deviceInfo().deviceType;
 
     publicDb.press = (publicDb.press || []).map(addDescription);
-
+    const bookings = (status.bookings || []).filter(item => new Date(item.start).getTime() >= Date.now())
     const staticStore = {
         logged: status.logged,
         hasLogged: status.logged,
         email: status.email,
-        bookings: status.bookings || [],
+        bookings,
         photos: publicDb.photos ? publicDb.photos
                 .filter(p => p.folder === 'fotos')
                 .filter(p => p.url.indexOf(`${deviceType}.`) !== -1)
@@ -35,6 +35,7 @@ export default async function ({ system, wait, thread }) {
         press: publicDb.press ? publicDb.press.sort(sortByDate('fecha')) : [],
         products: (publicDb.products || [])
             .filter(i => i.online === 'si')
+            .filter(i => i.activo === 'si')
             .map(item => Object.assign({}, item, {
                 posicion: Number(item.posicion) || 100,
                 categoria: item.categoria || 'OTROS'

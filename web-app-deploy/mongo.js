@@ -38,8 +38,7 @@ function padLeft(string, size, char) {
     return (Array(size + 1).join(char) + string).slice(-size);
 }
 
-module.exports = function (_, utils) {
-    const isDeveloping = false
+module.exports = function (isDeveloping, utils) {
     const obj = {};
     const url = isDeveloping ? `mongodb://localhost:27017/in-and-out` : `mongodb://${config.mongo.user}:${encodeURIComponent(access.password)}@${config.mongo.hostString}`;
     let db;
@@ -104,17 +103,14 @@ module.exports = function (_, utils) {
         });
     };
 
-    obj.getEmails = function () {
-        return new Promise(function (resolve, reject) {
-            db.collection('users')
-                .find({ email: { $exists: true, $not: { $size: 0 } }, deleted: { $exists: false } })
-                .toArray(function (err, res) {
-                    resolve(res
-                        .filter(i => i.active !== false)
-                        .filter(i => i.newsletter !== false)
-                        .filter(i => i.deleted !== true).map(i => i.email));
-                });
-        });
+    obj.getEmails = async function () {
+        const orders = (await obj.rest.get('orders')).map(order => order.email)
+        const users = (await obj.rest.get('users'))
+        return orders.filter(email => {
+            const user = users.find(user => user.email === email)
+            if (!user) return true
+            return user.active !== false && user.newsletter !== false && user.deleted !== true
+        })
     };
 
     obj.getUser = function (data) {

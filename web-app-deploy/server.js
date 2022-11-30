@@ -38,7 +38,6 @@ const httpsOptions = {
 };
 const adminKeys = require('./private/adminKeys');
 const createStaticHtmls = require('./seo/createStaticHtmls');
-const wrongEmails = require('./extras/wrong.json');
 const shared = require('./shared');
 const BankSummary = require('./excel/bank-summary');
 const BillSummary = require('./excel/bill-summary');
@@ -157,15 +156,13 @@ const CashSummary = require('./excel/cash-summary');
             res.send(Object.assign({}, google.publicDb(), {
                 reviews: await mongo.getReviewsInfo(),
                 cartPriority: await mongo.cartPriority(),
-                barcodes: await mongo.getBarCodes(google.publicDb()),
-                wrongEmails
+                barcodes: await mongo.getBarCodes(google.publicDb())
             }));
         } else {
             res.send(Object.assign({}, google.publicDb(), {
                 reviews: await mongo.getReviewsInfo(),
                 barcodes: await mongo.getBarCodes(google.publicDb()),
-                cartPriority: await mongo.cartPriority(),
-                wrongEmails: []
+                cartPriority: await mongo.cartPriority()
             }));
         }
     });
@@ -601,11 +598,11 @@ const CashSummary = require('./excel/cash-summary');
         async function (req, res) {
             const emails = await mongo.getEmails();
             const allMembers = emails
-                .filter(e => wrongEmails.indexOf(e) === -1)
                 .filter((e, i, a) => a.indexOf(e) === i)
                 .filter(e => e.indexOf('@') !== -1);
-
+            
             const bcc = (req.body.test ? req.body.emails : allMembers);
+            
             if (!req.body.test) {
                 console.log('SENDING NEWSLETTER');
             }
@@ -632,13 +629,6 @@ const CashSummary = require('./excel/cash-summary');
                 }, index * 20 * 1000);
             });
             res.send('ok');
-        }
-    );
-
-    app.get('/api/temp',
-        async function (req, res) {
-            const emails = await mongo.getEmails();
-            res.json(emails);
         }
     );
 

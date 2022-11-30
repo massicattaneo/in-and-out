@@ -117,16 +117,12 @@ function treatments({ system }) {
         };
 
         function addTreatments(item) {
-            const isBookable = Object.keys(system.store.centers)
-                .map(key => system.store.centers[key].workers)
-                .reduce((arr, wks) => arr.concat(wks), [])
-                .filter((item, pos, self) => self.indexOf(item) === pos)
-                .filter(k => Number(item[k]) !== 0).length > 0;
+            const isBookable = item.precio !== "" && system.store.workers.filter(worker => item[worker.column] !== 0).length;
             const newItem = system.getStorage('treatments').indexOf(item.identificador) === -1
                 ? locale.get('newItemTemplate') : '';
-            const bookDisplay = item.online === 'si' && isBookable ? 'block' : 'none';
-            const callDisplay = item.online !== 'si' ? 'block' : 'none';
-            const addToCartDisplay = 'block';
+            const bookDisplay = isBookable ? 'block' : 'none';
+            const callDisplay = isBookable ? 'block' : 'none';
+            const addToCartDisplay = item.precio !== "" ? 'block' : 'none';
             const favouriteDisplay = (system.store.logged && isBookable) ? 'block' : 'none';
             const checked = item.favourite ? 'checked' : '';
             const variables = {
@@ -141,7 +137,7 @@ function treatments({ system }) {
             const ps = isInPromotion(system.store.promotions, item);
             const itemOverride = {
                 item: Object.assign({}, item, {
-                    price: system.toCurrency(item.precio),
+                    price: item.precio ? system.toCurrency(item.precio) : `Precio ${item.precio_texto}`,
                     discounted: system.toCurrency(getCartTotal(system.store, [item.identificador]).total),
                     showDiscount: ps ? '' : 'none',
                     bgColor: !ps ? '' : '#fae1ce',

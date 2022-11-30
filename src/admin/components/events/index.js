@@ -40,10 +40,14 @@ export default async function ({ locale, system, thread }) {
     const params = Object.assign({}, locale.get());
     const view = HtmlView(template, style, params);
     const form = view.get('wrapper');
+    const showSalitreCheckbox = view.get('salitre_show');
+    const showBuenaventuraCheckbox = view.get('buenaventura_show');
     const dayNames = new Array(7).fill(0).map((v, i) => locale.get(`day_${i}`));
     const monthNames = new Array(12).fill(0).map((v, i) => locale.get(`month_${i}`).substr(0, 4));
     const dayViews = {};
     view.style(system.deviceInfo().deviceType);
+
+    const calStore = window.rx.create({ buenaventura: true, salitre: true })
 
     const miniView = view.appendTo('minicalendar', miniCalTpl, miniCalStyle);
     miniView.style();
@@ -426,6 +430,39 @@ export default async function ({ locale, system, thread }) {
     view.update = () => {
         onResize();
     }
+    const buenaventuraWorkers = ["yolimar", "elsa", "eila"]
+    const commonWorkers = ["wendy"]
+    if (system.deviceInfo().deviceType === 'desktop') {
+        window.rx.connect(
+            { salitre: () => calStore.salitre, buenaventura: () => calStore.buenaventura },
+            function ({ salitre, buenaventura }) {
+                showBuenaventuraCheckbox.checked = buenaventura;
+                showSalitreCheckbox.checked = salitre;
+                buenaventuraWorkers
+                    .filter(key => !commonWorkers.includes(key))
+                    .forEach(key => {
+                        view.get(key).style.display = buenaventura ? "block" : "none"
+                        view.get(`${key}_header`).style.display = buenaventura ? "block" : "none"
+                        view.get(`${key}_button`).style.display = buenaventura ? "inline-block" : "none"
+                    });
+                system.publicDb.workers.map(w => w.column)
+                    .filter(key => !buenaventuraWorkers.includes(key))
+                    .filter(key => !commonWorkers.includes(key))
+                    .forEach(key => {
+                        view.get(key).style.display = salitre ? "block" : "none"
+                        view.get(`${key}_header`).style.display = salitre ? "block" : "none"
+                        view.get(`${key}_button`).style.display = salitre ? "inline-block" : "none"
+                    });
+            });     
+     }
+    
+    
+    showBuenaventuraCheckbox.addEventListener("change", () => {
+        calStore.buenaventura = !calStore.buenaventura
+    })
+    showSalitreCheckbox.addEventListener("change", () => {
+        calStore.salitre = !calStore.salitre
+    })
 
     window.rx.connect({ date: () => system.store.date }, function ({ date }) {
         changeMiniCalendarDate(new Date(date));

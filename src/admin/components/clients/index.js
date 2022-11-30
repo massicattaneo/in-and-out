@@ -41,7 +41,7 @@ export default async function ({ locale, system, thread }) {
             .map(c => Object.assign(c, {
                 formattedTel: formatPhoneNumber(c),
                 deleteDisabled: c.hash ? 'disabled' : '',
-                emailBgColor: system.publicDb.wrongEmails.indexOf(c.email) !== -1 ? '#ffb4b4' : 'none',
+                emailBgColor: 'none',
                 online: `<output ondragstart="this.form.dragStart('${c._id}')" draggable="true" class="circle-indicator ${c.hash && 'mdl-color--primary'}"></output>`
             }));
         const p = Object.assign({ clients: filter.filter((a, i) => i < 100) }, locale.get());

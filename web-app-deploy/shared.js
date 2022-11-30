@@ -240,6 +240,8 @@ module.exports = {
         return treatments
             .filter(t => t.favourite)
             .filter(t => t.online === 'si')
+            .filter(t => t.activo === 'si')
+            .filter(t => workers.filter(worker => t[worker.column] !== 0).length)
             .filter(t => day.filter(arr => arr.length && Number(t[workers[arr[1]].column]) > 0).length)
             .map(t => Object.assign({
                 available: day.filter(arr => arr.length && Number(t[workers[arr[1]].column]) > 0

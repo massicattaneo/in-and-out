@@ -19,6 +19,10 @@
             ondragleave="this.form.cartDragLeave('client')">
             <i class="material-icons">face</i>
         </output>
+        <div>
+            <span style="width: 47%; display: inline-block; background: #cdfaff"><input #salitre_show type="checkbox"/></span>
+            <span style="width: 47%; display: inline-block; background: #ffcdcd"><input #buenaventura_show type="checkbox"/></span>
+        </div>
     </div>
     <div #processes
         class="mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--8-col-desktop">
@@ -41,6 +45,8 @@
         <button type="button" #cristina_button class="calendar-button" onclick="this.form.showCal('cristina')">
         </button>
         <button type="button" #ana_button class="calendar-button" onclick="this.form.showCal('ana')">
+        </button>
+        <button type="button" #javi_button class="calendar-button" onclick="this.form.showCal('javi')">
         </button>
         <button type="button" #wendy_button class="calendar-button" onclick="this.form.showCal('wendy')">
         </button>
@@ -70,6 +76,8 @@
         </div>
         <div #ana_header class="calendar-item">
         </div>
+        <div #javi_header class="calendar-item">
+        </div>
         <div #wendy_header class="calendar-item">
         </div>
         <div #yolimar_header class="calendar-item">
@@ -97,6 +105,8 @@
         <div #cristina class="calendar-item">
         </div>
         <div #ana class="calendar-item">
+        </div>
+        <div #javi class="calendar-item">
         </div>
         <div #wendy class="calendar-item">
         </div>

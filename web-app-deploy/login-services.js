@@ -29,13 +29,16 @@ module.exports = function ({
             if (anonymous) {
                 res.send({});
             } else {
+                const bookings = (await google.getBookings(email))
                 const bonusCards = (await mongo.rest.get('bonus', `clientId=${userId}`))
+                const onlineOrders = (await mongo.rest.get('orders', `email=${email}`)).map(order => ({...order, created: new Date(order.created).getTime()}))
                 const data = {
                     id: _id,
                     favourites: await mongo.getUserData(userId),
                     hasBonusCards: (await mongo.rest.get('bonus', `clientId=${userId}`)).length > 0,
                     bonusCards: bonusCards.filter(card => !card.finished),
-                    bookings: await google.getBookings(email),
+                    orders: onlineOrders.filter(order => order.payed),
+                    bookings,
                     privacy,
                     newsletter
                 };

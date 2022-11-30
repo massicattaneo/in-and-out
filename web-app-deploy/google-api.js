@@ -450,6 +450,7 @@ module.exports = function (utils, posts) {
     };
 
     obj.getBookings = async function (hash) {
+        const timeMinDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
         if (!hash) return [];
         const emailRegEx = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (!emailRegEx.test(hash)) return [];
@@ -458,7 +459,7 @@ module.exports = function (utils, posts) {
                 const calendarId = id;
                 calendar.events.list({
                     calendarId,
-                    timeMin: (new Date()).toISOString(),
+                    timeMin: (timeMinDate).toISOString(),
                     q: hash
                 }, function (err, o) {
                     if (err) return reject(new Error('error'));
