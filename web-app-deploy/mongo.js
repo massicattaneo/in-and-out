@@ -108,7 +108,7 @@ module.exports = function (isDeveloping, utils) {
         const users = (await obj.rest.get('users'))
         return orders.filter(email => {
             const user = users.find(user => user.email === email)
-            if (!user) return true
+            if (!user) return false
             return user.active !== false && user.newsletter !== false && user.deleted !== true
         })
     };
