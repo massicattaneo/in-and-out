@@ -27,6 +27,7 @@ export default async function ({ system, wait, thread }) {
         allPhotos: publicDb.photos || [],
         cart: system.getStorage('cart') || [],
         treatments: (publicDb.treatments || [])
+            .filter(i => i.activo === 'si')
             .map(item => Object.assign({}, item, {
                 posicion: Number(item.posicion) || 100
             })),
@@ -35,7 +36,6 @@ export default async function ({ system, wait, thread }) {
         press: publicDb.press ? publicDb.press.sort(sortByDate('fecha')) : [],
         products: (publicDb.products || [])
             .filter(i => i.online === 'si')
-            .filter(i => i.activo === 'si')
             .map(item => Object.assign({}, item, {
                 posicion: Number(item.posicion) || 100,
                 categoria: item.categoria || 'OTROS'

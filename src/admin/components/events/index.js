@@ -430,7 +430,7 @@ export default async function ({ locale, system, thread }) {
     view.update = () => {
         onResize();
     }
-    const buenaventuraWorkers = ["yolimar", "elsa", "eila"]
+    const buenaventuraWorkers = ["yolimar", "andrea", "eila"]
     const commonWorkers = ["wendy"]
     if (system.deviceInfo().deviceType === 'desktop') {
         window.rx.connect(

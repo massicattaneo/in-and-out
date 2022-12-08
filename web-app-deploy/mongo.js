@@ -104,13 +104,12 @@ module.exports = function (isDeveloping, utils) {
     };
 
     obj.getEmails = async function () {
-        const orders = (await obj.rest.get('orders')).map(order => order.email)
         const users = (await obj.rest.get('users'))
-        return orders.filter(email => {
-            const user = users.find(user => user.email === email)
-            if (!user) return false
-            return user.active !== false && user.newsletter !== false && user.deleted !== true
-        })
+        return users.filter(user => {
+            if (user.user === "online")
+                return user.active === true && user.newsletter !== false && user.deleted !== true
+            return user.newsletter === true && user.deleted !== true
+        }).map(user => user.email)
     };
 
     obj.getUser = function (data) {

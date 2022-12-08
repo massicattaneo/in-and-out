@@ -258,6 +258,13 @@ MongoClient.connect(url, async function (err, db) {
     // const list = await (await db.collection('cash').find({ date: { $gt: 1654041600000 }, user: 'null' }).toArray())
     // console.log(list.length)
 
-    console.log('finish');
+    // db.collection('bonus').find({ clientId: ObjectId(oldClient) }).forEach(function (doc) {
+    //     db.collection('bonus').update(
+    //         { _id: doc._id },
+    //         { $set: { clientId: ObjectId(newClient) } }
+    //     );
+    //     console.log(doc);
+    // });
+    
     process.exit();
 });

@@ -117,11 +117,11 @@ function treatments({ system }) {
         };
 
         function addTreatments(item) {
-            const isBookable = item.precio !== "" && system.store.workers.filter(worker => item[worker.column] !== 0).length;
+            const isBookable = item.precio !== "" && system.store.workers.filter(worker => item[worker.column] !== "0" && item[worker.column] !== undefined).length;
             const newItem = system.getStorage('treatments').indexOf(item.identificador) === -1
                 ? locale.get('newItemTemplate') : '';
             const bookDisplay = isBookable ? 'block' : 'none';
-            const callDisplay = isBookable ? 'block' : 'none';
+            const callDisplay = !isBookable ? 'block' : 'none';
             const addToCartDisplay = item.precio !== "" ? 'block' : 'none';
             const favouriteDisplay = (system.store.logged && isBookable) ? 'block' : 'none';
             const checked = item.favourite ? 'checked' : '';
