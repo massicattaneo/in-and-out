@@ -49,6 +49,7 @@ export default async function ({ system, thread }) {
     const spainTime = getSpainTime();
 
     const cookieUsers = ((decodeURI(system.cookies.getItem('users')) || '')).split('|');
+    console.log(status.adminLevel)
     system.store = window.rx.create({
         logged: status.logged,
         adminLevel: status.adminLevel,
@@ -65,7 +66,8 @@ export default async function ({ system, thread }) {
         date: spainTime,
         keysPressed: [],
         'cash-salitre': 0,
-        'cash-buenaventura': 0
+        'cash-buenaventura': 0,
+        'cash-portanueva': 0
     });
 
     setInterval(() => system.store.spainTime = getSpainTime(), 1000);
@@ -103,6 +105,7 @@ export default async function ({ system, thread }) {
         system.store.users.splice(0, system.store.users.length);
         system.store['cash-salitre'] = data.actualCash.salitre;
         system.store['cash-buenaventura'] = data.actualCash.buenaventura;
+        system.store['cash-portanueva'] = data.actualCash.portanueva;
         if (logged) {
             system.store.users.push(...((decodeURI(system.cookies.getItem('users')) || '')).split('|'));
         }

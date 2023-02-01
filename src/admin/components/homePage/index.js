@@ -58,6 +58,7 @@ export default async function ({ system, thread, locale }) {
         adminLevel: () => system.store.adminLevel,
         'cashSalitre': () => system.store['cash-salitre'],
         'cashBuenaventura': () => system.store['cash-buenaventura'],
+        'cashPortanueva': () => system.store['cash-portanueva'],
     }, ({ cash, orders, adminLevel, cashSalitre, cashBuenaventura }) => {
         if (adminLevel === 2) {
             const monthNames = new Array(12).fill(0).map((v, i) => locale.get(`month_${i}`).toUpperCase());
@@ -79,11 +80,13 @@ export default async function ({ system, thread, locale }) {
             salitre.months = new Array(numberOfMonths).fill(0);
             const buenaventura = Object.create(dm);
             buenaventura.months = new Array(numberOfMonths).fill(0);
+            const portanueva = Object.create(dm);
+            portanueva.months = new Array(numberOfMonths).fill(0);
             const online = Object.create(dm);
             online.months = new Array(numberOfMonths).fill(0);
             const total = Object.create(dm);
             total.months = new Array(numberOfMonths).fill(0);
-            const result = { salitre, buenaventura, online, total };
+            const result = { salitre, buenaventura, portanueva, online, total };
 
 
             cash
@@ -180,6 +183,12 @@ export default async function ({ system, thread, locale }) {
                             borderWidth: 1
                         },
                         {
+                            label: 'PORTANUEVA',
+                            data: result.portanueva.months,
+                            backgroundColor: '#cdffd6',
+                            borderWidth: 1
+                        },
+                        {
                             label: 'ONLINE',
                             data: result.online.months,
                             backgroundColor: '#fff1b0',
@@ -216,8 +225,9 @@ export default async function ({ system, thread, locale }) {
 
                 const salitre = Object.create(dm);
                 const buenaventura = Object.create(dm);
+                const portanueva = Object.create(dm);
                 const total = Object.create(dm);
-                const result = { salitre, buenaventura, total };
+                const result = { salitre, buenaventura, portanueva, total };
 
                 cash
                     .reduce((acc, i) => {

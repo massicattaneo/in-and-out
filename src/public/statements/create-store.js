@@ -155,7 +155,8 @@ export default async function ({ system, wait, thread }) {
         .subscribe(async function ({ logged }) {
             const { bookings = [], favourites, email } = await getStatus();
             system.store.bookings.splice(0, system.store.bookings.length);
-            system.store.bookings.push(...bookings);
+            const bookings1 = bookings.filter(item => new Date(item.start).getTime() >= Date.now())
+            system.store.bookings.push(...bookings1);
             system.store.treatments.forEach(i => i.favourite = false);
             system.store.email = email;
             updateFavourites(favourites);

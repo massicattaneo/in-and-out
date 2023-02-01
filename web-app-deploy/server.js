@@ -516,7 +516,8 @@ const CashSummary = require('./excel/cash-summary');
                 bills: await mongo.getAll('bills'),
                 actualCash: {
                     salitre: await mongo.getActualCash('salitre'),
-                    buenaventura: await mongo.getActualCash('buenaventura')
+                    buenaventura: await mongo.getActualCash('buenaventura'),
+                    portanueva: await mongo.getActualCash('portanueva')
                 }
             });
         });

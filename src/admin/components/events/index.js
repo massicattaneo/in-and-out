@@ -40,14 +40,15 @@ export default async function ({ locale, system, thread }) {
     const params = Object.assign({}, locale.get());
     const view = HtmlView(template, style, params);
     const form = view.get('wrapper');
-    const showSalitreCheckbox = view.get('salitre_show');
-    const showBuenaventuraCheckbox = view.get('buenaventura_show');
+    
     const dayNames = new Array(7).fill(0).map((v, i) => locale.get(`day_${i}`));
     const monthNames = new Array(12).fill(0).map((v, i) => locale.get(`month_${i}`).substr(0, 4));
     const dayViews = {};
     view.style(system.deviceInfo().deviceType);
-
-    const calStore = window.rx.create({ buenaventura: true, salitre: true })
+    
+    const locValue = localStorage.getItem("in-and-out-admin") || (system.store.users ? JSON.stringify(system.store.users) : null)
+    const showCenters = locValue ? JSON.parse(locValue) : ["salitre", "buenaventura", "portanueva"]
+    const calStore = window.rx.create({ showCenters })
 
     const miniView = view.appendTo('minicalendar', miniCalTpl, miniCalStyle);
     miniView.style();
@@ -430,38 +431,41 @@ export default async function ({ locale, system, thread }) {
     view.update = () => {
         onResize();
     }
-    const buenaventuraWorkers = ["yolimar", "andrea", "eila"]
-    const commonWorkers = ["wendy"]
-    if (system.deviceInfo().deviceType === 'desktop') {
-        window.rx.connect(
-            { salitre: () => calStore.salitre, buenaventura: () => calStore.buenaventura },
-            function ({ salitre, buenaventura }) {
-                showBuenaventuraCheckbox.checked = buenaventura;
-                showSalitreCheckbox.checked = salitre;
-                buenaventuraWorkers
-                    .filter(key => !commonWorkers.includes(key))
-                    .forEach(key => {
-                        view.get(key).style.display = buenaventura ? "block" : "none"
-                        view.get(`${key}_header`).style.display = buenaventura ? "block" : "none"
-                        view.get(`${key}_button`).style.display = buenaventura ? "inline-block" : "none"
-                    });
-                system.publicDb.workers.map(w => w.column)
-                    .filter(key => !buenaventuraWorkers.includes(key))
-                    .filter(key => !commonWorkers.includes(key))
-                    .forEach(key => {
-                        view.get(key).style.display = salitre ? "block" : "none"
-                        view.get(`${key}_header`).style.display = salitre ? "block" : "none"
-                        view.get(`${key}_button`).style.display = salitre ? "inline-block" : "none"
-                    });
-            });     
-     }
     
-    
-    showBuenaventuraCheckbox.addEventListener("change", () => {
-        calStore.buenaventura = !calStore.buenaventura
+    ["salitre", "buenaventura", "portanueva"].forEach(centerName => {
+        view.get(`${centerName}_show`).addEventListener("change", () => {
+            const index = calStore.showCenters.indexOf(centerName)
+            if (index === -1) {
+                calStore.showCenters.push(centerName)
+            } else {
+                calStore.showCenters.splice(index, 1)
+            }
+            localStorage.setItem("in-and-out-admin", JSON.stringify(calStore.showCenters))
+        })
     })
-    showSalitreCheckbox.addEventListener("change", () => {
-        calStore.salitre = !calStore.salitre
+
+    window.rx.connect({ showCenters: () => calStore.showCenters, date: () => system.store.date }, ({ showCenters }) => {
+        const d = new Date(system.store.date);
+        ["salitre", "buenaventura", "portanueva"].forEach(centerName => {
+            view.get(`${centerName}_show`).checked = !!showCenters.find(item => item === centerName)
+        })
+        system.publicDb.workers.forEach(c => { 
+            view.get(c.column).style.display = "none"
+            view.get(`${c.column}_header`).style.display = "none"
+            view.get(`${c.column}_button`).style.display = "none"
+        })
+        // show-hide
+        const calendar = getCalendar(system.publicDb, system.store.date);
+        system.publicDb.workers.forEach(c => {
+            const centers = calendar.week[d.getDay()].filter(arr => arr[1] === c.index).map(item => system.publicDb.centers.find(sub => sub.index === item[0]).id)
+            centers.forEach(centerName => {
+                const isVisible = !!showCenters.find(item => item === centerName)
+                view.get(c.column).style.display = isVisible ? "block" : "none"
+                view.get(`${c.column}_header`).style.display = isVisible ? "block" : "none"
+                view.get(`${c.column}_button`).style.display = isVisible ? "inline-block" : "none"
+            })
+        })
+
     })
 
     window.rx.connect({ date: () => system.store.date }, function ({ date }) {
@@ -485,7 +489,7 @@ export default async function ({ locale, system, thread }) {
     });
 
     function isWorkDay(date) {
-        return date.getDay() !== 0;
+        return !(date.getDay() === 0 || date.getDay() === 6)
     }
 
     async function getServerDayEvents(callServer, c) {
@@ -519,7 +523,7 @@ export default async function ({ locale, system, thread }) {
             const dayView = view.clear(c.column).appendTo(c.column, '<div #wrapper></div>', [], c);
             dayView.style();
             c.items = await getServerDayEvents(callServer, c);
-
+            
             (new Array(43)).fill(0).forEach(function (zero, index) {
                 const d = new Date(system.store.date);
                 d.setHours(startHour, startMinutes, 0, 0);

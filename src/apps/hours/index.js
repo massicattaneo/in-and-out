@@ -25,7 +25,8 @@ function hours({ system }) {
         };
         const params = Object.assign({
             location1ExceptionalClosing: getClosingDays(0),
-            location3ExceptionalClosing: getClosingDays(2)
+            location3ExceptionalClosing: getClosingDays(2),
+            location4ExceptionalClosing: getClosingDays(3)
         }, locale.get());
         const view = HtmlView(template, styles, params);
 

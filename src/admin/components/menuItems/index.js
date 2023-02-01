@@ -14,6 +14,7 @@ export default async function ({ locale, thread, system }) {
         system.store.logged = false;
         await thread.execute('user/logout');
         system.navigateTo('/admin/es/entra');
+        localStorage.removeItem("in-and-out-admin")
     }
     // window.rx.connect({ level: () => system.store.adminLevel }, function ({ level }) {
     //

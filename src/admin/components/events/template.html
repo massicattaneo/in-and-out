@@ -20,14 +20,21 @@
             <i class="material-icons">face</i>
         </output>
         <div>
-            <span style="width: 47%; display: inline-block; background: #cdfaff"><input #salitre_show type="checkbox"/></span>
-            <span style="width: 47%; display: inline-block; background: #ffcdcd"><input #buenaventura_show type="checkbox"/></span>
+            <span style="width: 28%; display: inline-block; background: #cdffd6"><input #portanueva_show type="checkbox"/></span>
+            <span style="width: 28%; display: inline-block; background: #cdfaff"><input #salitre_show type="checkbox"/></span>
+            <span style="width: 28%; display: inline-block; background: #ffcdcd"><input #buenaventura_show type="checkbox"/></span>
         </div>
     </div>
     <div #processes
         class="mdl-shadow--2dp mdl-cell mdl-cell--12-col mdl-cell--12-col-tablet mdl-cell--8-col-desktop">
     </div>
     <div #buttonwrapper>
+        <button type="button" #julia_button class="calendar-button" onclick="this.form.showCal('julia')">
+        </button>
+        <button type="button" #virginia_button class="calendar-button" onclick="this.form.showCal('virginia')">
+        </button>
+        <button type="button" #maria_button class="calendar-button" onclick="this.form.showCal('maria')">
+        </button>
         <button type="button" #carmen_button class="calendar-button" onclick="this.form.showCal('carmen')">
         </button>
         <button type="button" #carmen_v_button class="calendar-button" onclick="this.form.showCal('carmen_v')">
@@ -35,8 +42,6 @@
         <button type="button" #estefania_button class="calendar-button" onclick="this.form.showCal('estefania')">
         </button>
         <button type="button" #lidia_button class="calendar-button" onclick="this.form.showCal('lidia')">
-        </button>
-        <button type="button" #maria_button class="calendar-button" onclick="this.form.showCal('maria')">
         </button>
         <button type="button" #camila_button class="calendar-button" onclick="this.form.showCal('camila')">
         </button>
@@ -58,6 +63,12 @@
         </button>
     </div>
     <div #headerwrapper class="calendar-header-wrapper">
+        <div #julia_header class="calendar-item">
+        </div>
+        <div #virginia_header class="calendar-item">
+        </div>
+        <div #maria_header class="calendar-item">
+        </div>
         <div #carmen_header class="calendar-item">
         </div>
         <div #carmen_v_header class="calendar-item">
@@ -65,8 +76,6 @@
         <div #estefania_header class="calendar-item">
         </div>
         <div #lidia_header class="calendar-item">
-        </div>
-        <div #maria_header class="calendar-item">
         </div>
         <div #camila_header class="calendar-item">
         </div>
@@ -88,6 +97,12 @@
         </div>
     </div>
     <div #calendar class="mdl-shadow--2dp mdl-cell mdl-cell--12-col calendar-wrapper">
+        <div #julia class="calendar-item">
+        </div>
+        <div #virginia class="calendar-item">
+        </div>
+        <div #maria class="calendar-item">
+        </div>
         <div #carmen class="calendar-item carmen">
         </div>
         <div #carmen_v class="calendar-item">
@@ -95,8 +110,6 @@
         <div #estefania class="calendar-item">
         </div>
         <div #lidia class="calendar-item">
-        </div>
-        <div #maria class="calendar-item">
         </div>
         <div #camila class="calendar-item">
         </div>

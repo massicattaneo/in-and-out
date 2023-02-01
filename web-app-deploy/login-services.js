@@ -165,12 +165,18 @@ module.exports = function ({
                 req.session.adminLevel = 0;
                 res.cookie('users', 'buenaventura', { expires: new Date(253402300000000) });
                 res.send('ok');
+            } else if (req.body.password === adminKeys.portanueva) {
+                req.session.userId = 'portanueva';
+                req.session.isAdmin = true;
+                req.session.adminLevel = 0;
+                res.cookie('users', 'portanueva', { expires: new Date(253402300000000) });
+                res.send('ok');
             }
             else if (req.body.password === adminKeys.carmen) {
                 req.session.userId = 'carmen';
                 req.session.isAdmin = true;
                 req.session.adminLevel = 2;
-                res.cookie('users', 'salitre|buenaventura', { expires: new Date(253402300000000) });
+                res.cookie('users', 'salitre|buenaventura|portanueva', { expires: new Date(253402300000000) });
                 res.send('ok');
             } else {
                 req.session.isAdmin = false;
@@ -180,7 +186,7 @@ module.exports = function ({
         });
 
     app.post(logoutUrl,
-        requiresLogin,
+        bruteforce.prevent,
         function (req, res) {
             if (req.session) {
                 // delete session object
@@ -189,6 +195,8 @@ module.exports = function ({
                         res.status(500);
                         return res.send('error');
                     } else {
+                        res.clearCookie('connect.sid');
+                        res.clearCookie('users');
                         return res.redirect('/');
                     }
                 });

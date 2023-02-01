@@ -164,13 +164,14 @@ function bookings({ system }) {
                 if (selTreatments.length && centers.filter(c => c === center).length) {
                     view.clear('hours').appendTo('hours', '<div style="text-align: center; width: 100%"><img style="width: 33px" src="/assets/images/loading.gif" /></div>', []);
                     const localDate = toLocalTime(date, system);
-                    console.warn({ date: localDate, treatments: selTreatments, center })
+                    
                     const freeBusy = await thread.execute('booking/get-hours',
                         { date: localDate, treatments: selTreatments, center });
                     system.store.serverTimestamp += 2 * 60 * 60 * 1000;
                     const hours = getAvailableHours(system.store, localDate, center, treatments, selTreatments, freeBusy)
                         .map(h => decimalToTime(h).splice(0, 2).map(i => i.toString().padLeft(2, '0')).join(':'));
                     system.store.serverTimestamp -= 2 * 60 * 60 * 1000;
+                    
                     if (hours.length) {
                         view.clear('hours').appendTo('hours', hoursTemplate, [], { hours });
                     } else {

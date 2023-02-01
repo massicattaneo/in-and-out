@@ -9,7 +9,6 @@
             <tr><td>{{day_3}}</td><td>10:00 - 20:00</td></tr>
             <tr><td>{{day_4}}</td><td>10:00 - 20:00</td></tr>
             <tr><td>{{day_5}}</td><td>10:00 - 20:00</td></tr>
-            <tr><td>{{day_6}}</td><td>CERRADO</td></tr>
         </table>
         <br/>
         <div style="font-size:12px; color: #b95959;">
@@ -28,11 +27,28 @@
             <tr><td>{{day_3}}</td><td>10:00 - 19:00</td></tr>
             <tr><td>{{day_4}}</td><td>10:00 - 19:00</td></tr>
             <tr><td>{{day_5}}</td><td>10:00 - 19:00</td></tr>
-            <tr><td>{{day_6}}</td><td>CERRADO</td></tr>
         </table>
         <br/>
         <div style="font-size: 12px; color: #b95959;">
             {{#each location3ExceptionalClosing}}
+            <div>{{closed}}: <em>{{this.date}}</em></div>
+            {{/each}}
+        </div>
+    </div>
+    <div class="box">
+        {{location4Address}}
+        <br/>
+        <br/>
+        <table>
+            <tr><td>{{day_1}}</td><td>10:00 - 19:00</td></tr>
+            <tr><td>{{day_2}}</td><td>10:00 - 19:00</td></tr>
+            <tr><td>{{day_3}}</td><td>10:00 - 19:00</td></tr>
+            <tr><td>{{day_4}}</td><td>10:00 - 19:00</td></tr>
+            <tr><td>{{day_5}}</td><td>10:00 - 19:00</td></tr>
+        </table>
+        <br/>
+        <div style="font-size: 12px; color: #b95959;">
+            {{#each location4ExceptionalClosing}}
             <div>{{closed}}: <em>{{this.date}}</em></div>
             {{/each}}
         </div>
