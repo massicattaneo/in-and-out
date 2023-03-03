@@ -20,8 +20,33 @@ Date.prototype.formatTime = function (pattern) {
     pattern = pattern.replace(/ss/g, this.getSeconds().toString().padLeft(2, 0));
     return pattern;
 };
-const { day_0, day_1, day_2, day_3, day_4, day_5, day_6 } = require('../static/localization/globalize/es.json');
-const { month_0, month_1, month_2, month_3, month_4, month_5, month_6, month_7, month_8, month_9, month_10, month_11 } = require('../static/localization/globalize/es.json');
+
+const spanishDates = {
+  "day_1": "Lunes",
+  "day_2": "Martes",
+  "day_3": "Miércoles",
+  "day_4": "Jueves",
+  "day_5": "Viernes",
+  "day_6": "Sabado",
+  "day_0": "Domingo",
+  "day_today":"hoy",
+  "day_tomorrow":"mañana",
+  "month_0": "enero",
+  "month_1": "februero",
+  "month_2": "marzo",
+  "month_3": "abril",
+  "month_4": "mayo",
+  "month_5": "junio",
+  "month_6": "julio",
+  "month_7": "agosto",
+  "month_8": "septiembre",
+  "month_9": "octubre",
+  "month_10": "noviembre",
+  "month_11": "diciembre"
+}
+
+const { day_0, day_1, day_2, day_3, day_4, day_5, day_6 } = spanishDates;
+const { month_0, month_1, month_2, month_3, month_4, month_5, month_6, month_7, month_8, month_9, month_10, month_11 } = spanishDates;
 const dayNames = [day_0, day_1, day_2, day_3, day_4, day_5, day_6];
 const monthNames = [month_0, month_1, month_2, month_3, month_4, month_5, month_6, month_7, month_8, month_9, month_10, month_11];
 

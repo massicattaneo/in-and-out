@@ -383,6 +383,16 @@ th {
     color: black !important;
 }
 
+.process-color-100 {
+    background: repeating-linear-gradient(45deg, #9c9c9c, #888 10px, rgba(0, 0, 0, 0) 10px, rgba(0, 0, 0, 0) 20px) !important;
+    color: black !important;
+}
+
+.process-color-101 {
+    background: repeating-linear-gradient(45deg, #9c9c9c, #888 10px, rgba(0, 0, 0, 0) 10px, rgba(0, 0, 0, 0) 20px) !important;
+    color: black !important;
+}
+
 .event {
     position: absolute;
     overflow: hidden;

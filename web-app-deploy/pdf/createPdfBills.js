@@ -71,7 +71,7 @@ function addItem(doc, params) {
         doc
             .fontSize(11)
             .text(`${index + 1}`, marginLeft, posY)
-            .text(inner.DESCRIPCION, marginLeft + 50, posY, { width: 200 })
+            .text(inner.DESCRIPCION, marginLeft + 50, posY, { width: 200, height: 30 })
             .text(toCurrency(inner['BASE IMPONIBLE']), marginLeft + 300, posY)
             .text(inner['PORCENTAJE IVA'], marginLeft + 400, posY)
             .text(toCurrency(inner.TOTAL), marginLeft + 450, posY);

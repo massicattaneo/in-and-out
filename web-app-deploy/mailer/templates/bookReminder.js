@@ -1,6 +1,6 @@
 const { confirmRegistrationUrl } = require('../../serverInfo');
 
-module.exports = function ({ grayColor, name, greenColor, host, activationCode, footer, header, event }) {
+module.exports = function ({ grayColor, name, greenColor, host, activationCode, footer, header, event, encodedEmail }) {
     return `
     ${header(`Gracias ${event.clientName}!`)}
     <!-- COPY -->

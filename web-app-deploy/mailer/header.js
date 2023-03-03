@@ -57,7 +57,7 @@ module.exports = function (title) {
                 <tr>
                     <td align="center" valign="top" style="padding: 40px 10px 40px 10px;">
                         <a href="${host}" target="_blank">
-                            <img alt="In&Out Belleza" src="${host}/assets/images/manzana_white.png" width="70" height="70" style="display: block; width: 70px; max-width: 70px; min-width: 70px; font-family: 'Arial', Helvetica, Arial, sans-serif; color: #ffffff; font-size: 18px;" border="0">
+                            <img alt="In&Out Belleza" src="${host}/assets/manzana_white.png" width="70" height="70" style="display: block; width: 70px; max-width: 70px; min-width: 70px; font-family: 'Arial', Helvetica, Arial, sans-serif; color: #ffffff; font-size: 18px;" border="0">
                         </a>
                     </td>
                 </tr>

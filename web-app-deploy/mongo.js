@@ -1,3 +1,5 @@
+const pdf = require('pdf-parse');
+const ONE_DAY = 24 * 60 * 60 * 1000
 const access = require('./private/mongo-db-access');
 const MongoClient = require('mongodb').MongoClient;
 const MongoStore = require('express-brute-mongo');
@@ -5,6 +7,10 @@ let text = process.env.APP_CONFIG || JSON.stringify(access.config);
 const config = JSON.parse(text);
 const bcrypt = require('bcrypt');
 const ObjectID = require('mongodb').ObjectID;
+const { isValidEmail } = require("./login-services.js")
+const { getBBVAEntries } = require("./get-bbva-entries")
+
+let cartPriorityMemo
 
 function getObjectId(id) {
     try {
@@ -27,6 +33,9 @@ function clean(o) {
                 ret[key] = o[key];
             }
         }
+        if (key === "email") {
+            ret[key] = o[key].trim().toLowerCase();
+        }
         return ret;
     }, {});
 }
@@ -38,6 +47,26 @@ function padLeft(string, size, char) {
     return (Array(size + 1).join(char) + string).slice(-size);
 }
 
+async function getCartPriorityMemo(db) {
+    return (await db.collection('cash').aggregate([
+        { $unwind: "$cart" },
+        { $group: { "_id": "$cart", "count": { $sum: 1 } } },
+        {
+            $group: {
+                "_id": null, "cart_details": {
+                    $push: {
+                        "cart": "$_id",
+                        "count": "$count"
+                    }
+                }
+            }
+        },
+        { $project: { "_id": 0, "cart_details": 1 } }
+    ]).toArray())[0].cart_details
+        .sort((first, second) => second.count - first.count)
+        .map(item => item.cart);
+}
+
 module.exports = function (isDeveloping, utils) {
     const obj = {};
     const url = isDeveloping ? `mongodb://localhost:27017/in-and-out` : `mongodb://${config.mongo.user}:${encodeURIComponent(access.password)}@${config.mongo.hostString}`;
@@ -46,18 +75,87 @@ module.exports = function (isDeveloping, utils) {
     obj.connect = function () {
         return new Promise(function (res, rej) {
             const store = new MongoStore(function (ready) {
-                MongoClient.connect(url, function (err, DB) {
+                MongoClient.connect(url, async function (err, DB) {
                     if (err) {
                         rej(new Error('dbError'));
                     } else {
                         db = DB;
                         ready(db.collection('bruteforce-store'));
+                        cartPriorityMemo = await getCartPriorityMemo(db)
+                        setInterval(async () => {
+                            cartPriorityMemo = await getCartPriorityMemo(db)
+                        }, 24 * 60 * 60 * 1000) // 24 hour
                         res({ store, db });
                     }
                 });
             });
         });
     };
+
+    obj.insertSmartUser = function ({ email, password }) {
+        return new Promise((resolve, rej) => {
+            const insert = {
+                created: Date.now(),
+                hash: bcrypt.hashSync(password, 10),
+                surname: "",
+                activationCode: bcrypt.hashSync(password, 4),
+                name: "",
+                tel: "",
+                privacy: false,
+                newsletter: false,
+                email: email.toLowerCase(),
+                active: true,
+                lang: "es",
+                user: "online",
+                isSmartInactive: true
+            };
+            db.collection('users').insertOne(insert, function (err, res) {
+                    if (err)
+                        rej(new Error('dbError'));
+                    else {
+                        Object.assign(insert, { id: res.insertedId });    
+                        utils.wss.broadcast(JSON.stringify({
+                            type: 'insertUser',
+                            data: insert
+                        }));
+                        resolve(insert);
+                    }
+                });
+        })
+    }
+
+    obj.insertOrderOnlineUser = function ({ email = "" }) {
+        const password = (Math.floor(100000 + Math.random() * 900000)).toString();
+        const [name = ""] = email.split("@")
+        return new Promise((resolve, rej) => {
+            const insert = {
+                created: Date.now(),
+                hash: bcrypt.hashSync(password, 10),
+                surname: "",
+                activationCode: bcrypt.hashSync(password, 4),
+                name,
+                tel: "",
+                privacy: true,
+                newsletter: false,
+                email: email.toLowerCase(),
+                active: true,
+                lang: "es",
+                user: "online",
+            };
+            db.collection('users').insertOne(insert, function (err, res) {
+                    if (err)
+                        rej(new Error('dbError'));
+                    else {
+                        Object.assign(insert, { id: res.insertedId });    
+                        utils.wss.broadcast(JSON.stringify({
+                            type: 'insertUser',
+                            data: insert
+                        }));
+                        resolve(insert);
+                    }
+                });
+        })
+    }
 
     obj.insertUser = function ({ email, password, surname = '', tel = '', name, lang, user = 'online', privacy = true }) {
         return new Promise(function (resolve, rej) {
@@ -103,13 +201,16 @@ module.exports = function (isDeveloping, utils) {
         });
     };
 
-    obj.getEmails = async function () {
+    obj.getNewslettersUsers = async function () {
         const users = (await obj.rest.get('users'))
         return users.filter(user => {
-            if (user.user === "online")
-                return user.active === true && user.newsletter !== false && user.deleted !== true
-            return user.newsletter === true && user.deleted !== true
-        }).map(user => user.email)
+            if (!isValidEmail(user.email)) return false
+            if (user.newsletter === false) return false
+            if (user.active === false) return false
+            if (user.deleted === true) return false
+            if (user.isSmartInactive === true) return false
+            return true
+        })
     };
 
     obj.getUser = function (data) {
@@ -164,13 +265,13 @@ module.exports = function (isDeveloping, utils) {
         });
     };
 
-    obj.privacyAccept = function ({ activationCode }) {
+    obj.resetPasswordFromEmail = function ({ email, password }) {
         return new Promise(function (resolve, reject) {
             db
                 .collection('users')
                 .findOneAndUpdate(
-                    { activationCode },
-                    { $set: { privacy: true } },
+                    { email },
+                    { $set: { hash: bcrypt.hashSync(password, 10), active: true } },
                     { returnOriginal: false },
                     function (err, r) {
                         if (err) return reject(new Error('generic'));
@@ -180,26 +281,55 @@ module.exports = function (isDeveloping, utils) {
         });
     };
 
-    obj.deleteUser = function ({ userId, password }) {
+    obj.privacyAccept = function ({ h }) {
+        const email = Buffer.from(h, "base64").toString("ascii");
+        return new Promise(function (resolve, reject) {
+            db
+                .collection('users')
+                .findOneAndUpdate(
+                    { email },
+                    { $set: { privacy: true } },
+                    { returnOriginal: false },
+                    function (err, r) {
+                        if (err) return reject(new Error('generic'));
+                        if (r.value === null) return reject(new Error('missingUser'));
+                        resolve(r.value);
+                    });
+        });
+    };
+    obj.unsubscribeNewsletter = function ({ h }) {
+        const email = Buffer.from(h, "base64").toString("ascii");
+        return new Promise(function (resolve, reject) {
+            db
+                .collection('users')
+                .findOneAndUpdate(
+                    { email },
+                    { $set: { newsletter: false } },
+                    { returnOriginal: false },
+                    function (err, r) {
+                        if (err) return reject(new Error('generic'));
+                        if (r.value === null) return reject(new Error('missingUser'));
+                        resolve(r.value);
+                    });
+        });
+    };
+
+    obj.deleteUser = function ({ userId }) {
         return new Promise(async function (resolve, reject) {
-            const { email, hash } = await obj.getUser({ _id: getObjectId(userId) });
+            const { email } = await obj.getUser({ _id: getObjectId(userId) });
             if (!email) return reject(new Error('missingUser'));
-            bcrypt.compare(password, hash, function (err, res) {
-                if (err) return reject(new Error('generic'));
-                if (!res) return reject(new Error('wrongPassword'));
-                db
-                    .collection('users')
-                    .findOneAndUpdate(
-                        { email },
-                        { $set: { deleted: true, _email: email, email: '' } },
-                        { returnOriginal: false },
-                        function (err, r) {
-                            if (err) return reject(new Error('generic'));
-                            if (r.value === null) return reject(new Error('missingUser'));
-                            utils.wss.broadcast(JSON.stringify({ type: 'deleteUser', data: r.value }));
-                            resolve(r.value);
-                        });
-            });
+            db
+                .collection('users')
+                .findOneAndUpdate(
+                    { email },
+                    { $set: { deleted: true, _email: email, email: '' } },
+                    { returnOriginal: false },
+                    function (err, r) {
+                        if (err) return reject(new Error('generic'));
+                        if (r.value === null) return reject(new Error('missingUser'));
+                        utils.wss.broadcast(JSON.stringify({ type: 'deleteUser', data: r.value }));
+                        resolve(r.value);
+                    });
         });
     };
 
@@ -261,10 +391,18 @@ module.exports = function (isDeveloping, utils) {
         });
     };
 
-    obj.buy = function ({ cart = [], userId, amount, email, sendTo }) {
+    obj.buy = function ({ cart = [], amount, email, sendTo }) {
         return new Promise(function (resolve, reject) {
+            const created = new Date()
             const doc = {
-                userId, sendTo, cart, email, amount, payed: false, created: (new Date()).toISOString()
+                sendTo,
+                cart,
+                email,
+                amount,
+                payed: false,
+                created: created.toISOString(),
+                timestamp: created.getTime(),
+                userId: null
             };
             db.collection('orders').insertOne(doc, function (err, res) {
                 if (err)
@@ -277,13 +415,13 @@ module.exports = function (isDeveloping, utils) {
         });
     };
 
-    obj.confirmBuy = function ({ id, stripeId, amount, last4 }) {
+    obj.confirmBuy = function ({ id, stripeId, amount, last4, userId }) {
         return new Promise(function (resolve, reject) {
             db
                 .collection('orders')
                 .findOneAndUpdate(
                     { _id: id },
-                    { $set: { payed: true, stripeId, amount, last4 } },
+                    { $set: { payed: true, stripeId, amount, last4, userId } },
                     { returnOriginal: false },
                     function (err, r) {
                         if (err) return reject(new Error('generic'));
@@ -332,7 +470,7 @@ module.exports = function (isDeveloping, utils) {
         const query = { id: centerId };
         const update = { $inc: { lastBillNumber: 1 } };
         await db.collection('centers').update(query, update);
-        const { lastBillNumber, billRef } = await db.collection('centers').findOne(query);
+        const { lastBillNumber = 0, billRef = "TEMP-" } = (await db.collection('centers').findOne(query)) || {};
         const billNumber = `${billRef}${padLeft(lastBillNumber.toString(), 6, '0')}`;
         return { centerId, billNumber };
     };
@@ -411,7 +549,9 @@ module.exports = function (isDeveloping, utils) {
                         rej(new Error('dbError'));
                     else {
                         const type = `delete-rest-${table}`;
-                        utils.wss.broadcast(JSON.stringify({ type, data: item[0] }));
+                        if (item[0]) {
+                            utils.wss.broadcast(JSON.stringify({ type, data: item[0] }));
+                        }
                         resolve(item[0]);
                     }
                 });
@@ -421,9 +561,9 @@ module.exports = function (isDeveloping, utils) {
 
     const CASH_STARTING_DATE = new Date('2021-10-12').getTime();
     const CASH_STARTING_AMOUNT = {
-        salitre: 80,
+        salitre: -72292.64,
         buenaventura: 50,
-        portanueva: 0
+        portanueva: - 1900
     }
     obj.getActualCash = async user => {
         const [{ total = 0 } = {}] = await db.collection('cash')
@@ -446,18 +586,8 @@ module.exports = function (isDeveloping, utils) {
     }
 
     obj.cartPriority = async () => {
-        const list = await db.collection('cash').aggregate([ 
-            { 
-                $group: { 
-                    _id: "$itemKey",
-                    count:{ $sum:1 }
-                } 
-            }
-        ]).toArray();
-        return list
-            .sort((first, second) => first.count - second.count)
-            .map(item => item._id)
-            .filter(ii => ii)
+        if (!cartPriorityMemo) return getCartPriorityMemo(db)
+        return cartPriorityMemo
     }
 
     obj.getBarCodes = async ({ products }) => {
@@ -478,6 +608,85 @@ module.exports = function (isDeveloping, utils) {
             }
         })
         return codes;
+    }
+
+    /**
+     * 
+     * @param {Buffer} dataBuffer the pdf file buffer
+     * @returns {Promise<void>}
+     */
+    obj.insertBBVAMonthExtract = (dataBuffer) => {
+        return pdf(dataBuffer).then(async data => {
+            if (!data.text) return {
+                items: 0,
+                inserted: 0,
+                skipped: 0
+             }
+            const [,accountNumber] = data.text.match(/Cuenta: (.*)/)
+            const [, month, year] = data.text.match(/Período: (\w*) (\d*)/)
+            const string = data.text.split("\n").join(""); 
+            const start = string.substring(string.indexOf("BBVAESMMXXX") + 11)
+            const mongoDbList = await (await db.collection("bbva").find({})).toArray()
+            const newUploadedList = getBBVAEntries(start, year)
+            const items = await Promise.all(newUploadedList.map(async newItem => {
+                const find = mongoDbList.find(dbItem => { 
+                    const properties = Object.keys(newItem)
+                    return properties
+                        .filter(key => dbItem[key] === newItem[key]).length === properties.length
+                })
+                if (!find) {
+                    await obj.rest.insert("bbva", newItem)
+                    return newItem
+                }
+                return null
+            }))
+            return {
+                items: items.filter(item => item),
+                inserted: items.filter(item => item).length,
+                skipped: items.filter(item => !item).length
+            }
+        }).catch(() => {
+            return {
+                items: 0,
+                inserted: 0,
+                skipped: 0
+             }
+        });
+
+    }
+    
+    obj.cashSummary = () => {
+        const ONE_YEAR = 31556926000
+        return db.collection('cash').aggregate([
+            { $match: { amount: { $gte: 0 }, date: { $gte: Date.now() - 3 * ONE_YEAR } } },
+            { $addFields: { timestamp: { $toDate: "$date" } }},
+            {
+                $addFields: {
+                    year: {
+                        $year: {
+                        date: "$timestamp"
+                        }
+                    },
+                    month: {
+                        $month: {
+                        date: "$timestamp"
+                        }
+                    }
+                }
+            },
+            { $group: { _id: { type: "$type", user: "$user", month: "$month", year: "$year" }, amount: { $sum: "$amount" } } },
+        ]).toArray();
+    }
+
+    obj.unsentProductOrders = async () => {
+        return (await db.collection('orders').aggregate([
+            { $unwind: "$cart" },
+            { $addFields: { cartUsed: "$cart.used" } },
+            { $addFields: { cartId: "$cart.id" } },
+            { $match: { payed: { $eq: true }, cartUsed: { $eq: false }, cartId: { $regex: /PRD-/ } } },
+            { $group: { "_id": "$userId", "count": { $sum: 1 }, timestamps: { $addToSet: '$timestamp' }, } },
+
+        ]).toArray())
     }
 
     return obj;

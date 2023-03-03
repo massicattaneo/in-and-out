@@ -3,10 +3,19 @@ const {
     confirmRegistrationUrl, registerUrl, loginUrl, adminLoginUrl,
     logoutUrl, logAdminStatus, logStatusUrl, recoverUrl,
     resetUrl, deleteAccountUrl, privacyEmailUrl,
-    privacyAcceptUrl, newsletterUrl
+    newsletterUrl
 } = require('./serverInfo');
 const ObjectId = require('mongodb').ObjectID;
-const adminKeys = require('./private/adminKeys.json');
+const { adminUsers, centers } = require('./private/new-hours.js');
+const fs = require("fs")
+const path = require("path")
+const { clientVersion } = require("./client-version")
+const isDeveloping = process.env.NODE_ENV === 'development';
+const origin = isDeveloping ? "http://localhost:4200" : 'https://www.inandoutbelleza.es';
+
+const regExp =
+  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+const isValidEmail = (email) => regExp.test(email || "")
 
 function getObjectId(id) {
     try {
@@ -16,31 +25,37 @@ function getObjectId(id) {
     }
 }
 
-module.exports = function ({
+const oneTimeAdminCodes = {}
+
+const LoginServices = function ({
                                app, mongo, google, mailer,
-                               bruteforce, requiresLogin, requiresAdmin
+    bruteforce, requiresLogin, requiresAdmin,
                            }) {
 
     app.get(logStatusUrl,
         requiresLogin,
         async function (req, res) {
             const userId = req.session.userId;
-            const { email, anonymous, _id, privacy, newsletter = true } = await mongo.getUser({ _id: getObjectId(userId) });
-            if (anonymous) {
-                res.send({});
+            const { email, anonymous, _id, privacy, newsletter = true, name, tel } = await mongo.getUser({ _id: getObjectId(userId) });
+            if (anonymous || !email) {
+                res.send({ clientVersion });
             } else {
                 const bookings = (await google.getBookings(email))
-                const bonusCards = (await mongo.rest.get('bonus', `clientId=${userId}`))
+                // const bonusCards = (await mongo.rest.get('bonus', `clientId=${userId}`))
+                const bonusCards = []
                 const onlineOrders = (await mongo.rest.get('orders', `email=${email}`)).map(order => ({...order, created: new Date(order.created).getTime()}))
                 const data = {
                     id: _id,
                     favourites: await mongo.getUserData(userId),
-                    hasBonusCards: (await mongo.rest.get('bonus', `clientId=${userId}`)).length > 0,
+                    hasBonusCards: bonusCards.length > 0,
                     bonusCards: bonusCards.filter(card => !card.finished),
                     orders: onlineOrders.filter(order => order.payed),
                     bookings,
                     privacy,
-                    newsletter
+                    newsletter,
+                    name,
+                    tel,
+                    clientVersion
                 };
                 Object.assign(data, { logged: true, email: req.session.email });
                 res.send(data);
@@ -50,7 +65,13 @@ module.exports = function ({
     app.get(logAdminStatus,
         requiresAdmin,
         async function (req, res) {
-            res.send({ logged: true, adminLevel: req.session.adminLevel });
+            const user = adminUsers.find(u => u.id === req.session.userId)
+            if (user) {
+                const toSend = Object.assign({ logged: true, clientVersion }, user)
+                return res.send(toSend);
+            } else {
+                return res.send({ clientVersion });
+            }
         });
 
     app.post(newsletterUrl,
@@ -99,15 +120,32 @@ module.exports = function ({
             });
     });
 
-    app.post(privacyAcceptUrl, function (req, res) {
-        mongo.privacyAccept(req.body)
-            .then(function () {
-                res.send('ok');
-            })
-            .catch(function (err) {
-                res.status(500);
-                res.send(err.message);
-            });
+    app.get("/api/privacy-accept",
+        bruteforce.prevent,
+        function (req, res) {
+            const file = fs.readFileSync(path.resolve(__dirname, "blank.html"), "utf-8")
+            mongo.privacyAccept(req.query)
+                .then(function () {
+                    res.send(file.replace("{{center_message}}", "Gracias por confiar en nosotros"));
+                })
+                .catch(function (err) {
+                    res.status(500);
+                    res.send(file.replace("{{center_message}}", "Ops algo saliò mal ..."));
+                });
+    });
+
+    app.get("/api/unsubscribe-newsletter",
+        bruteforce.prevent,
+        function (req, res) {
+            const file = fs.readFileSync(path.resolve(__dirname, "blank.html"), "utf-8")
+            mongo.unsubscribeNewsletter(req.query)
+                .then(function () {
+                    res.send(file.replace("{{center_message}}", "Hemos acceptado tu solicitud ..."));
+                })
+                .catch(function (err) {
+                    res.status(500);
+                    res.send(file.replace("{{center_message}}", "Ops algo saliò mal ..."));
+                });
     });
 
     app.post(resetUrl, function (req, res) {
@@ -120,6 +158,33 @@ module.exports = function ({
                 res.send(err.message);
             });
     });
+
+    app.post("/api/login/smart-login",
+        bruteforce.prevent,
+        async function (req, res) {
+            if (req.headers.origin !== origin && !isDeveloping) {
+                res.status(500)
+                return res.send("Wrong origin")
+            }
+            if (!req.session) {
+                res.status(500)
+                return res.send("Missing session")
+            }
+            const { email } = req.body
+            if (!isValidEmail(email)) {
+                res.status(500)
+                return res.send("invalid email")
+            }
+            const password = (Math.floor(100000 + Math.random() * 900000)).toString();
+            const [user] = (await mongo.rest.get('users', `email=${email}`))
+            if (user) {
+                await mongo.resetPasswordFromEmail({ email, password })
+            } else {
+                await mongo.insertSmartUser({ email, password })
+            }
+            mailer.send(createTemplate('smartLogin', { email, password }));
+            return res.json({ name: user ? user.name : "", tel: user ? user.tel : "", newUser: !!user })
+    })
 
     app.post(registerUrl,
         bruteforce.prevent,
@@ -153,36 +218,36 @@ module.exports = function ({
     app.post(adminLoginUrl,
         bruteforce.prevent,
         async function response(req, res) {
-            if (req.body.password === adminKeys.salitre) {
-                req.session.userId = 'salitre';
+            const { email, password } = req.body
+            const adminUser = adminUsers.find(c => c.id === email)
+            if (adminUser && oneTimeAdminCodes[adminUser.id] === password) {
+                delete oneTimeAdminCodes[adminUser.id]
+                req.session.userId = adminUser.id;
                 req.session.isAdmin = true;
-                req.session.adminLevel = 0;
-                res.cookie('users', 'salitre', { expires: new Date(253402300000000) });
-                res.send('ok');
-            } else if (req.body.password === adminKeys.buenaventura) {
-                req.session.userId = 'buenaventura';
-                req.session.isAdmin = true;
-                req.session.adminLevel = 0;
-                res.cookie('users', 'buenaventura', { expires: new Date(253402300000000) });
-                res.send('ok');
-            } else if (req.body.password === adminKeys.portanueva) {
-                req.session.userId = 'portanueva';
-                req.session.isAdmin = true;
-                req.session.adminLevel = 0;
-                res.cookie('users', 'portanueva', { expires: new Date(253402300000000) });
-                res.send('ok');
-            }
-            else if (req.body.password === adminKeys.carmen) {
-                req.session.userId = 'carmen';
-                req.session.isAdmin = true;
-                req.session.adminLevel = 2;
-                res.cookie('users', 'salitre|buenaventura|portanueva', { expires: new Date(253402300000000) });
+                req.session.adminLevel = adminUser.adminLevel;
+                res.cookie('users', adminUser.centers.join("|"), { expires: new Date(253402300000000) });
                 res.send('ok');
             } else {
                 req.session.isAdmin = false;
                 res.status(500);
                 res.send('anonymous');
             }
+        });
+    
+    app.post("/api/login/smart-admin-login",
+        bruteforce.prevent,
+        async function response(req, res) {
+            const { userId = "" } = req.body
+            const adminUser = adminUsers.find(c => c.id === userId)
+            if (!adminUser) {
+                res.status(500)
+                res.send("error")
+                return
+            }
+            const password = (Math.floor(100000 + Math.random() * 900000)).toString();
+            const email = isDeveloping ? "massi.cattaneo.it@gmail.com" : adminUser.otp
+            mailer.send(createTemplate('adminLogin', { email, password, adminUser }));
+            oneTimeAdminCodes[adminUser.id] = password
         });
 
     app.post(logoutUrl,
@@ -197,7 +262,7 @@ module.exports = function ({
                     } else {
                         res.clearCookie('connect.sid');
                         res.clearCookie('users');
-                        return res.redirect('/');
+                        return res.send("ok");
                     }
                 });
             }
@@ -207,22 +272,35 @@ module.exports = function ({
         requiresLogin,
         function (req, res) {
             if (req.session) {
-                mongo.deleteUser({
-                    userId: req.session.userId,
-                    password: req.body.password
-                }).then(function () {
-                    req.session.destroy(function (err) {
-                        if (err) {
-                            res.status(500);
-                            return res.send('error');
-                        } else {
-                            return res.send('ok');
-                        }
-                    });
+                mongo.deleteUser({ userId: req.session.userId })
+                    .then(function () {
+                        req.session.destroy(function (err) {
+                            if (err) {
+                                res.status(500);
+                                return res.send('error');
+                            } else {
+                                return res.send('ok');
+                            }
+                        });
                 }).catch(function (err) {
                     res.status(500);
                     res.send(err.message);
                 });
             }
         });
+    app.post("/api/login/update-user-info",
+        requiresLogin,
+        function (req, res) {
+            if (req.session) {
+                mongo.rest.update('users', req.session.userId, req.body);
+                return res.send("ok")
+            }
+            res.status(500)
+            res.json({})
+        });
 };
+
+
+LoginServices.isValidEmail = isValidEmail
+
+module.exports = LoginServices

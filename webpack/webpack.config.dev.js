@@ -73,7 +73,7 @@ const config = {
             // chunks: ['public'],
             template: 'src/index.hbs',
             inject: false,
-            filename: './templates/index.html',
+            filename: './index.html',
             version: pkg.version,
             isSpider: '{{isSpider}}',
             stripeKey: 'pk_test_gPjcEmmMg0jWcuU6BA44q2Em',
@@ -88,7 +88,7 @@ const config = {
             chunks: ['admin'],
             template: 'src/admin.hbs',
             inject: false,
-            filename: './templates/admin.html',
+            filename: './admin.html',
             version: pkg.version
         }),
         new CopyWebpackPlugin([

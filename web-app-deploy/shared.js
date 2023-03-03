@@ -33,6 +33,15 @@ function getCalendar({ calendars }, date) {
     });
 }
 
+function getDayWorkers({ calendars }, date) {
+    const calendar = getCalendar({ calendars }, date);
+    const day = calendar.week[new Date(date).getDay()];
+    return day
+        .reduce(function (ret, d) {
+            if (ret.indexOf(d[1]) === -1) ret.push(d[1]);
+            return ret;
+        }, []);
+}
 
 function getWorkers({ calendars }, date, center) {
     const calendar = getCalendar({ calendars }, date);
@@ -230,6 +239,7 @@ module.exports = {
     getCalendar: getCalendar,
     getCenters,
     getWorkers: getWorkers,
+    getDayWorkers: getDayWorkers,
     getWorkersByHour: getWorkersByHour,
     isCenterClosed,
     getTreatments: function ({ calendars, workers, centers }, date, center, treatments) {

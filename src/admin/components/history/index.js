@@ -295,7 +295,6 @@ export default async function ({ locale, system, thread, wait }) {
         };
 
         v.get('wrapper').useBonus = async function (id, trId, title, icon) {
-            console.log(trId);
             if (icon === 'cancel' && confirm(`Quieres utilizar la sesion de "${title.toUpperCase()}"?`)) {
                 const bonus = bonuses.find(b => b._id === id);
                 const trs = bonus.transactions.concat([

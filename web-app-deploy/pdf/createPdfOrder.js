@@ -14,14 +14,16 @@ module.exports = function createPdfOrder(res, googleDb, code, cart) {
     doc.pipe(res);
     const products = parseCart(cart, googleDb);
 
-    doc.registerFont('burst', path.resolve(`${__dirname}/../static/assets/fonts/burst-my-bubble/burstmybubble.ttf`));
-    doc.registerFont('burst-bold', path.resolve(`${__dirname}/../static/assets/fonts/burst-my-bubble/burstmybubblebold.ttf`));
+    doc.registerFont('burst', path.resolve(`${__dirname}/burst-my-bubble/burstmybubble.ttf`));
+    doc.registerFont('burst-bold', path.resolve(`${__dirname}/burst-my-bubble/burstmybubblebold.ttf`));
 
     doc
-        .image(path.resolve(`${__dirname}/../static/assets/images/pdf-buy-background.png`), 0, 0, { width: 615 });
+        .image(path.resolve(`${__dirname}/pdf-buy-background.png`), 0, 0, { width: 615 });
 
     const salitre = googleDb.centers[0];
     const buenaventura = googleDb.centers[2];
+    const portanueva = googleDb.centers[3];
+    const online = googleDb.centers[4];
     const marginLeft = 40;
 
     doc
@@ -37,20 +39,18 @@ module.exports = function createPdfOrder(res, googleDb, code, cart) {
         .font('Helvetica-Bold')
         .fillColor('white')
         .text(`${salitre.address}`, marginLeft, 160)
-        .text(`${buenaventura.address}`, 245, 160)
+        .text(`${buenaventura.address}`, marginLeft, 175)
+        .text(`${portanueva.address}`, marginLeft, 190)
         .fontSize(9)
         .font('Helvetica')
-        .text(`TEL: ${salitre.tel}, MOV: ${salitre.mobile}`, marginLeft, 170)
-        .text(`TEL: ${buenaventura.tel}, MOV: ${buenaventura.mobile}`, 245, 170)
-        .text(`HORARIO:`, marginLeft, 185)
-        .text(`HORARIO:`, 245, 185)
-        .text(`lunes-viernes 10:00-20:00 h.`, 90, 185)
-        .text(`lunes-viernes 10:00-19:00 h.`, 295, 185)
-        .text(`sabado 10:00-14:00 h.`, 90, 195)
-        .text(`sabado CERRADO`, 295, 195)
-        .text(`1 hora de parking GRATIS *`, marginLeft + 420, 210);
-
-    doc.text(`(*) 1 hora de parking gratis a partir de 30€`, marginLeft, 690);
+        .text(`Tel: ${salitre.tel}`, 250, 160)
+        .text(`Tel: ${buenaventura.tel}`, 250, 175)
+        .text(`Tel: ${portanueva.tel}`, 250, 190)
+        .text(`lunes-viernes 10:00-20:00 h.`, 350, 160)
+        .text(`lunes-viernes 10:00-19:00 h.`, 350, 175)
+        .text(`lunes-viernes 10:00-20:00 h.`, 350, 190)
+        .text(`*1 hora de parking GRATIS a partir de 30€`, marginLeft, 215)
+        .text(`WEB: ${online.address}`, 350, 215);
 
     let y = 250;
     doc.font('burst');

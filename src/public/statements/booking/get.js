@@ -1,5 +1,5 @@
 export default async function ({ system }) {
-    const {date, calendarId} = this;
+    const { date, calendarId } = this;
 
     const req = RetryRequest('/google/calendar/get', {
         timeout: 10000,

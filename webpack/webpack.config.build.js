@@ -11,10 +11,10 @@ const version = `${array[0]}.${array[1]}.${Number(array[2]) + 1}`;
 
 const config = {
     entry: {
-        public: [
-            'babel-regenerator-runtime',
-            './src/public/system.js'
-        ],
+        // public: [
+        //     'babel-regenerator-runtime',
+        //     './src/public/system.js'
+        // ],
         admin: [
             'babel-regenerator-runtime',
             './src/admin/system.js'
@@ -74,31 +74,31 @@ const config = {
                 AutoIncreaseVersion: true
             }
         }),
-        new HtmlWebpackPlugin({
-            template: 'src/index.hbs',
-            filename: './templates/index.html',
-            inject: false,
-            minify: {
-                collapseWhitespace: true,
-                minifyCSS: true,
-                minifyJS: true,
-                removeAttributeQuotes: false,
-                removeComments: true
-            },
-            version,
-            isSpider: '{{isSpider}}',
-            stripeKey: 'pk_live_2STcLq3AN81f1gSQgJ8YBpss',
-            body: '{{body}}',
-            description: '{{description}}',
-            title: '{{title}}',
-            image: '{{image}}',
-            breadcrumb: '{{breadcrumb}}',
-            style: '{{style}}'
-        }),
+        // new HtmlWebpackPlugin({
+        //     template: 'src/index.hbs',
+        //     filename: './index.html',
+        //     inject: false,
+        //     minify: {
+        //         collapseWhitespace: true,
+        //         minifyCSS: true,
+        //         minifyJS: true,
+        //         removeAttributeQuotes: false,
+        //         removeComments: true
+        //     },
+        //     version,
+        //     isSpider: '{{isSpider}}',
+        //     stripeKey: 'pk_live_2STcLq3AN81f1gSQgJ8YBpss',
+        //     body: '{{body}}',
+        //     description: '{{description}}',
+        //     title: '{{title}}',
+        //     image: '{{image}}',
+        //     breadcrumb: '{{breadcrumb}}',
+        //     style: '{{style}}'
+        // }),
         new HtmlWebpackPlugin({
             chunks: ['admin'],
             template: 'src/admin.hbs',
-            filename: './templates/admin.html',
+            filename: './admin.html',
             inject: false,
             minify: {
                 collapseWhitespace: true,
@@ -129,13 +129,13 @@ const config = {
     ]
 };
 
-fs.readdirSync('./src/apps/').forEach(function (name) {
-    if (fs.lstatSync('./src/apps/' + name).isDirectory()) {
-        config.entry[name] = [
-            'babel-regenerator-runtime',
-            `./src/apps/${name}/index.js`
-        ]
-    }
-});
+// fs.readdirSync('./src/apps/').forEach(function (name) {
+//     if (fs.lstatSync('./src/apps/' + name).isDirectory()) {
+//         config.entry[name] = [
+//             'babel-regenerator-runtime',
+//             `./src/apps/${name}/index.js`
+//         ]
+//     }
+// });
 
 module.exports = config;

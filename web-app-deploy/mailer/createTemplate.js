@@ -2,17 +2,27 @@ const { host, greenColor, grayColor, confirmRegistrationUrl, changePasswordUrl }
 const footer = require('./footer.js');
 const header = require('./header.js');
 const newsletter = require('./templates/newsletter');
+const customEmail = require('./templates/customEmail');
 const recover = require('./templates/recover');
 const confirm = require('./templates/confirm');
 const orderConfirm = require('./templates/orderConfirm');
 const googleReview = require('./templates/googleReview');
 const privacy = require('./templates/privacy');
 const bookReminder = require('./templates/bookReminder');
+const smartLogin = require('./templates/smartLogin');
+const adminLogin = require('./templates/adminLogin');
+const dayBill = require('./templates/dayBill');
 
 module.exports = function (type, emailParams) {
     const email = emailParams.email;
+    const encodedEmail = Buffer.from(email || "", "ascii").toString("base64")
     const params = Object.assign({}, emailParams,
-        { host, greenColor, grayColor, confirmRegistrationUrl, changePasswordUrl, footer, header });
+        {
+            host,
+            greenColor,
+            encodedEmail,
+            grayColor, confirmRegistrationUrl, changePasswordUrl, footer, header
+        });
     switch (type) {
     case 'orderConfirmedEmail':
         return {
@@ -37,15 +47,21 @@ module.exports = function (type, emailParams) {
         };
     case 'newsLetterEmail':
         return {
-            bcc: emailParams.bcc,
+            to: email, // list of receivers
             subject: emailParams.subject, // Subject line
             text: '', // plain text body
-            html: newsletter(Object.assign({ bodyTitle: emailParams.subject }, params))
+            html: newsletter(params)
+        };
+    case 'customEmail':
+        return {
+            to: email, // list of receivers
+            subject: emailParams.subject, // Subject line
+            text: '', // plain text body
+            html: customEmail(params)
         };
     case 'googleReview':
         return {
             to: emailParams.email,
-            bcc: emailParams.bcc,
             subject: '¿COMO LO HICIMOS?', // Subject line
             text: '', // plain text body
             html: googleReview(params)
@@ -64,6 +80,27 @@ module.exports = function (type, emailParams) {
             text: '', // plain text body
             html: bookReminder(params),
             attachments: emailParams.attachments
+        };
+    case 'smartLogin':
+        return {
+            to: emailParams.email,
+            subject: 'Tu codigo de seguridad', // Subject line
+            text: '', // plain text body
+            html: smartLogin(params)
+        };
+    case 'adminLogin':
+        return {
+            to: emailParams.email,
+            subject: 'Accesso a In&Out', // Subject line
+            text: '', // plain text body
+            html: adminLogin(params)
+        };
+    case 'dayBill':
+        return {
+            to: emailParams.email,
+            subject: 'La factura de tu compra',
+            text: '', // plain text body
+            html: dayBill(params)
         };
     }
 };

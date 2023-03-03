@@ -3,7 +3,6 @@ const webpackMiddleware = require('webpack-dev-middleware');
 const webpackHotMiddleware = require('webpack-hot-middleware');
 const config = require('./webpack.config.dev.js');
 const path = require('path');
-const createStaticHtmls = require('../web-app-deploy/seo/createStaticHtmls');
 const fs = require('fs');
 
 module.exports = function (app, express, google, posts) {
@@ -27,23 +26,13 @@ module.exports = function (app, express, google, posts) {
 
     app.use(express.static(__dirname));
 
-    let textFile;
-    let htmls;
     return function response(req, res) {
-        if (!htmls) {
-            textFile = middleware.fileSystem.readFileSync(path.join(__dirname, 'dist/templates/index.html'), 'utf8');
-            htmls = createStaticHtmls(textFile, google, posts);
-        }
         const isAdmin = req.path.substr(0, 6) === '/admin';
         if (isAdmin) {
-            const file = middleware.fileSystem.readFileSync(path.join(__dirname, 'dist/templates/admin.html'));
+            const file = middleware.fileSystem.readFileSync(path.join(__dirname, 'dist/admin.html'));
             res.write(file);
             res.end();
-        } else {
-            res.write(createStaticHtmls.addCss(htmls[req.path] || htmls[''], false));
-            res.end();
         }
-
     };
 
 };

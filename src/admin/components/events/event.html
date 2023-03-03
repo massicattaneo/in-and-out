@@ -4,5 +4,8 @@
         ondblclick='this.form.drop({worker: "{{worker}}"}, {{json}})'
         onclick='this.form.clipboard({{json}})'
         data-on="contextmenu:contextmenu||dblclick:edit||dragstart:dragstart||dragend:dragend">
-    <div data-item="summary" class="summary">{{summary}}</div>
+    <div id="{{id}}-summary" data-item="summary" class="summary">{{summary}}</div>
+    <div id="{{id}}-tooltip" class="mdl-tooltip mdl-tooltip--top mdl-tooltip--large" for="{{id}}">
+        {{summary}}
+    </div>
 </output>

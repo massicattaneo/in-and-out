@@ -1,4 +1,3 @@
-const { firebaseBonuses, firebaseClients, firebaseTransactions } = require('./firebaseImporter');
 const { createICS } = require('./events/createICS');
 const posts = require('./extras/posts.json');
 const detector = require('spider-detector');
@@ -10,6 +9,7 @@ const app = express();
 const google = require('./google-api')(utils, posts);
 const mailer = require('./mailer/mailer')();
 const isDeveloping = process.env.NODE_ENV === 'development';
+// const isDeveloping = false;
 const mongo = require('./mongo')(isDeveloping, utils);
 const bodyParser = require('body-parser');
 const ExpressBrute = require('express-brute');
@@ -37,11 +37,28 @@ const httpsOptions = {
     cert: fs.readFileSync(path.resolve(__dirname + '/private/cert.pem'))
 };
 const adminKeys = require('./private/adminKeys');
-const createStaticHtmls = require('./seo/createStaticHtmls');
 const shared = require('./shared');
 const BankSummary = require('./excel/bank-summary');
 const BillSummary = require('./excel/bill-summary');
 const CashSummary = require('./excel/cash-summary');
+
+async function sendCommunication(clientId, type, action, body, onError = () => true, onSuccess = () => true) {
+    const [user] = await mongo.rest.get('users', `_id=${clientId}`);
+    if (!user) onError("error");
+    if (type === "email") {
+        const { _id } = await mongo.rest.insert("communications", { type, action, clientId, date: Date.now(), sent: true, data: body });
+        mailer.send(createTemplate(action, body))
+            .then(() => {
+                onSuccess("ok");
+            }).catch(async () => {
+                await mongo.rest.update("communications", _id, { sent: false });
+                onError("error");
+            });
+
+    } else {
+        onError("error");
+    }
+}
 
 (async function () {
     const { store, db } = await mongo.connect();
@@ -108,16 +125,19 @@ const CashSummary = require('./excel/cash-summary');
         }
     }
 
+    function requiresSuperAdmin(req, res, next) {
+        if (req.session && req.session.isAdmin && req.session.adminLevel === 2) {
+            return next();
+        }
+    }
+
     function requiresLogin(req, res, next) {
         if (req.session && req.session.userId) {
             return next();
         } else {
             req.session.destroy(function (err) {
-                if (err) {
-                    return res.send('anonymous');
-                } else {
-                    return res.send('anonymous');
-                }
+                res.status(500);
+                return res.send('anonymous');
             });
         }
     }
@@ -152,19 +172,13 @@ const CashSummary = require('./excel/cash-summary');
     });
 
     app.get('/api/public-db', async function (req, res) {
-        if (req.session && req.session.isAdmin) {
-            res.send(Object.assign({}, google.publicDb(), {
-                reviews: await mongo.getReviewsInfo(),
-                cartPriority: await mongo.cartPriority(),
-                barcodes: await mongo.getBarCodes(google.publicDb())
-            }));
-        } else {
-            res.send(Object.assign({}, google.publicDb(), {
-                reviews: await mongo.getReviewsInfo(),
-                barcodes: await mongo.getBarCodes(google.publicDb()),
-                cartPriority: await mongo.cartPriority()
-            }));
-        }
+        res.send(Object.assign({}, google.publicDb(), {
+            adminUsers: googleDb.adminUsers,
+            reviews: await mongo.getReviewsInfo(),
+            barcodes: await mongo.getBarCodes(google.publicDb()),
+            cartPriority: await mongo.cartPriority(),
+            posts: posts.filter(i => i.post_type === 'post')
+        }));
     });
 
     app.get('/api/reviews/*', function (req, res) {
@@ -220,14 +234,14 @@ const CashSummary = require('./excel/cash-summary');
         });
 
     app.post('/google/get-hours',
-        requiresLogin,
         function (req, res) {
             const { date, treatments, center } = req.body;
             const timeMin = new Date(date);
             timeMin.setUTCHours(7, 0, 0, 0);
             const timeMax = new Date(date);
             timeMax.setUTCHours(20, 0, 0, 0);
-            const items = shared.getWorkers(googleDb, date, center)
+            const workers = center !== undefined ? shared.getWorkers(googleDb, date, center) : shared.getDayWorkers(googleDb, date)
+            const items = workers
                 .map(w => {
                     return { id: googleDb.workers[w].googleId };
                 });
@@ -250,7 +264,7 @@ const CashSummary = require('./excel/cash-summary');
         const sendingCharge = google.publicDb().settings.sendingCharge;
         const amount = Math.floor((cartAmount + ((productsAmount < freeChargeLimit && productsAmount !== 0) ? sendingCharge : 0)) * 100);
         const mongoCart = req.body.cart.map(id => Object.assign({ id, used: false }));
-        const { id: orderId } = await mongo.buy({ cart: mongoCart, userId: req.session.userId, email, amount, sendTo });
+        const { id: orderId } = await mongo.buy({ cart: mongoCart, email, amount, sendTo });
         stripe.clientSecret({ amount })
             .catch(err => {
                 console.log(err);
@@ -279,16 +293,37 @@ const CashSummary = require('./excel/cash-summary');
                 googleDb: google.publicDb()
             };
             try {
+                let [userFromSessionId] = ""
+                if (req.session.userId) {
+                    try {
+                        [userFromSessionId] = await mongo.rest.get('users', `_id=${new ObjectId(req.session.userId)}`);
+                    } catch (e) {
+                        //DO NOTHING
+                    }
+                }
+                const [userFromEmail] = await mongo.rest.get('users', `email=${email}`);
+                if (!userFromSessionId && !userFromEmail) {
+                    await mongo.insertOrderOnlineUser({ email })
+                }
+                const [newUserFromEmail] = await mongo.rest.get('users', `email=${email}`);
+                const newUser = userFromSessionId || newUserFromEmail
                 await mongo.confirmBuy({
                     id: new ObjectId(orderId),
                     stripeId: paymentIntent.id,
                     amount: paymentIntent.amount,
-                    last4: ''
+                    last4: '',
+                    userId: newUser._id
                 });
-                if (!privacy) {
-                    const user = await mongo.rest.get('users', `email=${email}`);
-                    if (user.length) await mongo.rest.update('users', user[0]._id, { privacy: true });
-                }
+                await mongo.rest.insert("cash", {
+                    clientId: newUser._id,
+                    date: Date.now(),
+                    description: 'Compra online',
+                    type: 'stripe',
+                    user: 'online',
+                    amount: paymentIntent.amount / 100,
+                    orderId,
+                    cart: cart.map(item => item.id)
+                })
                 mailer.send(createTemplate('orderConfirmedEmail', emailParams));
             } catch (error) {
                 console.log('ERROR SENDING EMAIL ON CONFIRM BUY:', error);
@@ -297,12 +332,50 @@ const CashSummary = require('./excel/cash-summary');
                 await res.send(emailParams);
             }
         });
+    
+    app.post("/api/communications/preview/:type/:action",
+        requiresAdmin,
+        async function (req, res) {
+            const { type, action } = req.params;
+            if (type === "email") {
+                const preview = createTemplate(action, req.body)
+                return res.send(preview)
+            }
+            res.send("")
+        }
+    )
+
+    app.post("/api/communications/send/:type/:action/:clientId",
+        requiresAdmin,
+        async function (req, res) {
+            const { type, action, clientId } = req.params;
+            await sendCommunication(clientId, type, action, req.body, () => {
+                res.status(500);
+                res.send("error");
+            }, () => {
+                res.send("ok")
+            });
+        }
+    )
+
+    app.get('/api/pdf/bill/:clientId/:date', async function (req, res) {
+            const { clientId, date } = req.params;
+            const from = new Date(date);
+            from.setHours(2, 0, 0, 0);
+            const to = new Date(date);
+            to.setHours(23, 0, 0, 0);
+            const cashEntries = await mongo.rest.get('cash', `clientId=${clientId}&date>${from.getTime()}&date<${to.getTime()}`);
+            const user = (await mongo.rest.get('users', `_id=${clientId}`) || [])[0];
+            if (!user || cashEntries.length === 0 || !cashEntries[0].billInfo || !cashEntries[0].billNumber) return res.send('<html><body>ESTA FACTURA NO EXISTE</body></html>');
+            const formatted = formatItemForPdfBill(cashEntries, cashEntries[0].billNumber, formatDateShort(from), cashEntries[0].billInfo);
+            createPdfBills(res, [formatted]);
+        });
 
     app.get('/api/bills/cash/:clientId/:date',
         requiresAdmin,
         async function (req, res) {
             const { clientId, date } = req.params;
-            const { name, nif, cap, address, city } = req.query;
+            const { name = "", nif = "", cap= "", address= "", city="" } = req.query;
             const from = new Date(date);
             from.setHours(2, 0, 0, 0);
             const to = new Date(date);
@@ -316,10 +389,11 @@ const CashSummary = require('./excel/cash-summary');
                 billNumber = (await mongo.nextBillNumber(cashEntries[0].user)).billNumber;
             }
             const user = (await mongo.rest.get('users', `_id=${cashEntries[0].clientId}`) || [])[0];
-            await Promise.all(cashEntries.map(cash => mongo.rest.update(table, cash._id, { billNumber })));
             const userInfo = Object.assign({ nif, cap, address, city }, user);
             userInfo.name = name ? name : userInfo.name;
             userInfo.surname = name ? '' : userInfo.surname;
+            const billInfo = Object.assign({ nif, cap, address, city }, { name: name || `${user.name || ""} ${user.surname || ""}` });
+            await Promise.all(cashEntries.map(cash => mongo.rest.update(table, cash._id, { billNumber, billInfo })));
             const formatted = formatItemForPdfBill(cashEntries, billNumber, formatDateShort(from), userInfo);
             createPdfBills(res, [formatted]);
         });
@@ -370,6 +444,12 @@ const CashSummary = require('./excel/cash-summary');
                 createPdfOrder(res, google.publicDb(), orderId, cart);    
             }
         });
+    
+    app.get('/api/orders/products/unsent',
+        requiresAdmin,
+        async (req, res) => {
+            return res.json(await mongo.unsentProductOrders())
+    })
 
     app.post('/google/calendar/insert',
         requiresLogin,
@@ -377,6 +457,11 @@ const CashSummary = require('./excel/cash-summary');
             const offset = -shared.getSpainOffset();
             const { treatments, start, locationIndex } = req.body;
             const { name, tel, email } = await mongo.getUser({ _id: new ObjectId(req.session.userId) });
+            if (!email) {
+                res.status(500);
+                res.send('error');
+                return;
+            }
             const workers = shared.getWorkersByHour(googleDb, start, locationIndex);
             const all = google.publicDb().treatments;
             const dateMin = new Date(start);
@@ -412,7 +497,8 @@ const CashSummary = require('./excel/cash-summary');
                 summary: `${name} (TEL. ${tel}) ${label}`,
                 description: email,
                 label,
-                treatments
+                treatments,
+                clientId: req.session.userId
             }).then(async (e) => {
                 res.send(e);
                 const date = new Date(new Date(e.start).getTime() - (((-shared.getSpainOffset()) + google.publicDb().serverOffset) * 60 * 60 * 1000));
@@ -443,9 +529,8 @@ const CashSummary = require('./excel/cash-summary');
     app.post('/google/calendar/delete',
         requiresLogin,
         async function (req, res) {
-            const { eventId, calendarId } = req.body;
             google
-                .calendarDelete({ eventId, calendarId })
+                .calendarDelete(req.body)
                 .then(() => {
                     res.send('ok');
                 })
@@ -455,6 +540,23 @@ const CashSummary = require('./excel/cash-summary');
                 });
         });
 
+    app.post('/google/calendar/get-all',
+        requiresAdmin,
+        async function (req, res) {
+            const { date, calendars } = req.body;
+            Promise.all(calendars.map((calendarId) => {
+                return google.calendarGet(calendarId, new Date(date))
+            })).then(data => {
+                const r = calendars.reduce((acc, id, index) => {
+                    return Object.assign(acc, { [id]: data[index] })
+                }, {})
+                res.send(r)
+            }).catch(() => {
+                res.status(500);
+                res.send('error');
+            })
+        });
+    
     app.post('/google/calendar/get',
         requiresAdmin,
         async function (req, res) {
@@ -473,7 +575,7 @@ const CashSummary = require('./excel/cash-summary');
     app.post('/google/calendar/add',
         requiresAdmin,
         async function (req, res) {
-            const { duration, calendarId, date, summary, label = '', processId, description, treatments = [] } = req.body;
+            const { duration, calendarId, date, summary, label = '', processId, description, treatments = [], clientId = "", blockedWith = "" } = req.body;
             const from = new Date(date);
             google.calendarInsert({
                 id: calendarId,
@@ -483,7 +585,9 @@ const CashSummary = require('./excel/cash-summary');
                 description,
                 label,
                 processId,
-                treatments
+                treatments,
+                clientId,
+                blockedWith
             })
                 .then((e) => {
                     res.send(e);
@@ -515,13 +619,31 @@ const CashSummary = require('./excel/cash-summary');
                 reminders: await mongo.getAll('reminders'),
                 bills: await mongo.getAll('bills'),
                 actualCash: {
-                    salitre: await mongo.getActualCash('salitre'),
-                    buenaventura: await mongo.getActualCash('buenaventura'),
-                    portanueva: await mongo.getActualCash('portanueva')
+                    salitre: Math.min(4000, await mongo.getActualCash('salitre')),
+                    buenaventura: Math.min(4000, await mongo.getActualCash('buenaventura')),
+                    portanueva: Math.min(4000, await mongo.getActualCash('portanueva')),
                 }
             });
         });
+    
+    app.get('/api/actual-cash',
+        requiresAdmin,
+        async function (req, res) {
+            res.send({
+                salitre: Math.min(4000, await mongo.getActualCash('salitre')),
+                buenaventura: Math.min(4000, await mongo.getActualCash('buenaventura')),
+                portanueva: Math.min(4000, await mongo.getActualCash('portanueva')),
+            });
+        });
 
+    app.post("/google/user/bookings",
+        requiresAdmin,
+        async function (req, res) {
+            const {email} = req.body
+            // const data = await google.getBookings(email)
+            res.json([])
+        });
+    
     app.get('/api/rest/*',
         requiresAdmin,
         async function (req, res) {
@@ -535,16 +657,6 @@ const CashSummary = require('./excel/cash-summary');
                     res.send(err.message);
                 });
         });
-
-    app.get('/sitemap.xml', function (req, res) {
-        google.createSitemap().toXML(function (err, xml) {
-            if (err) {
-                return res.status(500).end();
-            }
-            res.header('Content-Type', 'application/xml');
-            res.send(xml);
-        });
-    });
 
     app.post('/api/rest/*',
         requiresAdmin,
@@ -597,39 +709,29 @@ const CashSummary = require('./excel/cash-summary');
     app.post('/api/newsletter',
         requiresAdmin,
         async function (req, res) {
-            const emails = await mongo.getEmails();
-            const allMembers = emails
-                .filter((e, i, a) => a.indexOf(e) === i)
-                .filter(e => e.indexOf('@') !== -1);
-            
-            const bcc = (req.body.test ? req.body.emails : allMembers);
-            
-            if (!req.body.test) {
-                console.log('SENDING NEWSLETTER');
-            }
-
-            const newArray = [];
-            while (bcc.length) {
-                newArray.push(bcc.splice(0, 49));
-            }
-
-            newArray.forEach(function (email, index) {
-                const bcc = email;
-                setTimeout(function () {
-                    try {
-                        const emailTemplate = createTemplate('newsLetterEmail', {
-                            bcc: bcc,
-                            subject: req.body.subject,
-                            html: req.body.html
-                        });
-                        mailer.send(emailTemplate);
-                        console.log('NEWSLETTER SENT', bcc);
-                    } catch (e) {
-                        console.log('ERROR NEWSLETTER', bcc, e);
+            if (req.body.test) {
+                const emailTemplate = createTemplate("newsLetterEmail", {
+                    email: "massi.cattaneo.it@gmail.com",
+                    subject: req.body.subject,
+                    html: req.body.html,
+                })
+                return mailer.send(emailTemplate)
+            } else {
+                const bcc = await mongo.getNewslettersUsers()
+                console.log("SENDING NEWSLETTER TO", bcc.length, "USERS")
+                await bcc.reduce(async (prev, user) => {
+                    await prev
+                    await new Promise(res => setTimeout(res, 500))
+                    const body = {
+                        email: user.email,
+                        subject: req.body.subject,
+                        html: req.body.html,
                     }
-                }, index * 20 * 1000);
-            });
-            res.send('ok');
+                    return sendCommunication(user._id, "email", "newsLetterEmail", body)
+                }, Promise.resolve())
+                console.log("NEWSLETTERs SENT")
+            }
+                res.send("ok")
         }
     );
 
@@ -797,33 +899,84 @@ const CashSummary = require('./excel/cash-summary');
             await google.delete(file.googleRef);
             res.send(file);
         });
+    
+    app.post('/api/bbva/updload',
+        requiresAdmin,
+        async function (req, res) {
+            const files = Object.keys(req.files).map(key => req.files[key].data)
+            const summary = { items: [], inserted: 0, skipped: 0 }
+            await Promise.all(files.map(async file => {
+                const buffer = Buffer.from(file);
+                const a = await mongo.insertBBVAMonthExtract(buffer)
+                summary.items.push(a.items)
+                summary.inserted += a.inserted
+                summary.skipped += a.skipped
+            }))
+            res.send(summary);
+        });
+    
+    app.get('/api/cash/summay',
+        requiresSuperAdmin,
+        async function (req, res) {
+            //TODO fix the $toDate that is not present on mongo v3.6
+            // const data = await mongo.cashSummary()
+            res.json([])
+        });
 
-    let callback;
+    app.post('/api/client/error',
+        bruteforce.prevent,
+        async function (req, res) {
+            const { error, userAgent } = req.body
+            if (req.headers.origin === "https://www.inandoutbelleza.es") {
+                mailer.send({
+                    to: ["massi.cattaneo.it@gmail.com"], // list of receivers
+                    subject: 'Error on the client', // Subject line
+                    text: '',
+                    html: `<p>ERROR: ${error}</p><p>USER AGENT: ${userAgent}</p>`
+                })
+            }
+            res.json({})
+        });
+
     if (isDeveloping) {
-        callback = require('../webpack/dev-server')(app, express, google, posts);
+        const callback = require('../webpack/dev-server')(app, express, google, posts);
+        app.get('*', callback);
     } else {
-        const textFile = fs.readFileSync(path.join(__dirname, 'static/templates/index.html'), 'utf8');
-        const htmls = createStaticHtmls(textFile, google, posts);
+        const callback = function response(req, res) {
+            const isAdmin = req.path.substr(0, 6) === '/admin';
+            const isSpider = req.isSpider()
+            if (req.headers['x-forwarded-proto'] === 'http' && !isSpider) {
+                res.redirect(`https://${req.headers.host}${req.url}`);
+            }
+            else if (isAdmin) {
+                res.sendFile(path.join(__dirname, 'static/admin/index.html'));
+            } else {
+                if (isSpider) {
+                    try {
+                        if (req.path.endsWith("/")) {
+                            res.write(fs.readFileSync(path.join(__dirname, `static/seo${req.path}index.html`), 'utf8'))
+                        } else {
+                            res.write(fs.readFileSync(path.join(__dirname, `static/seo${req.path}.html`), 'utf8'))
+                        }
+                    } catch (e) {
+                        res.write(fs.readFileSync(path.join(__dirname, 'static/seo/index.html'), 'utf8'));
+                    } finally {
+                        res.end();
+                    }
+                    return
+                }
+                res.write(fs.readFileSync(path.join(__dirname, 'static/index.html'), 'utf8'));
+                res.end();
+                
+                
+            }
+        };
         app.use(express.static(__dirname + '/static', {
             maxage: 365 * 24 * 60 * 60 * 1000,
             etag: false
         }));
-        callback = function response(req, res) {
-            const isAdmin = req.path.substr(0, 6) === '/admin';
-            if (req.headers['x-forwarded-proto'] === 'http' && !req.isSpider()) {
-                res.redirect(`https://${req.headers.host}${req.url}`);
-            } else if (isAdmin) {
-                res.sendFile(path.join(__dirname, 'static/templates/admin.html'));
-            } else {
-                if (req.isSpider()) {
-                    // console.log('***** CRAWLER: requesting:', req.path);
-                }
-                res.write(createStaticHtmls.addCss(htmls[req.path] || htmls[''], req.isSpider()));
-                res.end();
-            }
-        };
+        app.get('*', callback);
     }
-    app.get('*', callback);
 
     // await (new Promise(function (resolve) {
     //     startSever.close(function () {
@@ -841,27 +994,28 @@ const CashSummary = require('./excel/cash-summary');
     //     console.log('https server running at ' + httpsPort)
     // });
 
-    function noop() {
-    }
-
-    function heartbeat() {
-        this.isAlive = true;
-    }
+    
 
     utils.wss = new WebSocket.Server({ server });
 
     utils.wss.on('connection', function connection(ws) {
         ws.isAlive = true;
-        ws.on('pong', heartbeat);
+        ws.on('pong', function heartbeat() {
+            ws.isAlive = true;
+        });
     });
 
     const intervalCheckWss = setInterval(function ping() {
         utils.wss.clients.forEach(function each(ws) {
             if (ws.isAlive === false) return ws.terminate();
             ws.isAlive = false;
-            ws.ping(noop);
+            ws.ping();
         });
     }, 5 * 1000);
+
+    utils.wss.on('close', function close() {
+        clearInterval(intervalCheckWss);
+    });
 
     utils.wss.broadcast = function broadcast(data) {
         utils.wss.clients.forEach(function each(ws) {

@@ -17,7 +17,9 @@ module.exports = function () {
                     reject(new Error('stripe-error'));
                 })
                 .then(intent => {
-                    resolve({ clientSecret: intent.client_secret });
+                    if (intent) {
+                        resolve({ clientSecret: intent.client_secret });
+                    }
                 });
         });
     };

@@ -9,7 +9,6 @@
   "logoutUrl": "/api/login/logout",
   "recoverUrl": "/api/login/recover",
   "privacyEmailUrl": "/api/login/privacyEmail",
-  "privacyAcceptUrl": "/api/login/privacy-accept",
   "resetUrl": "/api/login/reset",
   "deleteAccountUrl": "/api/login/delete",
   "logStatusUrl": "/api/login/status",

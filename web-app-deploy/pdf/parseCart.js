@@ -1,4 +1,10 @@
-const cartEs = require('../static/localization/cart/es.json');
+
+const treatmentsTypes = {
+    "treatments": "TRATAMIENTOS",
+    "bonusCards": "BONOS",
+    "products": "PRODUCTOS"
+}
+  
 module.exports = function parseCart(array, googleDb) {
     const stored = {
         'TRT': 'treatments',
@@ -19,7 +25,7 @@ module.exports = function parseCart(array, googleDb) {
                     title: t.titulo,
                     price: t.precio,
                     type,
-                    typeTranslated: cartEs.treatmentsTypes[type],
+                    typeTranslated: treatmentsTypes[type],
                     category: type === 'treatments' ? `${t.tipo}` : type === 'bonusCards' ? 'Bono' : ''
                 });
             }

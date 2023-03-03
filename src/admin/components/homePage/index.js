@@ -59,7 +59,7 @@ export default async function ({ system, thread, locale }) {
         'cashSalitre': () => system.store['cash-salitre'],
         'cashBuenaventura': () => system.store['cash-buenaventura'],
         'cashPortanueva': () => system.store['cash-portanueva'],
-    }, ({ cash, orders, adminLevel, cashSalitre, cashBuenaventura }) => {
+    }, ({ cash, orders, adminLevel, cashSalitre, cashBuenaventura, cashPortanueva }) => {
         if (adminLevel === 2) {
             const monthNames = new Array(12).fill(0).map((v, i) => locale.get(`month_${i}`).toUpperCase());
             const today = new Date();
@@ -161,7 +161,8 @@ export default async function ({ system, thread, locale }) {
                         year: system.toCurrency(result[key].year)
                     }), []),
                 cashSalitre: system.toCurrency(cashSalitre), 
-                cashBuenaventura: system.toCurrency(cashBuenaventura)
+                cashBuenaventura: system.toCurrency(cashBuenaventura),
+                cashPortanueva: system.toCurrency(cashPortanueva)
             });
 
             var ctx = view.get('chart').getContext('2d');
@@ -183,7 +184,7 @@ export default async function ({ system, thread, locale }) {
                             borderWidth: 1
                         },
                         {
-                            label: 'PORTANUEVA',
+                            label: 'PUERTANUEVA',
                             data: result.portanueva.months,
                             backgroundColor: '#cdffd6',
                             borderWidth: 1

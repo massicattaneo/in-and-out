@@ -90,7 +90,7 @@ module.exports = function () {
                         <table cellpadding="0" cellspacing="0">
                             <tr>
                                 <td rowspan="2">
-                                    <img width="50px" src="${host}/assets/images/manzana.png"/>
+                                    <img width="50px" src="${host}/assets/manzana.png"/>
                                 </td>
                                 <td>&nbsp;</td>
                                 <td style="font-size:40px; font-weight: bold; line-height: 40px;">
@@ -103,7 +103,8 @@ module.exports = function () {
                             </tr>
                         </table>
                         <span style="font-size: 11px; color: #888">Málaga - Calle Salitre, 11 Tel: 951 131 460 | Móvil: 633 90 91 03</span><br/>
-                        <span style="font-size: 11px; color: #888">Málaga - Calle Puerta de Buenaventura, 4 Tel: 951 387 919 | Móvil: 695 685 291</span>
+                        <span style="font-size: 11px; color: #888">Málaga - Calle Puerta de Buenaventura, 4 Tel: 951 387 919 | Móvil: 695 685 291</span><br/>
+                        <span style="font-size: 11px; color: #888">Málaga - C. Muro de Prta Nueva, 1, 4 Tel: 951 394 352 | Móvil: 640 976 658</span>
                     </td>
                 </tr>
                 <!-- PRIVACY -->

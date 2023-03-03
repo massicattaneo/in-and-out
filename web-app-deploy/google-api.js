@@ -19,8 +19,6 @@ const jwtClient = new google.auth.JWT(
 const sharp = require('sharp');
 google.options({ auth: jwtClient });
 const processes = require('./processes.json');
-const sm = require('sitemap');
-const appsManifest = require('./static/localization/system/es.json');
 const shared = require('./shared');
 const striptags = require('striptags');
 
@@ -360,7 +358,7 @@ module.exports = function (utils, posts) {
             .join(' - ');
     };
 
-    obj.calendarInsert = function ({ id, from, to, label, description = '', summary, processId = 97, treatments = [] }) {
+    obj.calendarInsert = function ({ id, from, to, label, description = '', summary, processId = 97, treatments = [], clientId = "", blockedWith = "" }) {
         return new Promise(function (resolve, reject) {
             const location = shared.getLocation(googleDb, from, id).address;
             const params = {
@@ -371,7 +369,7 @@ module.exports = function (utils, posts) {
                     start: { 'dateTime': (new Date(from)).toISOString() },
                     end: { 'dateTime': (new Date(to)).toISOString() },
                     description,
-                    extendedProperties: { private: { processId, label, treatments: JSON.stringify(treatments) } }
+                    extendedProperties: { private: { processId, label, treatments: JSON.stringify(treatments), clientId, blockedWith } }
                 }
             };
             calendar.events.insert(params, function (e, o) {
@@ -420,10 +418,10 @@ module.exports = function (utils, posts) {
         });
     };
 
-    obj.calendarDelete = function ({ eventId, calendarId }) {
+    obj.calendarDelete = function ({ eventId, calendarId, timestamp }) {
         return new Promise(function (resolve, reject) {
             calendar.events.delete({ eventId, calendarId }, function (e, o) {
-                utils.wss.broadcast(JSON.stringify({ type: 'deleteEvent', data: { calendarId, eventId } }));
+                utils.wss.broadcast(JSON.stringify({ type: 'deleteEvent', data: { calendarId, eventId, date: timestamp } }));
                 resolve();
             });
         });
@@ -462,7 +460,10 @@ module.exports = function (utils, posts) {
                     timeMin: (timeMinDate).toISOString(),
                     q: hash
                 }, function (err, o) {
-                    if (err) return reject(new Error('error'));
+                    if (err) { 
+                        console.log(err)
+                        return reject(new Error('error'));
+                    }
                     resolve(o.items.map(({ id, summary, extendedProperties, location, start, end }) => {
                         return {
                             eventId: id,
@@ -470,6 +471,7 @@ module.exports = function (utils, posts) {
                             summary: summary, location,
                             start: new Date(start.dateTime).toISOString(),
                             end: new Date(end.dateTime).toISOString(),
+                            label: (extendedProperties && extendedProperties.private) ? extendedProperties.private.label || "" : "",
                             treatments: (extendedProperties && extendedProperties.private) ? JSON.parse(extendedProperties.private.treatments || JSON.stringify([])) || [] : []
                         };
                     }));
@@ -477,128 +479,6 @@ module.exports = function (utils, posts) {
             });
         }));
         return results.reduce((a, b) => a.concat(b), []);
-    };
-
-    obj.createSitemap = function () {
-        const urls = Object.keys(appsManifest.apps)
-            .map(key => {
-                const images = photos
-                    .filter(p => p.folder === appsManifest.apps[key].url)
-                    .filter(p => p.url.indexOf('desktop') !== -1);
-                const img = images.map(i => {
-                    return {
-                        url: `https://www.inandoutbelleza.es${i.url}`,
-                        title: i.name,
-                        geoLocation: 'Málaga, España'
-                    };
-                });
-                return {
-                    url: `/es/${appsManifest.apps[key].url}`,
-                    changefreq: 'monthly',
-                    priority: 1,
-                    lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-02`),
-                    img
-                };
-            });
-
-        urls.push(...sheets.promotions.map(item => {
-            return {
-                url: `/es/promociones/${item.href}`,
-                changefreq: 'monthly',
-                priority: 1,
-                lastmodISO: getLastmodISO(item.creacion)
-            };
-        }));
-        urls.push(...sheets.treatments.map(item => {
-            return {
-                url: `/es/tratamientos/${item.tipo.toLowerCase().replace(/\s/g, '-').replace(/ó/g, 'o')}/${item.href}`,
-                changefreq: 'monthly',
-                priority: 1,
-                lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-02`)
-            };
-        }));
-        urls.push(...sheets.bonusCards.map(item => {
-            return {
-                url: `/es/tarjetas/${item.href}`,
-                changefreq: 'monthly',
-                priority: 1,
-                lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-02`)
-            };
-        }));
-        urls.push(...sheets.beautyparties.map(item => {
-            return {
-                url: `/es/beauty-parties/${item.href}`,
-                changefreq: 'monthly',
-                priority: 1,
-                lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-02`)
-            };
-        }));
-        urls.push(...sheets.products.map(item => {
-            return {
-                url: `/es/productos/${item.menuhref}/${item.href}`,
-                changefreq: 'monthly',
-                priority: 1,
-                lastmodISO: getLastmodISO(`${new Date().getFullYear()}-${new Date().getMonth() + 1}-02`)
-            };
-        }));
-        urls.push(...sheets.news.map(item => {
-            return {
-                url: `/es/novedades/${item.href}`,
-                changefreq: 'monthly',
-                priority: 1,
-                lastmodISO: getLastmodISO(item.fecha)
-            };
-        }));
-        urls.push(...sheets.press.map(item => {
-            return {
-                url: `/es/en-los-medios/${item.href}`,
-                changefreq: 'monthly',
-                priority: 1,
-                lastmodISO: getLastmodISO(item.fecha)
-            };
-        }));
-        urls.push(...obj.getSuggestions().map(item => {
-            return {
-                url: `/es/buscar/${item}`,
-                changefreq: 'monthly',
-                priority: 0.1
-            };
-        }));
-
-        const priorityPosts = ['microblading-en-malaga', 'ventajas-microblading',
-            'depilacion-al-caramelo-malaga', 'depilacion-con-hilo',
-            'el-exito-de-inout-tiene-nombre-depilacion-con-hilo', 'la-depilacion-con-hilo-es-la-reina',
-            '3-ventajas-de-la-depilacion-con-hilo', 'los-5-esmaltes-de-opi-mas-vendidos',
-            'tarjetas-regalo-tratamientos-esteticos-malaga',
-            'quieres-hacer-una-beauty-party-en-malaga', 'alisado-cejas-malaga',
-            'comprar-biologique-recherche-malaga', 'cosmeticos-faciales-biologique-recherche',
-            'segunda-piel-biologique-recherche', 'las-famosas-usan-p50-biologique-recherche'];
-
-        posts
-            .filter(p => p.post_type === 'post')
-            .forEach(function (post) {
-                const images = posts
-                    .filter(p => p.post_parent === post.ID)
-                    .filter(p => p.post_type === 'attachment');
-                const isPriority = priorityPosts.indexOf(post.post_name) !== -1;
-                urls.push({
-                    url: `/${post.post_name}`,
-                    priority: isPriority ? 1 : 0.8,
-                    lastmodISO: getLastmodISO(isPriority ? '2018-05-02 18:09:48' : post.post_date),
-                    img: images.map(i => {
-                        return {
-                            url: `https://www.inandoutbelleza.es${i.guid}`,
-                            title: i.post_title,
-                            geoLocation: 'Málaga, España'
-                        };
-                    })
-                });
-            });
-        return sm.createSitemap({
-            hostname: 'https://www.inandoutbelleza.es/',
-            cacheTime: 600000,
-            urls
-        });
     };
 
     obj.stubData = function () {

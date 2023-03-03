@@ -13,6 +13,7 @@ function isInside(string = '', find) {
 function filterClients(find) {
     return function (item) {
         if (item.deleted === true) return false;
+        if (item.isSmartInactive) return false;
         if (find === '') return true;
         if (item.email.indexOf(find) !== -1) return true;
         const words = find.split(' ');
@@ -137,7 +138,8 @@ export default async function ({ locale, system, thread }) {
                     name: this.name.value,
                     surname: this.surname.value,
                     email: this.email.value,
-                    tel: this.tel.value
+                    tel: this.tel.value,
+                    notes: this.notes.value
                 });
                 close();
             });
@@ -158,6 +160,7 @@ export default async function ({ locale, system, thread }) {
                 email,
                 user: system.store.users[0],
                 tel: this.tel.value,
+                notes: this.notes.value,
                 privacy: false
             });
             if (email && confirm('Quieres enaviar un correo para aceptar la Privacy?')) {
@@ -178,6 +181,7 @@ export default async function ({ locale, system, thread }) {
         scanner.addListener('scan', function (content) {
             scanner.stop();
             system.navigateTo(`${locale.get('urls.history.href')}?id=${content}`);
+            scanner.removeAllListeners()
         });
         Instascan.Camera.getCameras().then(function (cameras) {
             if (cameras.length > 0) {

@@ -4,6 +4,7 @@ import * as style from './style.scss';
 import miniCalTpl from './mini-calendar.html';
 import * as miniCalStyle from './mini-calendar.scss';
 import dayTpl from './day.html';
+import hourLineTpl from './hour-line.html';
 import hourTpl from './hour.html';
 import processTpl from './process.html';
 import editHolidays from './edit-holidays.html';
@@ -23,7 +24,7 @@ let clipboard;
 
 function timeToDecimal(t) {
     const arr = t.split(':');
-    return parseFloat(parseInt(arr[0], 10) + '.' + parseInt((arr[1] / 6) * 10, 10));
+    return parseFloat(parseInt(arr[0], 10) + '.' + parseInt((parseInt(arr[1], 10) / 6) * 10, 10));
 }
 
 function sameDay(d1, d2) {
@@ -182,7 +183,7 @@ export default async function ({ locale, system, thread }) {
             ? [new Date(date).getHours(), new Date(date).getMinutes()]
             : target.innerText.split(':').map(i => Number(i));
         const dbWorker = system.publicDb.workers.find(c => c.column === worker);
-        if (params.processId === 99 && params.summary === 'dia libre' && params.action === 'add') {
+        if (params.processId === 99 && params.action === 'add') {
             const calendar = getCalendar(system.publicDb, date);
             const pepe = calendar.week[new Date(date).getDay()].find(item => item[1] === dbWorker.index)
             hour[0] = Math.floor(pepe[2])
@@ -199,7 +200,7 @@ export default async function ({ locale, system, thread }) {
                 label: params.label,
                 treatments: []
             });
-        } else if (params.processId === 99 && params.summary === 'festivo' && params.action === 'add') {
+        } else if (params.processId === 101 && params.action === 'add') {
             const calendar = getCalendar(system.publicDb, date);
             const dayCal = calendar.week[new Date(date).getDay()]
             dayCal.forEach(cal => {
@@ -219,7 +220,7 @@ export default async function ({ locale, system, thread }) {
                 });
             })
             return
-        } else if (params.processId === 99 && params.summary === 'vacaciones' && params.action === 'add') { 
+        } else if (params.processId === 100 && params.action === 'add') { 
             const modalView = HtmlView(editHolidays, {});
             const modal = modalView.get();
             document.getElementById('modal').appendChild(modal);
@@ -260,8 +261,10 @@ export default async function ({ locale, system, thread }) {
                     saveForm.call(modalView.get('form'));
                 }
             }
+            keyPressed.disconnect()
             window.addEventListener('keydown', enterKey);
             function close() {
+                keyPressed.connect()
                 modal.close();
                 window.removeEventListener('keydown', enterKey);
             }
@@ -330,15 +333,20 @@ export default async function ({ locale, system, thread }) {
                 saveForm.call(modalView.get('form'));
             }
         }
-
+        keyPressed.disconnect()
         window.addEventListener('keydown', enterKey);
-
+        
         function close() {
+            keyPressed.connect()
             modal.close();
             window.removeEventListener('keydown', enterKey);
         }
     };
     form.dragStart = function (params, type = 'new') {
+        const tooltip = document.getElementById(params.id + "-tooltip")
+        if (tooltip) {
+            tooltip.removeStyle("is-active")
+        }
         params.userAction = type;
         window.event.dataTransfer.setData('config', JSON.stringify(params));
     };
@@ -473,20 +481,50 @@ export default async function ({ locale, system, thread }) {
         if (system.store.logged) drawCalendars('');
     });
 
-    window.rx.connect({ keys: () => system.store.keysPressed }, function ({ keys }) {
-        if (keys.indexOf('ArrowRight') !== -1 && keys.indexOf('Shift') !== -1) {
-            system.store.date += 24 * 60 * 60 * 1000;
+    setInterval(() => {
+        const d = new Date()
+        const decimal = timeToDecimal(`${d.getHours().toFixed(2)}:${d.getMinutes().toFixed(2)}`);
+        const index = ((decimal - 9.5) * 4)
+        const top = (stepHeight * index) + topOffset;
+        view.clear("hour_line").appendTo("hour_line", hourLineTpl, [], {top});
+    }, 1000)
+
+    const keyPressed = (function () {
+        let remove = null
+        const add = () => {
+            remove = window.rx.connect({ keys: () => system.store.keysPressed }, function ({ keys }) {
+                if (keys.indexOf('ArrowRight') !== -1 && keys.indexOf('Shift') !== -1) {
+                    system.store.date += 24 * 60 * 60 * 1000;
+                }
+                if (keys.indexOf('ArrowLeft') !== -1 && keys.indexOf('Shift') !== -1) {
+                    system.store.date -= 24 * 60 * 60 * 1000;
+                }
+                if (keys.indexOf('ArrowUp') !== -1 && keys.indexOf('Shift') !== -1) {
+                    system.store.date -= 7 * 24 * 60 * 60 * 1000;
+                }
+                if (keys.indexOf('ArrowDown') !== -1 && keys.indexOf('Shift') !== -1) {
+                    system.store.date += 7 * 24 * 60 * 60 * 1000;
+                }
+            });
         }
-        if (keys.indexOf('ArrowLeft') !== -1 && keys.indexOf('Shift') !== -1) {
-            system.store.date -= 24 * 60 * 60 * 1000;
+        return {
+            connect: () => {
+                if (remove) {
+                    remove()
+                    remove = null
+                }
+                add()
+            },
+            disconnect: () => {
+                  if (remove) {
+                    remove()
+                    remove = null
+                }
+            }
         }
-        if (keys.indexOf('ArrowUp') !== -1 && keys.indexOf('Shift') !== -1) {
-            system.store.date -= 7 * 24 * 60 * 60 * 1000;
-        }
-        if (keys.indexOf('ArrowDown') !== -1 && keys.indexOf('Shift') !== -1) {
-            system.store.date += 7 * 24 * 60 * 60 * 1000;
-        }
-    });
+    })()
+
+    keyPressed.connect()
 
     function isWorkDay(date) {
         return !(date.getDay() === 0 || date.getDay() === 6)
@@ -566,6 +604,7 @@ export default async function ({ locale, system, thread }) {
                     dayView.appendTo('wrapper', eventTpl, [], e);
             });
             dayViews[c.column] = dayView;
+            componentHandler.upgradeDom();
         });
         componentHandler.upgradeDom();
     }

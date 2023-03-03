@@ -1,4 +1,4 @@
-module.exports = function ({ grayColor, name, greenColor, host, activationCode, footer, header }) {
+module.exports = function ({ name, greenColor, host, footer, header, encodedEmail }) {
     return `
     ${header(`Hola ${name}!`)}
     <!-- COPY -->
@@ -6,7 +6,7 @@ module.exports = function ({ grayColor, name, greenColor, host, activationCode, 
         <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 40px 30px; color: #666666; font-family: 'Arial', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;" >
             <p style="margin: 0;">
                 Por favor haz click en este boton para confirmar que acepta nuestra
-                <a href="${host}/es/preguntas" style="color: ${greenColor};">Cláusula Informativa y la Política de cookies</a>
+                <a href="${host}/es/privacidad/" style="color: ${greenColor};">Cláusula Informativa y la Política de cookies</a>
             </p>
         </td>
     </tr>
@@ -19,7 +19,7 @@ module.exports = function ({ grayColor, name, greenColor, host, activationCode, 
                         <table border="0" cellspacing="0" cellpadding="0">
                             <tr>
                                 <td align="center" style="border-radius: 3px;" bgcolor="#56ab2a">
-                                    <a href="${host}/es/cuenta/privacyAccept?activationCode=${activationCode}" target="_blank" 
+                                    <a href="${host}/api/privacy-accept?h=${encodedEmail}" target="_blank" 
                                         style="font-size: 20px; font-family: Helvetica, Arial, sans-serif; color: #ffffff; 
                                             text-decoration: none; text-decoration: none; padding: 15px 25px; 
                                             border-radius: 2px; border: 1px solid #56ab2a; display: inline-block;">
