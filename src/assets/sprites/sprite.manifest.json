@@ -1,4 +1,0 @@
-[
-  { "type": "phaser-sprite", "stage": "preload", "url": "assets/sprites/bg/sprite", "name": "bg", "size": 72100  },
-  { "type": "xml-sprite", "stage": "preload", "url": "assets/sprites/tiles/spritesheet_tiles", "name": "tiles", "size": 83215 }
-]

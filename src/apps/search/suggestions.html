@@ -1,8 +1,0 @@
-<div>
-    <h4>Selecciona un argumento para ve los resultados:</h4>
-    {{#each suggestions}}
-    <div class="text-checkbox green">
-        <input id="suggestion_{{this}}" onchange="this.form.search(this.checked, '{{this}}')" name="gift" type="radio" value="{{this}}" />
-        <label for="suggestion_{{this}}">{{this}}</label>
-    </div>{{/each}}
-</div>

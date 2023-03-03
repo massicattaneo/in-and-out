@@ -10,8 +10,6 @@ const { adminUsers, centers } = require('./private/new-hours.js');
 const fs = require("fs")
 const path = require("path")
 const { clientVersion } = require("./client-version")
-const isDeveloping = process.env.NODE_ENV === 'development';
-const origin = isDeveloping ? "http://localhost:4200" : 'https://www.inandoutbelleza.es';
 
 const regExp =
   /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -29,9 +27,11 @@ const oneTimeAdminCodes = {}
 
 const LoginServices = function ({
                                app, mongo, google, mailer,
-    bruteforce, requiresLogin, requiresAdmin,
+    bruteforce, requiresLogin, requiresAdmin, isDeveloping
                            }) {
 
+    const origin = isDeveloping ? "http://localhost:4200" : 'https://www.inandoutbelleza.es';
+    
     app.get(logStatusUrl,
         requiresLogin,
         async function (req, res) {

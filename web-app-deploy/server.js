@@ -9,7 +9,6 @@ const app = express();
 const google = require('./google-api')(utils, posts);
 const mailer = require('./mailer/mailer')();
 const isDeveloping = process.env.NODE_ENV === 'development';
-// const isDeveloping = false;
 const mongo = require('./mongo')(isDeveloping, utils);
 const bodyParser = require('body-parser');
 const ExpressBrute = require('express-brute');
@@ -28,14 +27,9 @@ const createPdfOrder = require('./pdf/createPdfOrder');
 const createPdfBills = require('./pdf/createPdfBills');
 const parseCart = require('./pdf/parseCart');
 const { formatItemForPdfBill, formatDateShort, convertNumber } = require('./pdf/common');
-const https = require('https');
 const http = require('http');
 const urlParse = require('url');
 const WebSocket = require('ws');
-const httpsOptions = {
-    key: fs.readFileSync(path.resolve(__dirname + '/private/key.pem')),
-    cert: fs.readFileSync(path.resolve(__dirname + '/private/cert.pem'))
-};
 const adminKeys = require('./private/adminKeys');
 const shared = require('./shared');
 const BankSummary = require('./excel/bank-summary');
@@ -142,7 +136,7 @@ async function sendCommunication(clientId, type, action, body, onError = () => t
         }
     }
 
-    LoginServices({ app, google, mongo, mailer, bruteforce, requiresAdmin, requiresLogin });
+    LoginServices({ app, google, mongo, mailer, bruteforce, requiresAdmin, requiresLogin, isDeveloping });
 
     await google.authorize();
     await google.initCalendar();
@@ -938,45 +932,42 @@ async function sendCommunication(clientId, type, action, body, onError = () => t
             res.json({})
         });
 
-    if (isDeveloping) {
-        const callback = require('../webpack/dev-server')(app, express, google, posts);
-        app.get('*', callback);
-    } else {
-        const callback = function response(req, res) {
-            const isAdmin = req.path.substr(0, 6) === '/admin';
-            const isSpider = req.isSpider()
-            if (req.headers['x-forwarded-proto'] === 'http' && !isSpider) {
-                res.redirect(`https://${req.headers.host}${req.url}`);
-            }
-            else if (isAdmin) {
-                res.sendFile(path.join(__dirname, 'static/admin/index.html'));
-            } else {
-                if (isSpider) {
-                    try {
-                        if (req.path.endsWith("/")) {
-                            res.write(fs.readFileSync(path.join(__dirname, `static/seo${req.path}index.html`), 'utf8'))
-                        } else {
-                            res.write(fs.readFileSync(path.join(__dirname, `static/seo${req.path}.html`), 'utf8'))
-                        }
-                    } catch (e) {
-                        res.write(fs.readFileSync(path.join(__dirname, 'static/seo/index.html'), 'utf8'));
-                    } finally {
-                        res.end();
+    
+    const callback = function response(req, res) {
+        const isAdmin = req.path.substr(0, 6) === '/admin';
+        const isSpider = req.isSpider()
+        if (req.headers['x-forwarded-proto'] === 'http' && !isSpider) {
+            res.redirect(`https://${req.headers.host}${req.url}`);
+        }
+        else if (isAdmin) {
+            res.sendFile(path.join(__dirname, 'static/admin/index.html'));
+        } else {
+            if (isSpider) {
+                try {
+                    if (req.path.endsWith("/")) {
+                        res.write(fs.readFileSync(path.join(__dirname, `static/seo${req.path}index.html`), 'utf8'))
+                    } else {
+                        res.write(fs.readFileSync(path.join(__dirname, `static/seo${req.path}.html`), 'utf8'))
                     }
-                    return
+                } catch (e) {
+                    res.write(fs.readFileSync(path.join(__dirname, 'static/seo/index.html'), 'utf8'));
+                } finally {
+                    res.end();
                 }
-                res.write(fs.readFileSync(path.join(__dirname, 'static/index.html'), 'utf8'));
-                res.end();
-                
-                
+                return
             }
-        };
-        app.use(express.static(__dirname + '/static', {
-            maxage: 365 * 24 * 60 * 60 * 1000,
-            etag: false
-        }));
-        app.get('*', callback);
-    }
+            res.write(fs.readFileSync(path.join(__dirname, 'static/index.html'), 'utf8'));
+            res.end();
+            
+            
+        }
+    };
+    app.use(express.static(__dirname + '/static', {
+        maxage: 365 * 24 * 60 * 60 * 1000,
+        etag: false
+    }));
+    app.get('*', callback);
+    
 
     // await (new Promise(function (resolve) {
     //     startSever.close(function () {
