@@ -19,6 +19,13 @@ const spainOffsets = [
     1774746000000, //new Date('2026-03-29T02:00').getTime()
 ];
 
+function padLeft(string, size, char) {
+    if (size === 0) {
+        return '';
+    }
+    return (Array(size + 1).join(char) + string).slice(-size);
+}
+
 function getSpainOffset(date = Date.now()) {
     const reference = new Date(date);
     const bigger = spainOffsets.find(item => item > reference.getTime());
@@ -235,7 +242,25 @@ function isInPromotion(promotions, item) {
         }).length;
 }
 
+const generateBillNumber = (billRef, number) => {
+    return Number(`${billRef}${padLeft((number).toString(), 6, '0')}`);
+}
+
+const getSpainDate = (timestamp, decimalSpainTime) => {
+    const clientDate = new Date(timestamp)
+    const spainDate = new Date(clientDate.getTime() + getSpainOffset(timestamp) * 60 * 60 * 1000)
+    const offset = getSpainOffset(timestamp)
+    const uts = new Date(spainDate)
+    uts.setUTCHours(0)
+    uts.setUTCMinutes(0)
+    uts.setUTCSeconds(0)
+    uts.setUTCMilliseconds(0)
+    uts.setUTCMilliseconds(+(decimalSpainTime - offset) * 60 * 60 * 1000)
+    return uts
+}
+
 module.exports = {
+    getSpainDate,
     getCalendar: getCalendar,
     getCenters,
     getWorkers: getWorkers,
@@ -350,7 +375,8 @@ module.exports = {
     toICSDate: function toICSDate(date) {
         return new Date(date).toISOString().replace(/-/g, '').replace(/:/g, '').substr(0, 15);
     },
-    spainOffsets
+    spainOffsets,
+    generateBillNumber
 };
 
 function isBiologique(it) {

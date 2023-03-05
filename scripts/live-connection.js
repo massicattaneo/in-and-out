@@ -481,30 +481,18 @@ MongoClient.connect(url, async function (err, db) {
     // const list = (await (await db.collection('cash').find({ user: "online" }).toArray()))
     // console.log("FINISH", list[list.length -1])
 
-    const CASH_STARTING_DATE = new Date('2021-10-12').getTime();
-    const CASH_STARTING_AMOUNT = {
-        salitre: 72212.64,
-        buenaventura: 50,
-        portanueva: 2000
-    }
-    const [{ total = 0 } = {}] = await db.collection('cash')
-                .aggregate([ 
-                    { $match: { 
-                        type: 'efectivo', 
-                        user: 'salitre',
-                        date: { $gte: CASH_STARTING_DATE } }
-                    },
-                    { 
-                        $group: { 
-                            _id: null, 
-                            total: { 
-                                $sum: "$amount" 
-                            } 
-                        } 
-                    }
-                ]).toArray();
+    // const list = (await db.collection('cash').aggregate([
+    //         { $match: { billNumber: { $exists: true, $ne : "", $regex : /^14/ } } },
+    //         { $addFields: { num: { $add : ["$billNumber", 0] } } },
+    //         { $sort: { num: -1 } },
+    //     ]).toArray())
 
-        console.log(total)
+    const list = (await db.collection('cash').aggregate([
+        { $match: { billNumber: { $exists: true, $gte: 17000000, $lte: 17999999  } } },
+        { $sort: { billNumber: -1 } },
+    ]).toArray())
+    
+    console.log("FINISH", list[0])
     
     process.exit();
 });

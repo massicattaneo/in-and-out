@@ -9,6 +9,7 @@ const bcrypt = require('bcrypt');
 const ObjectID = require('mongodb').ObjectID;
 const { isValidEmail } = require("./login-services.js")
 const { getBBVAEntries } = require("./get-bbva-entries")
+const newHours = require("./private/new-hours")
 
 let cartPriorityMemo
 
@@ -38,13 +39,6 @@ function clean(o) {
         }
         return ret;
     }, {});
-}
-
-function padLeft(string, size, char) {
-    if (size === 0) {
-        return '';
-    }
-    return (Array(size + 1).join(char) + string).slice(-size);
 }
 
 async function getCartPriorityMemo(db) {
@@ -466,13 +460,17 @@ module.exports = function (isDeveloping, utils) {
         });
     };
 
-    obj.nextBillNumber = async function (centerId) {
-        const query = { id: centerId };
-        const update = { $inc: { lastBillNumber: 1 } };
-        await db.collection('centers').update(query, update);
-        const { lastBillNumber = 0, billRef = "TEMP-" } = (await db.collection('centers').findOne(query)) || {};
-        const billNumber = `${billRef}${padLeft(lastBillNumber.toString(), 6, '0')}`;
-        return { centerId, billNumber };
+    obj.getActualBillNumber = async function (centerId) {
+        const center = newHours.centers.find(c => c.id === centerId)
+        const [cash = { billNumber: 0 }] = (await db.collection('cash').aggregate([
+            { $match: { billNumber: { $exists: true, $gte: Number(`${center.billRef}000000`), $lte: Number(`${center.billRef}999999`)  } } },
+            { $sort: { billNumber: -1 } },
+        ]).toArray())
+        return {
+            number: Number(cash.billNumber.toString().replace(center.billRef, "")),
+            billRef: center.billRef,
+            centerId
+        }
     };
 
     obj.rest = {
@@ -563,7 +561,7 @@ module.exports = function (isDeveloping, utils) {
     const CASH_STARTING_AMOUNT = {
         salitre: -72292.64,
         buenaventura: 50,
-        portanueva: - 1900
+        portanueva: -775
     }
     obj.getActualCash = async user => {
         const [{ total = 0 } = {}] = await db.collection('cash')
@@ -655,11 +653,12 @@ module.exports = function (isDeveloping, utils) {
 
     }
     
-    obj.cashSummary = () => {
+    obj.cashSummary = async () => {
         const ONE_YEAR = 31556926000
-        return db.collection('cash').aggregate([
-            { $match: { amount: { $gte: 0 }, date: { $gte: Date.now() - 3 * ONE_YEAR } } },
-            { $addFields: { timestamp: { $toDate: "$date" } }},
+        const data = await db.collection('cash').aggregate([
+        { $match: { description: { $ne: "Deposito en Banco" }, date: { $gte: Date.now() - 3 * ONE_YEAR } } },
+        { $addFields: { timestamp: { $add: [new Date(0), "$date"] } } },
+        { $addFields: { isExpense: { $lt: ["$amount", 0] } } },
             {
                 $addFields: {
                     year: {
@@ -674,19 +673,84 @@ module.exports = function (isDeveloping, utils) {
                     }
                 }
             },
-            { $group: { _id: { type: "$type", user: "$user", month: "$month", year: "$year" }, amount: { $sum: "$amount" } } },
-        ]).toArray();
+            { $group: { _id: { type: "$type", user: "$user", month: "$month", year: "$year", isExpense: "$isExpense" }, amount: { $sum: "$amount" } } },
+        ]).toArray()
+        return data.map(item => ({ amount: item.amount, ...item._id }))
+    }
+
+    obj.comparingCashSummary = async (from, to) => {
+        const list = await db.collection('cash').aggregate([
+            { $match: { type: "tarjeta", date: { $gte: from, $lte: to } } },
+            { $addFields: { timestamp: { $add: [new Date(0), "$date"] } } },
+            {
+                $addFields: {
+                    year: {
+                            $year: {
+                            date: "$timestamp"
+                        }
+                    },
+                    month: {
+                            $month: {
+                            date: "$timestamp"
+                        }
+                    },
+                    day: {
+                            $dayOfMonth: {
+                            date: "$timestamp"
+                        }
+                    }
+                }
+            },
+            { $group: { _id: { user: "$user", day: "$day", month: "$month", year: "$year" }, amount: { $sum: "$amount" } } },
+        ]).toArray()
+
+        const listBBVA = await db.collection('bbva').aggregate([
+            { $match: { user: { $ne: null },  date: { $gte: from, $lte: to } } },
+            { $match: { user: { $ne: "online" } } },
+            { $addFields: { timestamp: { $add: [new Date(0), "$date"] } } },
+            {
+                $addFields: {
+                    year: {
+                            $year: {
+                            date: "$timestamp"
+                        }
+                    },
+                    month: {
+                            $month: {
+                            date: "$timestamp"
+                        }
+                    },
+                    day: {
+                            $dayOfMonth: {
+                            date: "$timestamp"
+                        }
+                    }
+                }
+            },
+            { $group: { _id: { user: "$user", day: "$day", month: "$month", year: "$year" }, amount: { $sum: "$amount" } } },
+        ]).toArray()
+
+        const conv = list.reduce((acc, item) => { 
+            const fullDate = `${item._id.year}-${item._id.month}-${item._id.day}`
+            const bbva = listBBVA.find(bbva => {
+                return fullDate === `${bbva._id.year}-${bbva._id.month}-${bbva._id.day}`
+            }) || { amount: 0 }
+            return { ...acc, [fullDate]: { amount: item.amount, bbva: bbva.amount } }
+        }, {})
+        return Object.entries(conv).map(([dateString, item]) => {
+            return { dateString, ...item }
+        })
     }
 
     obj.unsentProductOrders = async () => {
-        return (await db.collection('orders').aggregate([
+        return await db.collection('orders').aggregate([
             { $unwind: "$cart" },
             { $addFields: { cartUsed: "$cart.used" } },
             { $addFields: { cartId: "$cart.id" } },
             { $match: { payed: { $eq: true }, cartUsed: { $eq: false }, cartId: { $regex: /PRD-/ } } },
             { $group: { "_id": "$userId", "count": { $sum: 1 }, timestamps: { $addToSet: '$timestamp' }, } },
 
-        ]).toArray())
+        ]).toArray();
     }
 
     return obj;

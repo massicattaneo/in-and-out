@@ -187,16 +187,6 @@ async function sendCommunication(clientId, type, action, body, onError = () => t
             });
     });
 
-    app.get('/api/search/suggestion', function (req, res) {
-        const word = req.query.q.toLowerCase();
-        res.send(google.suggestions.filter(i => i.indexOf(word) !== -1).sort((a, b) => a.startsWith(word) ? -1 : 1));
-    });
-
-    app.get('/api/search/result', function (req, res) {
-        const words = req.query.q.split(' ');
-        res.send(google.getSearchResult(words));
-    });
-
     app.post('/api/treatments/favourite',
         requiresLogin,
         function (req, res) {
@@ -352,75 +342,106 @@ async function sendCommunication(clientId, type, action, body, onError = () => t
         }
     )
 
-    app.get('/api/pdf/bill/:clientId/:date', async function (req, res) {
-            const { clientId, date } = req.params;
-            const from = new Date(date);
-            from.setHours(2, 0, 0, 0);
-            const to = new Date(date);
-            to.setHours(23, 0, 0, 0);
+    app.get('/api/pdf/bill/:clientId/:timestamp', async function (req, res) {
+            const { clientId, timestamp } = req.params;
+            const from = shared.getSpainDate(Number(timestamp), 0)
+            const to = shared.getSpainDate(Number(timestamp), 23.99999)
             const cashEntries = await mongo.rest.get('cash', `clientId=${clientId}&date>${from.getTime()}&date<${to.getTime()}`);
             const user = (await mongo.rest.get('users', `_id=${clientId}`) || [])[0];
             if (!user || cashEntries.length === 0 || !cashEntries[0].billInfo || !cashEntries[0].billNumber) return res.send('<html><body>ESTA FACTURA NO EXISTE</body></html>');
             const formatted = formatItemForPdfBill(cashEntries, cashEntries[0].billNumber, formatDateShort(from), cashEntries[0].billInfo);
             createPdfBills(res, [formatted]);
-        });
+    });
+    
+    app.get('/api/last-bill-numbers',
+        requiresAdmin,
+        async (req, res) => {
+            const response = await Promise.all(googleDb.centers
+                .filter(cent => !cent.closed)
+                .map(center => {
+                    return mongo.getActualBillNumber(center.id)
+                }))
+            res.json(response)
+        }
+    )
 
-    app.get('/api/bills/cash/:clientId/:date',
+    app.post('/api/download-bills',
+        requiresAdmin, 
+        async function (req, res) {
+            const { billNumbers } = req.body
+            const array = await Promise.all(billNumbers.map(async billNumber => {
+                const cashEntries = await db.collection('cash').aggregate([{ $match: { billNumber: Number(billNumber) } }]).toArray()
+                return formatItemForPdfBill(cashEntries, billNumber, formatDateShort(new Date(cashEntries[0].date)), cashEntries[0].billInfo);
+            }))
+            createPdfBills(res, array);
+        })
+    app.post('/api/generate-bills',
+        requiresAdmin,
+        async function(req, res) {
+            const { ids } = req.body
+            const cashItems = (await Promise.all(ids.map(async (id) => {
+                const [cashItem] = await mongo.rest.get('cash', `_id=${id}`);
+                return cashItem
+            }))).filter(item => item).sort((first, second) => first.date - second.date)
+            await cashItems.reduce(async (prev, cashItem) => { 
+                await prev
+                const billInfoUser = ids.find(sub => sub.clientId === cashItem.clientId && sub.billInfo)
+                let cashEntries = [cashItem]
+                if (cashItem.clientId) {
+                    const from = shared.getSpainDate(Number(cashItem.date), 0)
+                    const to = shared.getSpainDate(Number(cashItem.date), 23.99999)
+                    cashEntries = await db.collection('cash').aggregate([
+                        { $match: { clientId: cashItem.clientId, date: { $gte: from.getTime(), $lte: to.getTime() } } }
+                    ]).toArray()
+                    if (!cashEntries.length) {
+                        cashEntries = [cashItem]
+                    }
+                }
+                const [client = {}] = await mongo.rest.get('users', `_id=${cashItem.clientId}`);
+                const billInfo = {
+                    name: `${client.name || ""} ${client.surname || ""}`.trim() || "Sin contacto",
+                    ...cashItem.billInfo,
+                    ...billInfoUser?.billInfo,
+                }
+                let billNumber = (cashEntries.find(cash => cash.billNumber) || { billNumber: 0 }).billNumber;
+                if (!billNumber) {
+                    const { billRef, number } = await mongo.getActualBillNumber(cashEntries[0].user)
+                    billNumber = shared.generateBillNumber(billRef, number + 1);
+                }
+                await Promise.all(cashEntries.map(cash => mongo.rest.update('cash', cash._id, { billNumber, billInfo })));
+            }, Promise.resolve())
+                .then(() => {
+                    res.json({})
+                })
+                .catch((error) => {
+                    console.log(error)
+                    res.status(500)
+                    res.send(error)
+                })
+        },
+    )
+
+    app.get('/api/bills/cash/:clientId/:timestamp',
         requiresAdmin,
         async function (req, res) {
-            const { clientId, date } = req.params;
-            const { name = "", nif = "", cap= "", address= "", city="" } = req.query;
-            const from = new Date(date);
-            from.setHours(2, 0, 0, 0);
-            const to = new Date(date);
-            to.setHours(23, 0, 0, 0);
-            const table = 'cash';
-            const cashEntries = await mongo.rest.get(table, `clientId=${clientId}&date>${from.getTime()}&date<${to.getTime()}`);
+            const { clientId, timestamp } = req.params;
+            const { name = "", nif = "", cap = "", address = "", city = "" } = req.query;
+            const from = shared.getSpainDate(Number(timestamp), 0)
+            const to = shared.getSpainDate(Number(timestamp), 23.99999)
+            const cashEntries = await mongo.rest.get('cash', `clientId=${clientId}&date>${from.getTime()}&date<${to.getTime()}`);
             if (cashEntries.length === 0) return res.send('<html><body>SELECCIONA OTRA FECHA</body></html>');
-            let billNumber = (cashEntries.find(cash => cash.billNumber) || { billNumber: '' }).billNumber;
-            const isOld = to.getTime() < (new Date('2019-07-01').getTime());
-            if (!billNumber && !isOld) {
-                billNumber = (await mongo.nextBillNumber(cashEntries[0].user)).billNumber;
+            let billNumber = (cashEntries.find(cash => cash.billNumber) || { billNumber: 0 }).billNumber;
+            if (!billNumber) {
+                const { billRef, number } = await mongo.getActualBillNumber(cashEntries[0].user)
+                billNumber = shared.generateBillNumber(billRef, number + 1);
             }
             const user = (await mongo.rest.get('users', `_id=${cashEntries[0].clientId}`) || [])[0];
             const userInfo = Object.assign({ nif, cap, address, city }, user);
             userInfo.name = name ? name : userInfo.name;
             userInfo.surname = name ? '' : userInfo.surname;
             const billInfo = Object.assign({ nif, cap, address, city }, { name: name || `${user.name || ""} ${user.surname || ""}` });
-            await Promise.all(cashEntries.map(cash => mongo.rest.update(table, cash._id, { billNumber, billInfo })));
+            await Promise.all(cashEntries.map(cash => mongo.rest.update('cash', cash._id, { billNumber, billInfo })));
             const formatted = formatItemForPdfBill(cashEntries, billNumber, formatDateShort(from), userInfo);
-            createPdfBills(res, [formatted]);
-        });
-
-    app.get('/api/bills/orders/:id',
-        requiresAdmin,
-        async function (req, res) {
-            const { id } = req.params;
-            const { name, nif, cap, address, city } = req.query;
-            const [order] = await mongo.rest.get('orders', `_id=${id}`) || [];
-            let { userId, billNumber = '', created, payed, cart, email } = order;
-            if (!payed) return res.send('<html><body>EL ORDEN NO ESTA FINALIZADO</body></html>');
-            const noUser = { name: '', surname: email };
-            const user = userId ? (await mongo.rest.get('users', `email=${email}`) || [])[0] : noUser;
-            const centerId = 'online';
-            const isOld = (new Date(created)).getTime() < (new Date('2019-07-01').getTime());
-            if (!billNumber && !isOld) {
-                billNumber = (await mongo.nextBillNumber(centerId)).billNumber;
-            }
-            await mongo.rest.update('orders', id, { billNumber });
-            const products = parseCart(cart, google.publicDb());
-            const entries = products.map(({ count, type, title, category, price }) => {
-                return {
-                    user: centerId,
-                    type: 'tarjeta',
-                    description: `${count} x ${category ? `${category}: ` : ''}${title}`,
-                    amount: Number(price)
-                };
-            });
-            const userInfo = Object.assign({ nif, cap, address, city }, user);
-            userInfo.name = name ? name : userInfo.name;
-            userInfo.surname = name ? '' : userInfo.surname;
-            const formatted = formatItemForPdfBill(entries, billNumber, formatDateShort(new Date(created)), userInfo);
             createPdfBills(res, [formatted]);
         });
 
@@ -780,84 +801,7 @@ async function sendCommunication(clientId, type, action, body, onError = () => t
                 await new Promise(resolve => db.collection('bank').update(doc, doc, { upsert: true }, resolve));
             }
             res.send({});
-        });
-
-    app.get('/api/summary/banco.xlsx',
-        requiresAdmin,
-        async function (req, res) {
-            const from = new Date(Number(req.query.from));
-            const to = new Date(Number(req.query.to));
-            const buffer = await BankSummary(db, google, {
-                from: from.getTime(),
-                to: to.getTime(),
-                title: `BANCO ${formatDateShort(from)} - ${formatDateShort(to)}`
-            });
-            res.send(buffer);
-        });
-
-    app.get('/api/summary/facturas_compra.xlsx',
-        requiresAdmin,
-        async function (req, res) {
-            const { excelBuffer } = await BillSummary(db, google, {
-                title: `FACTURAS DE COMPRA`
-            });
-            res.send(excelBuffer);
-        });
-
-    app.get('/api/summary/facturas_compra.pdf',
-        requiresAdmin,
-        async function (req, res) {
-            const { pdfBuffer } = await BillSummary(db, google, {
-                title: `FACTURAS DE COMPRA`
-            });
-            res.send(pdfBuffer);
-        });
-
-    app.get('/api/summary/facturas_venta.pdf',
-        requiresAdmin,
-        async function (req, res) {
-            const from = new Date(Number(req.query.from));
-            const to = new Date(Number(req.query.to));
-            const maxCashAmount = Number(Number(req.query.maxCashAmount));
-            const saveBillNumbers = req.query.saveBillNumbers === 'true';
-            const { pdfBuffer } = await CashSummary(db, google, {
-                from: from.getTime(),
-                to: to.getTime(),
-                maxCashAmount,
-                saveBillNumbers
-            });
-            res.send(pdfBuffer);
-        });
-
-    app.get('/api/summary/facturas_venta.xlsx',
-        requiresAdmin,
-        async function (req, res) {
-            const from = new Date(Number(req.query.from));
-            const to = new Date(Number(req.query.to));
-            const maxCashAmount = Number(Number(req.query.maxCashAmount));
-            const saveBillNumbers = req.query.saveBillNumbers === 'true';
-            const { excelBuffer } = await CashSummary(db, google, {
-                from: from.getTime(),
-                to: to.getTime(),
-                maxCashAmount,
-                saveBillNumbers
-            });
-            res.send(excelBuffer);
-        });
-
-    app.get('/api/summary/cash_summary.html',
-        requiresAdmin,
-        async function (req, res) {
-            const from = new Date(Number(req.query.from));
-            const to = new Date(Number(req.query.to));
-            const maxCashAmount = Number(Number(req.query.maxCashAmount));
-            const { report } = await CashSummary(db, google, {
-                from: from.getTime(),
-                to: to.getTime(),
-                maxCashAmount
-            });
-            res.send(report);
-        });
+        });    
 
     app.post('/api/upload',
         requiresAdmin,
@@ -897,7 +841,9 @@ async function sendCommunication(clientId, type, action, body, onError = () => t
     app.post('/api/bbva/updload',
         requiresAdmin,
         async function (req, res) {
-            const files = Object.keys(req.files).map(key => req.files[key].data)
+            const files = Array.isArray(req.files.fileUpload)
+                ? req.files.fileUpload.map(f => f.data)
+                : [req.files.fileUpload.data]
             const summary = { items: [], inserted: 0, skipped: 0 }
             await Promise.all(files.map(async file => {
                 const buffer = Buffer.from(file);
@@ -909,24 +855,34 @@ async function sendCommunication(clientId, type, action, body, onError = () => t
             res.send(summary);
         });
     
-    app.get('/api/cash/summay',
+    app.get('/api/cash/summary',
         requiresSuperAdmin,
         async function (req, res) {
-            //TODO fix the $toDate that is not present on mongo v3.6
-            // const data = await mongo.cashSummary()
-            res.json([])
+            const data = await mongo.cashSummary()
+            res.json(data)
+        });
+    
+    app.get('/api/cash/comparing-summary',
+        requiresSuperAdmin,
+        async function (req, res) {
+            const { from, to } = req.query;
+            const start = shared.getSpainDate(Number(from), 0).getTime()
+            const end = shared.getSpainDate(Number(to), 23.99999).getTime()
+            const data = await mongo.comparingCashSummary(start, end)
+            res.json(data)
         });
 
     app.post('/api/client/error',
         bruteforce.prevent,
         async function (req, res) {
-            const { error, userAgent } = req.body
             if (req.headers.origin === "https://www.inandoutbelleza.es") {
+                const userId = req.session ? req.session.userId : ""
                 mailer.send({
                     to: ["massi.cattaneo.it@gmail.com"], // list of receivers
                     subject: 'Error on the client', // Subject line
                     text: '',
-                    html: `<p>ERROR: ${error}</p><p>USER AGENT: ${userAgent}</p>`
+                    userId,
+                    html: Object.keys(req.body).map(key => `<p>${key.toUpperCase()}: ${req.body[key]}</p>`)
                 })
             }
             res.json({})

@@ -196,14 +196,70 @@ MongoClient.connect(devUrl, async function (err, db) {
     //     await db.collection('cash').updateOne({ _id: ObjectId(cash._id) }, { $set: { user: "salitre" } });
     // }));
     
-    // const list = (await (await db.collection('cash').find({ cart: { $exists: false } }).toArray()))
-    
-    const ONE_YEAR = 31556926000
-    const list = await db.collection('communications').aggregate([
-            { $match: { date: { $lte: Date.now() - 5* 60000 }, sent: true } },
-        ]).toArray();
+    const from = new Date("2023-01-01").getTime()
+    const to = new Date().getTime()
+    const list = await db.collection('cash').aggregate([
+        { $match: { type: "tarjeta", date: { $gte: from, $lte: to } } },
+        { $addFields: { timestamp: { $add: [new Date(0), "$date"] } } },
+        {
+            $addFields: {
+                year: {
+                        $year: {
+                        date: "$timestamp"
+                    }
+                },
+                month: {
+                        $month: {
+                        date: "$timestamp"
+                    }
+                },
+                day: {
+                        $dayOfMonth: {
+                        date: "$timestamp"
+                    }
+                }
+            }
+        },
+        { $group: { _id: { user: "$user", day: "$day", month: "$month", year: "$year" }, amount: { $sum: "$amount" } } },
+    ]).toArray()
 
-    console.log("FINISH", list.length)
+    const listBBVA = await db.collection('bbva').aggregate([
+        { $match: { user: { $ne: null },  date: { $gte: from, $lte: to } } },
+        { $addFields: { timestamp: { $add: [new Date(0), "$date"] } } },
+        {
+            $addFields: {
+                year: {
+                        $year: {
+                        date: "$timestamp"
+                    }
+                },
+                month: {
+                        $month: {
+                        date: "$timestamp"
+                    }
+                },
+                day: {
+                        $dayOfMonth: {
+                        date: "$timestamp"
+                    }
+                }
+            }
+        },
+        { $group: { _id: { user: "$user", day: "$day", month: "$month", year: "$year" }, amount: { $sum: "$amount" } } },
+    ]).toArray()
+
+    const conv = list.reduce((acc, item) => { 
+        const fullDate = `${item._id.year}-${item._id.month}-${item._id.day}`
+        const bbva = listBBVA.find(bbva => {
+            return fullDate === `${bbva._id.year}-${bbva._id.month}-${bbva._id.day}`
+        }) || { amount: 0 }
+        return { ...acc, [fullDate]: { amount: item.amount, bbva: bbva.amount } }
+    }, {})
+    // `clientId=${cashItem.clientId}&date>${from.getTime()}&date<${to.getTime()}`
+    const arr = Object.entries(conv).map(([dateString, item]) => {
+        return { dateString, ...item }
+    })
+    console.log("FINISH", arr)
         
     process.exit();
 });
