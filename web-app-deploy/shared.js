@@ -373,10 +373,12 @@ module.exports = {
     futurePromotions,
     getSpainOffset,
     toICSDate: function toICSDate(date) {
-        return new Date(date).toISOString().replace(/-/g, '').replace(/:/g, '').substr(0, 15);
+        const tr = new Date(date)
+        return new Date(tr.getTime() + getSpainOffset(date) * 60 * 60 * 1000).toISOString().replace(/-/g, '').replace(/:/g, '').substr(0, 15);
     },
     spainOffsets,
-    generateBillNumber
+    generateBillNumber,
+    padLeft
 };
 
 function isBiologique(it) {

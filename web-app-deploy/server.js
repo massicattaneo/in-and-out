@@ -220,10 +220,8 @@ async function sendCommunication(clientId, type, action, body, onError = () => t
     app.post('/google/get-hours',
         function (req, res) {
             const { date, treatments, center } = req.body;
-            const timeMin = new Date(date);
-            timeMin.setUTCHours(7, 0, 0, 0);
-            const timeMax = new Date(date);
-            timeMax.setUTCHours(20, 0, 0, 0);
+            const timeMin = shared.getSpainDate(new Date(date).getTime(), 7)
+            const timeMax = shared.getSpainDate(new Date(date).getTime(), 21)
             const workers = center !== undefined ? shared.getWorkers(googleDb, date, center) : shared.getDayWorkers(googleDb, date)
             const items = workers
                 .map(w => {
@@ -516,23 +514,27 @@ async function sendCommunication(clientId, type, action, body, onError = () => t
                 clientId: req.session.userId
             }).then(async (e) => {
                 res.send(e);
-                const date = new Date(new Date(e.start).getTime() - (((-shared.getSpainOffset()) + google.publicDb().serverOffset) * 60 * 60 * 1000));
+                const date = shared.getSpainDate(e.start, 0)
+                const wholeOffset = shared.getSpainOffset(e.start)
+                const hourOffset = Math.floor(wholeOffset)
+                const hour = new Date(e.start).getUTCHours() + hourOffset
+                const minutes = new Date(e.start).getUTCMinutes() + ((wholeOffset - hourOffset) * 60)
                 const event = {
                     bookId: e.eventId,
                     clientName: name,
                     description: e.label,
                     email,
-                    startDate: new Date(new Date(e.start).getTime() - (offset * 60 * 60 * 1000)).toISOString(),
-                    endDate: new Date(new Date(e.end).getTime() - (offset * 60 * 60 * 1000)).toISOString(),
+                    startDate: new Date(e.start).toISOString(),
+                    endDate: new Date(e.end).toISOString(),
                     formattedDate: `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`,
-                    formattedHour: `${date.getHours()}:${date.getMinutes().toString().length === 1 ? `0${date.getMinutes()}` : date.getMinutes()}`,
+                    formattedHour: `${shared.padLeft(hour, 2, "0")}:${shared.padLeft(minutes, 2, "0")}`,
                     location: e.location
                 };
                 // TODO fix date for ICS
-                // const filePath = path.resolve(__dirname, `temp/${e.eventId}.ics`);
-                // const attachments = [{ filename: 'Cita.ics', path: filePath }];
-                // fs.writeFileSync(filePath, createICS(event), 'utf8');
-                const emailTemplate = createTemplate('bookReminder', { email, event });
+                const filePath = path.resolve(__dirname, `temp/${e.eventId}.ics`);
+                const attachments = [{ filename: 'Cita.ics', path: filePath }];
+                fs.writeFileSync(filePath, createICS(event), 'utf8');
+                const emailTemplate = createTemplate('bookReminder', { email, event, attachments });
                 mailer.send(emailTemplate);
             }).catch((e) => {
                 res.status(500);
@@ -576,8 +578,9 @@ async function sendCommunication(clientId, type, action, body, onError = () => t
         requiresAdmin,
         async function (req, res) {
             const { timestamp, calendarId } = req.body;
+            const date = shared.getSpainDate(Number(timestamp), 12)
             google
-                .calendarGet(calendarId, new Date(timestamp))
+                .calendarGet(calendarId, date)
                 .then((r) => {
                     res.send(r);
                 })
@@ -882,7 +885,9 @@ async function sendCommunication(clientId, type, action, body, onError = () => t
                     subject: 'Error on the client', // Subject line
                     text: '',
                     userId,
-                    html: Object.keys(req.body).map(key => `<p>${key.toUpperCase()}: ${req.body[key]}</p>`)
+                    html: Object.keys(req.body)
+                        .filter(key => key !== "error_stack")
+                        .map(key => `<p>${key.toUpperCase()}: ${req.body[key]}</p>`).join("")
                 })
             }
             res.json({})

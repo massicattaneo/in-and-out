@@ -26,7 +26,7 @@ module.exports = function ({ grayColor, name, greenColor, host, activationCode, 
                     </div>
                   </div>
                 </div>
-                In&Out te recuerda tu cita en el centro de ${event.location}, el día ${event.formattedDate} a las horas ${event.formattedHour}. 
+                In&Out te recuerda tu cita en el centro de ${event.location}, el día <strong>${event.formattedDate}</strong> a las horas <strong>${event.formattedHour}</strong>. 
                 No olvides anularla si no puedes acudir a la misma.
             </p>
         </td>

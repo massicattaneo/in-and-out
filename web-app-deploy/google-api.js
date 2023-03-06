@@ -428,10 +428,8 @@ module.exports = function (utils, posts) {
     };
 
     obj.calendarGet = function (calendarId, date) {
-        date.setHours(0, 0, 0, 0);
-        const timeMin = date.toISOString();
-        date.setHours(23, 59, 59, 999);
-        const timeMax = date.toISOString();
+        const timeMin = shared.getSpainDate(date, 0).toISOString();
+        const timeMax = shared.getSpainDate(date, 23.999999).toISOString();
         const params = {
             calendarId,
             timeMin: timeMin,
