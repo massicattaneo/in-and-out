@@ -1,22 +1,15 @@
 const pdf = require("pdf-parse")
 const ONE_DAY = 24 * 60 * 60 * 1000
-const access = require("./private/mongo-db-access")
 const MongoClient = require("mongodb").MongoClient
 const MongoStore = require("express-brute-mongo")
-let text = process.env.APP_CONFIG || JSON.stringify(access.config)
-const config = JSON.parse(text)
 const bcrypt = require("bcrypt")
 const ObjectID = require("mongodb").ObjectID
-const { isValidEmail } = require("./login-services.js")
+const { isValidEmail } = require("./mongo-utils")
 const { getBBVAEntries } = require("./get-bbva-entries")
 const { adminUsers } = require("./private/admin-users")
+const { getMongoProdUri } = require("./mongo-utils")
 
 let cartPriorityMemo
-
-const getMongoProdUri = () => {
-  const psw = encodeURIComponent(access.password)
-  return `mongodb://${config.mongo.user}:${psw}@${config.mongo.hostString}`
-}
 
 function getObjectId(id) {
   try {
@@ -74,10 +67,10 @@ async function getCartPriorityMemo(db) {
     .map(item => item.cart)
 }
 
-function mongo(isDeveloping, utils) {
+module.exports = function (isDeveloping, utils) {
   const obj = {}
-  const url = isDeveloping ? `mongodb://localhost:27017/in-and-out` : getMongoProdUri();
-  let db;
+  const url = isDeveloping ? `mongodb://localhost:27017/in-and-out` : getMongoProdUri()
+  let db
 
   obj.connect = function () {
     return new Promise(function (res, rej) {
@@ -136,8 +129,8 @@ function mongo(isDeveloping, utils) {
     return {
       adminUsers,
       centers: await db.collection("centers").find({}).toArray(),
-      workers: (await db.collection("workers").find({}).toArray()).sort((a, b) =>
-        a.fullName.localeCompare(b.fullName),
+      workers: (await db.collection("workers").find({}).toArray()).sort(
+        (a, b) => a.index - b.index,
       ),
       calendars: (await db.collection("calendars").find({}).toArray()).sort(
         (first, second) => second.from - first.from,
@@ -913,7 +906,3 @@ function mongo(isDeveloping, utils) {
 
   return obj
 }
-
-mongo.getMongoProdUri = getMongoProdUri
-
-module.exports = mongo

@@ -17,10 +17,7 @@ const ObjectId = require("mongodb").ObjectID
 const fs = require("fs")
 const path = require("path")
 const { clientVersion } = require("./client-version")
-
-const regExp =
-  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-const isValidEmail = email => regExp.test(email || "")
+const { isValidEmail } = require("./mongo-utils")
 
 function getObjectId(id) {
   try {
@@ -32,7 +29,7 @@ function getObjectId(id) {
 
 const oneTimeAdminCodes = {}
 
-const LoginServices = function ({
+module.exports = function ({
   app,
   mongo,
   google,
@@ -240,7 +237,9 @@ const LoginServices = function ({
       req.session.userId = adminUser.id
       req.session.isAdmin = true
       req.session.adminLevel = adminUser.adminLevel
-      res.cookie("users", adminUser.centers.join("|"), { expires: new Date(253402300000000) })
+      res.cookie("users", adminUser.permissions.centers.join("|"), {
+        expires: new Date(253402300000000),
+      })
       res.send("ok")
     } else {
       req.session.isAdmin = false
@@ -309,7 +308,3 @@ const LoginServices = function ({
     res.json({})
   })
 }
-
-LoginServices.isValidEmail = isValidEmail
-
-module.exports = LoginServices

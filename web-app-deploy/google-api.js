@@ -18,7 +18,7 @@ google.options({ auth: jwtClient })
 const processes = require("./processes.json")
 const shared = require("./shared")
 const striptags = require("striptags")
-const { getMongoProdUri } = require("./mongo")
+const { getMongoProdUri } = require("./mongo-utils")
 
 function deleteFolder(path) {
   if (fs.existsSync(path)) {

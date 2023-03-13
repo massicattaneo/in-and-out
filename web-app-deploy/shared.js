@@ -54,11 +54,12 @@ const weekDifference = (from, to) => {
 function getCalendar(db, timestamp) {
   const date = new Date(timestamp).getTime()
   const cal = db.calendars.find(c => c.from < date && c.to > date)
-  if (!cal) return [{ days: [[], [], [], [], [], [], []] }]
+  if (!cal) return [[], [], [], [], [], [], []]
   const weeks = cal.weeks ?? [{ days: [[], [], [], [], [], [], []] }]
   const start = startOfTheWeek(cal.from)
   const diff = weekDifference(start, date)
   const week = weeks[diff % cal.weeks.length]
+  if (!week) return [[], [], [], [], [], [], []]
   return week.days.map(day =>
     day.map(item => [item.centerIndex, item.workerIndex, item.from, item.to]),
   )

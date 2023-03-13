@@ -1,14 +1,16 @@
 module.exports = function ({ password, footer, header, adminUser }) {
-    return `
+  return `
     ${header(`Accesso a In&Out`)}
     <!-- COPY -->
     <tr>
         <td bgcolor="#ffffff" align="left" style="padding: 20px 30px 40px 30px; color: #666666; font-family: 'Arial', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 400; line-height: 25px;" >
             <p style="margin: 0;">Hola,</p>
-            <p style="margin: 16px 0 0 0;">"<strong>${adminUser.name}</strong>" ha pendido acesso a IN&OUT.</p>
+            <p style="margin: 16px 0 0 0;">"<strong>${
+              adminUser.name
+            }</strong>" ha pendido acesso a IN&OUT.</p>
             <p style="margin: 16px 0 0 0;">Tendrà acesso a las siguientes informaciones:</p>
             <ul>
-                ${adminUser.centers.map(center  => `<li>${center}</li>`).join("")}
+                ${adminUser.permissions.centers.map(center => `<li>${center}</li>`).join("")}
             </ul>
             <p style="margin: 0;">Codigo de acceso:</p>
         </td>
@@ -37,5 +39,5 @@ module.exports = function ({ password, footer, header, adminUser }) {
         </td>
     </tr>
     ${footer()}
-    `;
-};
+    `
+}
