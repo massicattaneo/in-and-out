@@ -1,0 +1,113 @@
+{
+  "root": true,
+  "ignorePatterns": ["**/*"],
+  "plugins": ["@nrwl/nx", "unused-imports"],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+        "react/prop-types": "off",
+        "react/react-in-jsx-scope": "off",
+        "react/jsx-props-no-spreading": "off",
+        "react/jsx-one-expression-per-line": "off",
+        "react/jsx-wrap-multilines": [
+          "error",
+          {
+            "declaration": false,
+            "assignment": false
+          }
+        ],
+        "react/no-unescaped-entities": "off",
+        "react/require-default-props": "off",
+        "import/prefer-default-export": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-empty-function": [
+          "error",
+          {
+            "allow": ["functions", "arrowFunctions", "methods"]
+          }
+        ],
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          {
+            "vars": "all",
+            "varsIgnorePattern": "^_",
+            "args": "after-used",
+            "argsIgnorePattern": "^_"
+          }
+        ],
+        "no-console": "warn",
+        "unused-imports/no-unused-imports": "error",
+        "unused-imports/no-unused-vars": [
+          "warn",
+          {
+            "vars": "all",
+            "varsIgnorePattern": "^_",
+            "args": "after-used",
+            "argsIgnorePattern": "^_"
+          }
+        ],
+        "jsx-a11y/aria-role": [
+          2,
+          {
+            "ignoreNonDOM": true
+          }
+        ],
+        "jsx-a11y/click-events-have-key-events": "off",
+        "jsx-a11y/no-static-element-interactions": "off",
+        "no-empty-function": "off",
+        "no-param-reassign": [
+          "error",
+          {
+            "props": true,
+            "ignorePropertyModificationsFor": ["state"]
+          }
+        ],
+        "no-underscore-dangle": "off",
+        "react/jsx-filename-extension": [
+          1,
+          {
+            "extensions": [".jsx", ".tsx", ".test.jsx", ".test.jsx"]
+          }
+        ],
+        "react/jsx-key": "off",
+        "@nrwl/nx/enforce-module-boundaries": [
+          "error",
+          {
+            "enforceBuildableLibDependency": true,
+            "allow": [],
+            "depConstraints": [
+              {
+                "sourceTag": "*",
+                "onlyDependOnLibsWithTags": ["*"]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": ["plugin:@nrwl/nx/typescript"],
+      "rules": {
+        "@typescript-eslint/array-type": [
+          1,
+          {
+            "default": "generic"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "extends": ["plugin:@nrwl/nx/javascript"],
+      "rules": {}
+    },
+    {
+      "files": "*.json",
+      "parser": "jsonc-eslint-parser",
+      "rules": {}
+    }
+  ]
+}

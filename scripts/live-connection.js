@@ -1,498 +1,433 @@
-const fs = require('fs');
-const { promiseSerial } = require('../web-app-deploy/pdf/common');
-const access = require('../web-app-deploy/private/mongo-db-access');
-const MongoClient = require('mongodb').MongoClient;
-const config = access.config;
-const ObjectId = require('mongodb').ObjectID;
-const url = `mongodb://${config.mongo.user}:${encodeURIComponent(access.password)}@${config.mongo.hostString}`;
-const CashSummary = require('../web-app-deploy/excel/cash-summary');
-const google = require('../web-app-deploy/google-api')({}, []);
-const newHours = require('../web-app-deploy/private/new-hours');
-const { getSpainOffset } = require('../web-app-deploy/shared');
-const oneDayMilliseconds = 24 * 60 * 60 * 1000;
-const lovelyUsers = require("../web-app-deploy/private/lovely-beauty-clients.json")
-const bcrypt = require('bcrypt');
+const { promiseSerial } = require("../web-app-deploy/pdf/common")
+const access = require("../web-app-deploy/private/mongo-db-access")
+const MongoClient = require("mongodb").MongoClient
+const config = access.config
+const ObjectId = require("mongodb").ObjectID
+const url = `mongodb://${config.mongo.user}:${encodeURIComponent(access.password)}@${
+  config.mongo.hostString
+}`
 
 // const devUrl = "mongodb://localhost:27017/in-and-out"
 
 MongoClient.connect(url, async function (err, db) {
-    if (err) return;
+  if (err) return
 
-    // await google.authorize();
-    // await google.initDriveSheets();
+  await db.collection("centers").insertMany([
+    {
+      color: "#cdfaff",
+      id: "salitre",
+      index: 0,
+      label: "Salitre",
+      address: "Calle Salitre, 11, 29002 Málaga",
+      tel: "951 131 460",
+      mobile: "633 909 103",
+      closed: false,
+      physical: true,
+      billRef: "14",
+      bbvaRef: "334264736",
+      google: {
+        latitude: "36.7137894",
+        longitude: "-4.4268794",
+        placeId: "ChIJB7Rj8ZD3cg0R6eAKD3N_mD4",
+        embedSrc:
+          "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3198.361993573424!2d-4.426823199999999!3d36.713866499999995!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd72f790f163b407%3A0x3e987f730f0ae0e9!2sIn%20And%20Out%20Beauty!5e0!3m2!1sit!2ses!4v1675713455629!5m2!1sit!2ses",
+      },
+      phone: "951 131 460",
+    },
+    {
+      color: "#000000",
+      id: "compania",
+      index: 1,
+      label: "COMPAÑIA",
+      address: "CALLE COMPANIA, 42 - MÁLAGA",
+      tel: "951 387 919",
+      mobile: "695 685 291",
+      closed: true,
+      physical: true,
+      billRef: "15",
+      bbvaRef: null,
+      google: { latitude: "", longitude: "", placeId: "", embedSrc: "" },
+    },
+    {
+      color: "#ffcdcd",
+      id: "buenaventura",
+      index: 2,
+      label: "Buenaventura",
+      address: "C. Prta Buenaventura, 4, 29008 Málaga",
+      tel: "951 387 919",
+      mobile: "695 685 291",
+      closed: false,
+      physical: true,
+      billRef: "16",
+      bbvaRef: "334297272",
+      google: {
+        latitude: "36.723974",
+        longitude: "-4.420582",
+        placeId: "ChIJncIbQTX3cg0RYv19-GiRmJ4",
+        embedSrc:
+          "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3197.94460971464!2d-4.420595!3d36.7238915!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd72f735411bc29d%3A0x9e989168f87dfd62!2sIn%20And%20Out%20Belleza!5e0!3m2!1sit!2ses!4v1675713495845!5m2!1sit!2ses",
+      },
+      phone: "951 387 919",
+    },
+    {
+      color: "#b8f4c2",
+      id: "portanueva",
+      index: 3,
+      label: "Puertanueva",
+      address: "C. Muro de Prta Nueva, 1, 29005 Málaga",
+      tel: "951 394 352",
+      mobile: "640 976 658",
+      closed: false,
+      physical: true,
+      billRef: "18",
+      bbvaRef: "358576098",
+      google: {
+        latitude: "36.72134332484761",
+        longitude: "-4.4246213568642325",
+        placeId: "ChIJg2vUfE_3cg0RpscM6frgYCU",
+        embedSrc:
+          "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3198.0513194143973!2d-4.4246205!3d36.7213287!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd72f74f7cd46b83%3A0x2560e0fae90cc7a6!2sLovely%20Beautee%20Malaga%20%C2%B7%20Centro%20de%20Belleza!5e0!3m2!1sit!2ses!4v1675713173414!5m2!1sit!2ses",
+      },
+      phone: "951 394 352",
+    },
+    {
+      color: "#f4ee8f",
+      id: "online",
+      index: 4,
+      label: "ONLINE",
+      address: "https://www.inandoutbelleza.es",
+      tel: "",
+      mobile: "",
+      closed: false,
+      physical: false,
+      billRef: "17",
+      bbvaRef: null,
+      google: { latitude: "", longitude: "", placeId: "", embedSrc: "" },
+    },
+  ])
 
-    // ADD USERS FROM LOVELY BEAUTY:
-    // const created = Date.now()
-    // await Promise.all(lovelyUsers.map(async (user) => {
-    //     const email = user.email.includes("@lovely") ? "" : user.email
-    //     await db.collection('users').insertOne({
-    //         created,
-    //         surname: '',
-    //         name: user.name,
-    //         tel: user.phone,
-    //         privacy: false,
-    //         email,
-    //         active: true,
-    //         lang: 'es',
-    //         user: 'portanueva'
-    //     });
-    // }))
+  await db.collection("workers").insertMany([
+    {
+      googleId: "info@inandoutbelleza.com",
+      column: "carmen",
+      title: "Carmen",
+      index: 0,
+      breakTimeDuration: 0.5,
+      fullName: "Carmen Mellado",
+      label: "Carmen",
+    },
+    {
+      googleId: "nog1o7vqalre9raep4v5r8bfl8@group.calendar.google.com",
+      column: "carmen_v",
+      title: "Carmen V.",
+      index: 1,
+      breakTimeDuration: 0.5,
+      fullName: "Carmen Vela",
+      label: "Carmen V.",
+    },
+    {
+      googleId: "63t8br7nmbaekjv8janmco6520@group.calendar.google.com",
+      column: "estefania",
+      title: "Estefania",
+      index: 2,
+      breakTimeDuration: 0.5,
+      fullName: "Estefania Vera",
+      label: "Estefania",
+    },
+    {
+      googleId: "2euki6s03uvcpq2l2il4oqlslk@group.calendar.google.com",
+      column: "irene",
+      title: "Irene",
+      index: 3,
+      breakTimeDuration: 0.5,
+      fullName: "Irene",
+    },
+    {
+      googleId: "gihc2ns56av7up7ni23f56e7ko@group.calendar.google.com",
+      column: "camila",
+      title: "Camila",
+      index: 4,
+      breakTimeDuration: 0.5,
+      fullName: "Camila",
+    },
+    {
+      googleId: "8eupe3uc8g0psn6hr9noi879mo@group.calendar.google.com",
+      column: "eila",
+      title: "Eila",
+      index: 5,
+      breakTimeDuration: 0.5,
+      fullName: "Eila",
+    },
+    {
+      googleId: "pfpci44lhhot7jvlts3vj6jgss@group.calendar.google.com",
+      column: "cristina",
+      title: "Cristina",
+      index: 6,
+      breakTimeDuration: 0.5,
+      fullName: "Cristina",
+    },
+    {
+      googleId: "jd37uqnq6dlloin1ev5qevv5gc@group.calendar.google.com",
+      column: "wendy",
+      title: "Lista de espera",
+      index: 7,
+      breakTimeDuration: 0,
+      fullName: "Lista de espera",
+    },
+    {
+      googleId: "052ftq1qofm5ouoitfuddifokk@group.calendar.google.com",
+      column: "andrea",
+      title: "Andrea",
+      index: 8,
+      breakTimeDuration: 0.5,
+      fullName: "Andrea",
+    },
+    {
+      googleId: "gi46hn36qba2ds9kjf8daai2s4@group.calendar.google.com",
+      column: "maria",
+      title: "Maria",
+      index: 9,
+      breakTimeDuration: 0.5,
+      fullName: "Maria",
+    },
+    {
+      googleId: "l6oqvlsbr7m7v9s02o0sibnd4c@group.calendar.google.com",
+      column: "lidia",
+      title: "Lidia",
+      index: 10,
+      breakTimeDuration: 0.5,
+      fullName: "Lidia",
+    },
+    {
+      googleId: "1ule1go2bfh2ecnhmthi8h8t9k@group.calendar.google.com",
+      column: "yolimar",
+      title: "Yolimar",
+      index: 11,
+      breakTimeDuration: 0.5,
+      fullName: "Yolimar",
+    },
+    {
+      googleId: "5bdssa7lpq3fosesk1k1lhp1f0@group.calendar.google.com",
+      column: "ana",
+      title: "Ana",
+      index: 12,
+      breakTimeDuration: 0.5,
+      fullName: "Ana",
+      label: "Ana",
+    },
+    {
+      googleId:
+        "ea6a01c384cb50d68430b6e8a5881ee76e4373847025e1d296125a1e634a3f71@group.calendar.google.com",
+      column: "javi",
+      title: "Javi",
+      index: 13,
+      breakTimeDuration: 0.5,
+      fullName: "Javi",
+    },
+    {
+      googleId:
+        "ab7804d7e2bb7860c5ee361c32023dd0322aa46e74659d39e2f43fb5405132b7@group.calendar.google.com",
+      column: "virginia",
+      title: "Virginia",
+      index: 14,
+      breakTimeDuration: 0.25,
+      fullName: "Virginia",
+    },
+    {
+      googleId:
+        "ca57621721a3fa72e1c75082e57b1ccaff7821e0a8faffa74a79715360bfa509@group.calendar.google.com",
+      column: "julia",
+      title: "Yulia",
+      index: 15,
+      breakTimeDuration: 0.25,
+      fullName: "Yulia",
+    },
+  ])
 
-    // const pepe = await db.collection('users').find({ user: "portanueva" }).toArray()
-    // console.log(pepe)
-    // await Promise.all(pepe.map(async user => {
-    //     return db.collection('users').updateOne(
-    //         { _id: ObjectId(user._id) },
-    //         { $set: { newsletter: true } }
-    //     );
-    // }))
+  await db.collection("calendars").insertOne({
+    from: 1641078000000,
+    to: 1704063599999,
+    weeks: [
+      {
+        created: 1678639379771,
+        days: [
+          [],
+          [
+            { centerIndex: 0, workerIndex: 0, from: 9.5, to: 18, created: 1678641165022 },
+            { centerIndex: 0, workerIndex: 1, from: 10, to: 14, created: 1678641311305 },
+            { centerIndex: 0, workerIndex: 9, from: 12, to: 20, created: 1678641369850 },
+            { centerIndex: 0, workerIndex: 2, from: 12, to: 19.75, created: 1678641439119 },
+            { centerIndex: 0, workerIndex: 3, from: 12, to: 20, created: 1678641464702 },
+            { centerIndex: 0, workerIndex: 6, from: 12, to: 20, created: 1678641481295 },
+            { centerIndex: 0, workerIndex: 10, from: 9.5, to: 18, created: 1678641524556 },
+            { centerIndex: 0, workerIndex: 12, from: 9.5, to: 18, created: 1678641541243 },
+            { centerIndex: 0, workerIndex: 7, from: 9.5, to: 20, created: 1678641586404 },
+            { centerIndex: 2, workerIndex: 11, from: 10.5, to: 19, created: 1678641734842 },
+            { centerIndex: 2, workerIndex: 8, from: 10.5, to: 19, created: 1678641777056 },
+            { centerIndex: 2, workerIndex: 5, from: 10, to: 19, created: 1678641792215 },
+            { centerIndex: 3, workerIndex: 15, from: 10, to: 18, created: 1678641837622 },
+            { centerIndex: 3, workerIndex: 14, from: 12, to: 20, created: 1678641900990 },
+          ],
+          [
+            { centerIndex: 0, workerIndex: 0, from: 9.5, to: 18, created: 1678641166316 },
+            { centerIndex: 0, workerIndex: 1, from: 10, to: 14, created: 1678641313040 },
+            { centerIndex: 0, workerIndex: 9, from: 12, to: 20, created: 1678641373712 },
+            { centerIndex: 0, workerIndex: 2, from: 12, to: 19.75, created: 1678641440621 },
+            { centerIndex: 0, workerIndex: 3, from: 12, to: 20, created: 1678641466685 },
+            { centerIndex: 0, workerIndex: 6, from: 12, to: 20, created: 1678641483301 },
+            { centerIndex: 0, workerIndex: 10, from: 9.5, to: 18, created: 1678641526700 },
+            { centerIndex: 0, workerIndex: 12, from: 9.5, to: 18, created: 1678641543771 },
+            { centerIndex: 0, workerIndex: 7, from: 9.5, to: 20, created: 1678641587747 },
+            { centerIndex: 2, workerIndex: 11, from: 10.5, to: 19, created: 1678641765256 },
+            { centerIndex: 2, workerIndex: 8, from: 10.5, to: 19, created: 1678641779352 },
+            { centerIndex: 2, workerIndex: 5, from: 10, to: 19, created: 1678641794535 },
+            { centerIndex: 3, workerIndex: 15, from: 10, to: 18, created: 1678641839790 },
+            { centerIndex: 3, workerIndex: 14, from: 12, to: 20, created: 1678641903102 },
+          ],
+          [
+            { centerIndex: 0, workerIndex: 0, from: 9.5, to: 18, created: 1678641168139 },
+            { centerIndex: 0, workerIndex: 1, from: 10, to: 14, created: 1678641314584 },
+            { centerIndex: 0, workerIndex: 2, from: 12, to: 19.75, created: 1678641442317 },
+            { centerIndex: 0, workerIndex: 3, from: 12, to: 20, created: 1678641468958 },
+            { centerIndex: 0, workerIndex: 6, from: 12, to: 20, created: 1678641485237 },
+            { centerIndex: 0, workerIndex: 10, from: 9.5, to: 18, created: 1678641528764 },
+            { centerIndex: 0, workerIndex: 12, from: 9.5, to: 18, created: 1678641545780 },
+            { centerIndex: 0, workerIndex: 7, from: 9.5, to: 20, created: 1678641589355 },
+            { centerIndex: 0, workerIndex: 13, from: 16.5, to: 20, created: 1678641642514 },
+            { centerIndex: 2, workerIndex: 11, from: 10.5, to: 19, created: 1678641767639 },
+            { centerIndex: 2, workerIndex: 8, from: 10.5, to: 19, created: 1678641781760 },
+            { centerIndex: 2, workerIndex: 5, from: 10, to: 19, created: 1678641796456 },
+            { centerIndex: 3, workerIndex: 15, from: 10, to: 18, created: 1678641841767 },
+            { centerIndex: 3, workerIndex: 14, from: 12, to: 20, created: 1678641905638 },
+            { centerIndex: 3, workerIndex: 9, from: 12, to: 20, created: 1678641964844 },
+          ],
+          [
+            { centerIndex: 0, workerIndex: 0, from: 9.5, to: 18, created: 1678641170155 },
+            { centerIndex: 0, workerIndex: 1, from: 10, to: 14, created: 1678641316352 },
+            { centerIndex: 0, workerIndex: 2, from: 12, to: 19.75, created: 1678641444470 },
+            { centerIndex: 0, workerIndex: 3, from: 12, to: 20, created: 1678641470695 },
+            { centerIndex: 0, workerIndex: 6, from: 12, to: 20, created: 1678641487365 },
+            { centerIndex: 0, workerIndex: 10, from: 9.5, to: 18, created: 1678641531292 },
+            { centerIndex: 0, workerIndex: 12, from: 9.5, to: 18, created: 1678641548285 },
+            { centerIndex: 0, workerIndex: 7, from: 9.5, to: 20, created: 1678641590737 },
+            { centerIndex: 0, workerIndex: 13, from: 16.5, to: 20, created: 1678641644738 },
+            { centerIndex: 2, workerIndex: 11, from: 10.5, to: 19, created: 1678641769984 },
+            { centerIndex: 2, workerIndex: 8, from: 10.5, to: 19, created: 1678641783985 },
+            { centerIndex: 2, workerIndex: 5, from: 10, to: 19, created: 1678641798351 },
+            { centerIndex: 3, workerIndex: 15, from: 10, to: 18, created: 1678641844023 },
+            { centerIndex: 3, workerIndex: 14, from: 12, to: 20, created: 1678641907710 },
+            { centerIndex: 3, workerIndex: 9, from: 12, to: 20, created: 1678641967117 },
+          ],
+          [
+            { centerIndex: 0, workerIndex: 1, from: 10, to: 14, created: 1678641318408 },
+            { centerIndex: 0, workerIndex: 2, from: 12, to: 19.75, created: 1678641446989 },
+            { centerIndex: 0, workerIndex: 3, from: 12, to: 20, created: 1678641472613 },
+            { centerIndex: 0, workerIndex: 6, from: 12, to: 20, created: 1678641489477 },
+            { centerIndex: 0, workerIndex: 10, from: 9.5, to: 18, created: 1678641533092 },
+            { centerIndex: 0, workerIndex: 12, from: 9.5, to: 18, created: 1678641550593 },
+            { centerIndex: 0, workerIndex: 7, from: 9.5, to: 20, created: 1678641592546 },
+            { centerIndex: 0, workerIndex: 13, from: 16.5, to: 20, created: 1678641647418 },
+            { centerIndex: 2, workerIndex: 11, from: 10.5, to: 19, created: 1678641772089 },
+            { centerIndex: 2, workerIndex: 8, from: 10.5, to: 19, created: 1678641786561 },
+            { centerIndex: 2, workerIndex: 5, from: 10, to: 18, created: 1678641819583 },
+            { centerIndex: 3, workerIndex: 15, from: 10, to: 18, created: 1678641845775 },
+            { centerIndex: 3, workerIndex: 14, from: 12, to: 20, created: 1678641910221 },
+            { centerIndex: 3, workerIndex: 9, from: 12, to: 20, created: 1678641970966 },
+          ],
+          [],
+        ],
+      },
+      {
+        created: 1678642223893,
+        days: [
+          [],
+          [
+            { centerIndex: 3, workerIndex: 15, from: 12, to: 20, created: 1678642268426 },
+            { centerIndex: 3, workerIndex: 14, from: 10, to: 18, created: 1678642343496 },
+            { centerIndex: 2, workerIndex: 11, from: 10.5, to: 19, created: 1678642380656 },
+            { centerIndex: 2, workerIndex: 8, from: 10.5, to: 19, created: 1678642393559 },
+            { centerIndex: 2, workerIndex: 5, from: 10, to: 19, created: 1678642415063 },
+            { centerIndex: 0, workerIndex: 9, from: 9.5, to: 18, created: 1678642467760 },
+            { centerIndex: 0, workerIndex: 2, from: 9.5, to: 17.75, created: 1678642493147 },
+            { centerIndex: 0, workerIndex: 3, from: 9.5, to: 18, created: 1678642545175 },
+            { centerIndex: 0, workerIndex: 6, from: 9.5, to: 18, created: 1678642556040 },
+            { centerIndex: 0, workerIndex: 1, from: 16, to: 20, created: 1678642623532 },
+            { centerIndex: 0, workerIndex: 10, from: 12, to: 20, created: 1678642653198 },
+            { centerIndex: 0, workerIndex: 4, from: 12, to: 20, created: 1678642695616 },
+            { centerIndex: 0, workerIndex: 12, from: 12, to: 20, created: 1678642724474 },
+            { centerIndex: 0, workerIndex: 0, from: 9.5, to: 18, created: 1678642743226 },
+          ],
+          [
+            { centerIndex: 3, workerIndex: 15, from: 12, to: 20, created: 1678642270729 },
+            { centerIndex: 3, workerIndex: 14, from: 10, to: 18, created: 1678642345624 },
+            { centerIndex: 2, workerIndex: 11, from: 10.5, to: 19, created: 1678642382865 },
+            { centerIndex: 2, workerIndex: 8, from: 10.5, to: 19, created: 1678642395880 },
+            { centerIndex: 2, workerIndex: 5, from: 10, to: 19, created: 1678642417983 },
+            { centerIndex: 0, workerIndex: 9, from: 9.5, to: 18, created: 1678642469713 },
+            { centerIndex: 0, workerIndex: 2, from: 9.5, to: 17.75, created: 1678642496531 },
+            { centerIndex: 0, workerIndex: 3, from: 9.5, to: 18, created: 1678642546631 },
+            { centerIndex: 0, workerIndex: 6, from: 9.5, to: 18, created: 1678642557520 },
+            { centerIndex: 0, workerIndex: 1, from: 16, to: 20, created: 1678642624884 },
+            { centerIndex: 0, workerIndex: 10, from: 12, to: 20, created: 1678642655654 },
+            { centerIndex: 0, workerIndex: 4, from: 12, to: 20, created: 1678642700648 },
+            { centerIndex: 0, workerIndex: 12, from: 12, to: 20, created: 1678642726762 },
+            { centerIndex: 0, workerIndex: 0, from: 9.5, to: 18, created: 1678642745227 },
+          ],
+          [
+            { centerIndex: 3, workerIndex: 15, from: 12, to: 20, created: 1678642272905 },
+            { centerIndex: 3, workerIndex: 9, from: 10, to: 18, created: 1678642334312 },
+            { centerIndex: 3, workerIndex: 14, from: 10, to: 18, created: 1678642347696 },
+            { centerIndex: 2, workerIndex: 11, from: 10.5, to: 19, created: 1678642385007 },
+            { centerIndex: 2, workerIndex: 8, from: 10.5, to: 19, created: 1678642398167 },
+            { centerIndex: 2, workerIndex: 5, from: 10, to: 19, created: 1678642419568 },
+            { centerIndex: 0, workerIndex: 2, from: 9.5, to: 17.75, created: 1678642504004 },
+            { centerIndex: 0, workerIndex: 3, from: 9.5, to: 18, created: 1678642548775 },
+            { centerIndex: 0, workerIndex: 6, from: 9.5, to: 18, created: 1678642559160 },
+            { centerIndex: 0, workerIndex: 1, from: 16, to: 20, created: 1678642626316 },
+            { centerIndex: 0, workerIndex: 10, from: 12, to: 20, created: 1678642656815 },
+            { centerIndex: 0, workerIndex: 4, from: 12, to: 20, created: 1678642703110 },
+            { centerIndex: 0, workerIndex: 12, from: 12, to: 20, created: 1678642728930 },
+            { centerIndex: 0, workerIndex: 0, from: 9.5, to: 18, created: 1678642747570 },
+            { centerIndex: 0, workerIndex: 13, from: 16.5, to: 20, created: 1678642774020 },
+          ],
+          [
+            { centerIndex: 3, workerIndex: 15, from: 12, to: 20, created: 1678642274841 },
+            { centerIndex: 3, workerIndex: 9, from: 10, to: 18, created: 1678642336408 },
+            { centerIndex: 3, workerIndex: 14, from: 10, to: 18, created: 1678642349848 },
+            { centerIndex: 2, workerIndex: 11, from: 10.5, to: 19, created: 1678642386975 },
+            { centerIndex: 2, workerIndex: 8, from: 10.5, to: 19, created: 1678642400696 },
+            { centerIndex: 2, workerIndex: 5, from: 10, to: 19, created: 1678642421439 },
+            { centerIndex: 0, workerIndex: 2, from: 9.5, to: 17.75, created: 1678642506324 },
+            { centerIndex: 0, workerIndex: 3, from: 9.5, to: 18, created: 1678642550167 },
+            { centerIndex: 0, workerIndex: 6, from: 9.5, to: 18, created: 1678642560768 },
+            { centerIndex: 0, workerIndex: 1, from: 16, to: 20, created: 1678642628068 },
+            { centerIndex: 0, workerIndex: 10, from: 12, to: 20, created: 1678642659295 },
+            { centerIndex: 0, workerIndex: 4, from: 12, to: 20, created: 1678642705232 },
+            { centerIndex: 0, workerIndex: 12, from: 12, to: 20, created: 1678642731177 },
+            { centerIndex: 0, workerIndex: 0, from: 9.5, to: 18, created: 1678642749435 },
+            { centerIndex: 0, workerIndex: 13, from: 16.5, to: 20, created: 1678642771972 },
+          ],
+          [
+            { centerIndex: 3, workerIndex: 15, from: 12, to: 20, created: 1678642276881 },
+            { centerIndex: 3, workerIndex: 9, from: 10, to: 18, created: 1678642339522 },
+            { centerIndex: 3, workerIndex: 14, from: 10, to: 18, created: 1678642351728 },
+            { centerIndex: 2, workerIndex: 11, from: 10.5, to: 19, created: 1678642389232 },
+            { centerIndex: 2, workerIndex: 8, from: 10.5, to: 19, created: 1678642403976 },
+            { centerIndex: 2, workerIndex: 5, from: 10, to: 18, created: 1678642447865 },
+            { centerIndex: 0, workerIndex: 2, from: 9.5, to: 17.75, created: 1678642508350 },
+            { centerIndex: 0, workerIndex: 3, from: 9.5, to: 18, created: 1678642551732 },
+            { centerIndex: 0, workerIndex: 6, from: 9.5, to: 18, created: 1678642562632 },
+            { centerIndex: 0, workerIndex: 1, from: 16, to: 20, created: 1678642629948 },
+            { centerIndex: 0, workerIndex: 10, from: 12, to: 20, created: 1678642660615 },
+            { centerIndex: 0, workerIndex: 4, from: 12, to: 20, created: 1678642707465 },
+            { centerIndex: 0, workerIndex: 12, from: 12, to: 20, created: 1678642733370 },
+            { centerIndex: 0, workerIndex: 13, from: 16.5, to: 20, created: 1678642770116 },
+          ],
+          [],
+        ],
+      },
+    ],
+  })
 
-
-    // await db.collection('users').updateOne(
-    //         { _email: "carmengr88@hotmail.com" },
-    //         { $set: { activationCode: "", hash: "", email: "carmengr88_@hotmail.com", _email: "", deleted:false } }
-    // );
-    // LOGOUT ONE USER
-    // const items = (await db.collection('sessions').find({ session: { $regex: "irina.kiryiak@gmail.com" } }).toArray());
-    // await Promise.all(items.map(item => db.collection('sessions').deleteOne({ _id: item._id, })));
-    // console.warn(`${items.length} SESSIONS REMOVED`)
-
-//     await db.collection('users').updateOne(
-//             { _id: ObjectId("5bb1feceaccfa5001f6ee590") },
-//             { $set: { activationCode: "", hash: "", email: "elo@assur.es" } }
-//     );
-//    const pepe = await db.collection('users').find({ _id: ObjectId("5bb1feceaccfa5001f6ee590")}).toArray()
-//     console.log(pepe[0])
-
-    // CHANGE CALENDAR DATE
-    // const date = new Date(2022, 2, 27);
-    // const until = new Date(2022, 9, 30);
-    // while (date.getTime() < until.getTime()) {
-    //     console.warn('PROCESSING DATE:', date);
-    //     await newHours.workers
-    //         .filter(({ column }) => column !== 'wendy')
-    //         .reduce(async (prev, { googleId, column }) => {
-    //             await prev;
-    //             await google
-    //                 .calendarGet(googleId, date)
-    //                 .then(async (response) => {
-    //                     for (let index = 0; index < response.items.length; index++) {
-    //                         const { start, end, id, summary, location, description, extendedProperties } = response.items[index];
-    //                         const startDate = new Date(start.dateTime);
-    //                         const endDate = new Date(end.dateTime);
-    //                         startDate.setTime(startDate.getTime() - 1 * 60 * 60 * 1000);
-    //                         endDate.setTime(endDate.getTime() - 1 * 60 * 60 * 1000);
-    //                         console.log(start, location, summary)
-    //                     //     if (extendedProperties.private.fixedHour) {
-    //                     //         console.warn('SKIPPED AS IT WAS PARSED BEFORE');
-    //                     //         return Promise.resolve();
-    //                     //     } else {
-    //                     //         // console.warn('CHANGING HOUR', column, response.items[index])
-    //                     //     }
-    //                     //     extendedProperties.private.fixedHour = true;
-    //                         await google.calendarUpdateTime({
-    //                             id: googleId,
-    //                             from: startDate,
-    //                             to: endDate,
-    //                             eventId: id,
-    //                             summary,
-    //                             location,
-    //                             description,
-    //                             extendedProperties
-    //                         }).catch(err => {
-    //                             console.warn(err);
-    //                             // process.exit();
-    //                         });
-    //                     }
-    //                 });
-    //         }, Promise.resolve());
-    //     date.setTime(date.getTime() + oneDayMilliseconds);
-    // }
-
-
-    // LOGOUT ALL ADMIN USERS
-    // const items = (await db.collection('sessions').find({ session: { $regex: '"isAdmin":true' } }).toArray())
-    // await Promise.all(items.map(item => db.collection('sessions').deleteOne({ _id: item._id, })));
-    // console.warn(`${items.length} SESSIONS REMOVED`)
-
-    // db.collection('centers').insertOne({
-    //     id: 'salitre',
-    //     name: 'In&Out Calle Salitre',
-    //     billRef: '14',
-    //     lastBillNumber: 15721,
-    //     'color': '#cdfaff',
-    //     'index': 0,
-    //     'label': 'SALITRE',
-    //     'address': 'CALLE SALITRE, 11 - MÁLAGA',
-    //     'tel': '951 131 460',
-    //     'mobile': '633 90 91 03',
-    //     closed: false
-    // });
-    // db.collection('centers').insertOne({
-    //     id: 'compania',
-    //     name: 'In&Out Calle Compañia',
-    //     billRef: '15',
-    //     lastBillNumber: 2006,
-    //     'color': '#cdffd6',
-    //     'index': 1,
-    //     'label': 'COMPAÑIA',
-    //     'address': 'CALLE COMPANIA, 42 - MÁLAGA',
-    //     'tel': '951 387 919',
-    //     'mobile': '695 685 291',
-    //     closed: true
-    // });
-    // db.collection('centers').insertOne({
-    //     id: 'buenaventura',
-    //     name: 'In&Out Calle Buenaventura',
-    //     billRef: '16',
-    //     lastBillNumber: 2137,
-    //     'color': '#ffcdcd',
-    //     'index': 2,
-    //     'label': 'BUENAVENTURA',
-    //     'address': 'CALLE PUERTA DE BUENAVENTURA, 4 - MÁLAGA',
-    //     'tel': '951 387 919',
-    //     'mobile': '695 685 291',
-    //     closed: false
-    // });
-    // db.collection('centers').insertOne({
-    //     id: 'online',
-    //     name: 'In&Out Tienda Online',
-    //     billRef: '17',
-    //     lastBillNumber: 206,
-    //     'color': '#cdfaff',
-    //     'index': 3,
-    //     'label': 'ONLINE',
-    //     'address': '',
-    //     'tel': '',
-    //     'mobile': '',
-    //     closed: false
-    // });
-
-    /** DUPLICATE PHONE */
-    // const list = [];
-    // db.collection('users').aggregate(
-    //     { '$group': { '_id': '$tel', 'count': { '$sum': 1 } } },
-    //     { '$match': { '_id': { '$ne': null }, 'count': { '$gt': 1 } } },
-    //     { '$project': { 'tel': '$_id', '_id': 0 } }
-    // ).forEach(async function (doc) {
-    //     db.collection('users').find({tel: doc._id}).toArray(function (e, docs) {
-    //         list.push(docs)
-    //     })
-    // });
-    // setTimeout(function () {
-    //     fs.writeFileSync('./scripts/temp.json', JSON.stringify(list));
-    //     console.log('finish');
-    // }, 5000);
-
-    /** LOWERCASE EMAILS */
-    // db.collection('users').find( {}, { 'email': 1 } ).forEach(function(doc) {
-    //     db.collection('users').update(
-    //         { _id: doc._id},
-    //         { $set : { 'email' : doc.email.toLowerCase() } }
-    //     );
-    //     console.log(doc.email)
-    // });
-
-    // /** MERGE CLIENTS */
-    // const oldClient = '5aef7fcbf28e19001f9f19dd';
-    // const newClient = '5b196493b0e50e001f5afa6b';
-    // db.collection('bonus').find({ clientId: ObjectId(oldClient) }).forEach(function (doc) {
-    //     db.collection('bonus').update(
-    //         { _id: doc._id },
-    //         { $set: { clientId: ObjectId(newClient) } }
-    //     );
-    //     console.log(doc);
-    // });
-    // db.collection('cash').find({ clientId: ObjectId(oldClient) }).forEach(function (doc) {
-    //     db.collection('cash').update(
-    //         { _id: doc._id },
-    //         { $set: { clientId: ObjectId(newClient) } }
-    //     );
-    //     console.log(doc);
-    // });
-    //
-    // /** missing merging emails */
-    // db.collection('users').find({ _id: ObjectId(oldClient) }).forEach(function (doc) {
-    //     db.collection('users').updateOne(
-    //         { _id: ObjectId(newClient) },
-    //         {
-    //             $set: {
-    //                 fb_id: doc.fb_id,
-    //                 fb_cardId: doc.fb_cardId
-    //             }
-    //         }
-    //     );
-    //     console.log(doc);
-    // });
-
-    /** CSV OF NO ACTIVE USERS */
-    // db.collection('users').find({ active: false }).toArray(function (err, users) {
-    //     if (err) return console.log('error');
-    //     fs.writeFileSync('./scripts/temp.csv', users.map(doc => `${doc.name},${doc.email},${doc.tel}`).join('\n'));
-    //     console.log('finish');
-    // });
-
-    /** mark bills as deducted from IVA **/
-    // const bills = await db.collection('bills').find().toArray();
-    // await promiseSerial(bills.map(bill => function () {
-    //     return new Promise(resolve => {
-    //         db.collection('bills').updateOne(
-    //             { _id: ObjectId(bill._id) },
-    //             { $set: { deducted: true } }
-    //             , resolve);
-    //     });
-    // }));
-
-    /** save cash billNumber */
-    // const from = new Date('2022-10-01:00:00');
-    // const to = new Date('2022-12-31:23:00');
-    // const { report } = await CashSummary(db, google, {
-    //     from: from.getTime(),
-    //     to: to.getTime(),
-    //     maxCashAmount: 12020,
-    //     saveBillNumbers: true
-    // });
-
-    // SAVE BILL NUMBERS:
-    // await db.collection('centers').updateOne(
-    //     { _id: ObjectId('5da2057be28a5ade820818b5')}, // SALITRE
-    //     { $set : { 'lastBillNumber' : 38646 } }
-    // );
-    // await db.collection('centers').updateOne(
-    //     { _id: ObjectId('5da2057ce28a5ade820818b7')}, // BUENAVENTURA
-    //     { $set : { 'lastBillNumber' : 11881 } }
-    // );
-    // await db.collection('centers').updateOne(
-    //     { _id: ObjectId('5da2057ce28a5ade820818b8')}, // ONLINE
-    //     { $set : { 'lastBillNumber' : 1983 } }
-    // );
-
-    // orders not used - TOTAL AMOUNT
-    // const items = (await db.collection('orders').find().toArray());
-    // let total = 0;
-    // items.forEach(order => {
-    //     const hasNoItemUsed = order.cart.filter(item => item.used === true).length === 0;
-    //     if (order.payed && hasNoItemUsed) {
-    //         total += order.amount / 100
-    //         console.log(order)
-    //     }
-    // })
-    // console.log('TOTAL: €', total.toFixed(2))
-    
-    // get cash between dates
-    // const list = await (await db.collection('cash').find({ date: { $gt: 1664180192398 }, user: 'null' }).toArray())
-    // await Promise.all(list.map(function (doc) {
-    //     return db.collection('cash').updateOne(
-    //         { _id: doc._id },
-    //         { $set: { user: 'salitre' } }
-    //     );
-    // }))
-
-
-    // GET CASH WITH NULL USER
-    // const list = await (await db.collection('cash').find({ date: { $gt: 1654041600000 }, user: 'null' }).toArray())
-    // console.log(list.length)
-
-    // db.collection('bonus').find({ clientId: ObjectId(oldClient) }).forEach(function (doc) {
-    //     db.collection('bonus').update(
-    //         { _id: doc._id },
-    //         { $set: { clientId: ObjectId(newClient) } }
-    //     );
-    //     console.log(doc);
-    // });
-    
-
-    // GET CASH WITH billNumber
-    // const list = await (await db.collection('cash').find({ billNumber: "14034164" }).toArray())
-    // console.log(list)
-
-    // const list = await (await db.collection('cash').find().toArray())
-    // console.log(list[10000])
-    
-
-    // ******************* SCRIPTS FOR NEW ADMIN ****************
-
-    // POINT 0 LOGOUT ALL ADMIN USERS - DONE
-    // const list = (await db.collection('sessions').find({ session: { $regex: '"isAdmin":true' } }).toArray())
-    // await Promise.all(list.map(item => db.collection('sessions').deleteOne({ _id: item._id, })));
-
-    // POINT 1 lowercase all users emails - DONE
-    // const list = await (await db.collection('users').find({}).toArray())
-    // await promiseSerial(list.map(user => async function () {
-    //     await db.collection('users').updateOne({ _id: ObjectId(user._id) }, { $set: { email: user.email.toLowerCase() }});
-    // }));
-    
-    // POINT 2. lowercase all orders emails - DONE
-    // const list = await (await db.collection('orders').find({}).toArray())
-    // await promiseSerial(list.map(order => async function () {
-    //     await db.collection('orders').updateOne({ _id: ObjectId(order._id) }, { $set: { email: order.email.toLowerCase() }});
-    // }));
-    
-    // POINT 3. update wrong orders userId - DONE
-    // const list = await (await db.collection('orders').find({}).toArray())
-    // const [order] = list.filter(i => i.userId === "salitre")
-    // if (order) await db.collection('orders').updateOne({ _id: ObjectId(order._id) }, { $set: { userId: null }});
-    
-    // POINT 4. update wrong orders userId - DONE
-    // const list = await (await db.collection('orders').find({}).toArray())
-    // await promiseSerial(list.map(order => async function () {
-    //     if (!order.userId) return
-    //     const [user] = await db.collection('users').find({ _id: ObjectId(order.userId) }).toArray()
-    //     if (!user) {
-    //         const [emailUser] = await db.collection('users').find({ email: order.email }).toArray()
-    //         await db.collection('orders').updateOne({ _id: ObjectId(order._id) }, { $set: { userId: emailUser._id }});
-    //     }
-    // }));
-    
-    // POINT 5. add a number date (timestamp) for all orders (for filtering on the admin app cash summary) - DONE
-    // const list = await (await db.collection('orders').find({}).toArray())
-    // await promiseSerial(list.map(order => async function () {
-    //     const timestamp = new Date(order.created).getTime()
-    //     await db.collection('orders').updateOne({ _id: ObjectId(order._id) }, { $set: { timestamp }});
-    // }));
-    
-    // POINT 6. Create a client for each order user that do not have it - DONE
-    // const list = await (await db.collection('orders').find({}).toArray())
-    // await promiseSerial(list.map(order => async function () {
-    //     if (!order.payed) return
-    //     if (order.userId) {
-    //         const [userFromId] = await db.collection('users').find({ _id: ObjectId(order.userId) }).toArray()
-    //         if (userFromId) return
-    //     }
-    //     const [userFromEmail] = await db.collection('users').find({ email: order.email }).toArray()
-    //     if (userFromEmail) {
-    //         await db.collection('orders').updateOne({ _id: ObjectId(order._id) }, { $set: { userId: userFromEmail._id }});
-    //     } else {
-    //         const password = (Math.floor(100000 + Math.random() * 900000)).toString();
-    //         const [name = ""] = order.email.split("@")
-    //         const user = {
-    //             created: order.timestamp,
-    //             hash: bcrypt.hashSync(password, 10),
-    //             surname: "",
-    //             activationCode: bcrypt.hashSync(password, 4),
-    //             name,
-    //             tel: "",
-    //             privacy: true,
-    //             newsletter: false,
-    //             email: order.email.toLowerCase(),
-    //             active: true,
-    //             lang: "es",
-    //             user: "online",
-    //         }
-    //         await db.collection('users').insertOne(user);
-    //         const [newUser] = await db.collection('users').find({ email: user.email }).toArray()
-    //         await db.collection('orders').updateOne({ _id: ObjectId(order._id) }, { $set: { userId: newUser._id }});
-    //     }
-    // }));
-
-    // POINT 7. add a cash "online" input in the cash table for each online order and add his relative bill-number with the clientId - DONE
-    // const endOf2022Timestamp = new Date("2022-12-31T23:59:59").getTime()
-    // const list = await (await db.collection('orders').find({}).toArray())
-    // function padLeft(string, size, char) {
-    //     if (size === 0) return '';
-    //     return (Array(size + 1).join(char) + string).slice(-size);
-    // }
-    // await promiseSerial(list
-    //     .filter(order => order.payed)
-    //     .filter((_, index) => index > 236) // for having corrent bill numbers 2023
-    //     .map((order, index) => async function () {
-    //         const [user] = await db.collection('users').find({ _id: ObjectId(order.userId) }).toArray()
-    //         const billNumber = `17${padLeft((index + 1).toString(), 6, '0')}`
-    //         if (!user) {
-    //             console.log("SHOULD NOT HAPPEN!", order.email, order.userId)
-    //         } else if (order.timestamp < endOf2022Timestamp) {
-    //             const cash = {
-    //                 clientId: order.userId,
-    //                 date: order.timestamp,
-    //                 description: 'Compra online',
-    //                 type: 'stripe',
-    //                 user: 'online',
-    //                 amount: order.amount / 100,
-    //                 orderId: order._id,
-    //                 billNumber,
-    //             }
-    //             await db.collection('cash').insertOne(cash);
-    //         } else {
-    //             const cash = {
-    //                 clientId: order.userId,
-    //                 date: order.timestamp,
-    //                 description: 'Compra online',
-    //                 type: 'stripe',
-    //                 user: 'online',
-    //                 amount: order.amount / 100,
-    //                 orderId: order._id,
-    //             }
-    //             await db.collection('cash').insertOne(cash);
-    //         }
-    // }));
-    
-    // POINT 8. convert client emails fields to "communications" table - DONE
-    // const list = (await (await db.collection('users').find({}).toArray()))
-    //     .filter(item => item.emails)
-    // await promiseSerial(list.map(user => async () => {
-    //     await promiseSerial(user.emails.map(email => async () => {
-    //         const com = {
-    //             type: "email",
-    //             action: "googleReview",
-    //             data: { name: user.name, email: user.email, centerIndex: email.centerIndex },
-    //             clientId: user._id,
-    //             date: new Date(email.sent).getTime(),
-    //             sent: true
-    //         }
-    //         await db.collection('communications').insertOne(com);
-    //         await db.collection('users').updateOne({ _id: ObjectId(user._id) }, { $unset: { emails: "" } });
-    //     }));
-    // }));
-
-    // POINT 9. convert the itemKey in cash to cart - DONE
-    // const list = (await (await db.collection('cash').find({ itemKey: { $exists: true } }).toArray()))
-    // await promiseSerial(list.map(cash => async () => {
-    //     await db.collection('cash').updateOne({ _id: ObjectId(cash._id) }, { $set: { cart: [cash.itemKey] } });
-    //     await db.collection('cash').updateOne({ _id: ObjectId(cash._id) }, { $unset: { itemKey: "" } });
-    // }));
-        
-    // POINT 10: add cart to all cash - DONE
-    // const list = (await (await db.collection('cash').find({ cart: { $exists: false } }).toArray()))
-    // await db.collection('cash').updateMany(
-    //     { cart: { $exists: false } },
-    //     { $set: { cart: [] } }
-    // )
-        
-    // POINT 11: Update null cash dates
-    // const list = (await (await db.collection('cash').find({  }).toArray()))
-    // const nullDateCash = list.filter(item => Number(item.date) !== item.date)
-    // await promiseSerial(nullDateCash.map(cash => async () => {
-    //     await db.collection('cash').updateOne({ _id: ObjectId(cash._id) }, { $set: { date: 1499086800000 } });
-    // }));
-
-    // POINT 12: remove user null in cash
-    // const list = (await (await db.collection('cash').find({  }).toArray())).filter(item => !item.user)
-    // await promiseSerial(list.map(cash => async () => {
-    //     await db.collection('cash').updateOne({ _id: ObjectId(cash._id) }, { $set: { user: "salitre" } });
-    // }));
-    
-    // POINT 13: remove user "null" in cash
-    // const list = (await (await db.collection('cash').find({  }).toArray())).filter(item => item.user === "null")
-    // await promiseSerial(list.map(cash => async () => {
-    //     console.log("TEST BEFORE RUNNING!")
-    //     await db.collection('cash').updateOne({ _id: ObjectId(cash._id) }, { $set: { user: "salitre" } });
-    // }));
-    
-    // const list = (await (await db.collection('cash').find({ user: "online" }).toArray()))
-    // console.log("FINISH", list[list.length -1])
-
-    // const list = (await db.collection('cash').aggregate([
-    //         { $match: { billNumber: { $exists: true, $ne : "", $regex : /^14/ } } },
-    //         { $addFields: { num: { $add : ["$billNumber", 0] } } },
-    //         { $sort: { num: -1 } },
-    //     ]).toArray())
-
-    const list = (await db.collection('cash').aggregate([
-        { $match: { billNumber: { $exists: true, $gte: 17000000, $lte: 17999999  } } },
-        { $sort: { billNumber: -1 } },
-    ]).toArray())
-    
-    console.log("FINISH", list[0])
-    
-    process.exit();
-});
+  process.exit()
+})

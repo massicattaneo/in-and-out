@@ -1,3 +1,3 @@
-const clientVersion = "1.0.6"
+const clientVersion = "1.1.1"
 
 module.exports = { clientVersion }

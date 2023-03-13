@@ -8,6 +8,8 @@ web-app-deploy/excel/*
 web-app-deploy/extras/*
 web-app-deploy/order-qr-codes/*.png
 web-app-deploy/temp/*.ics
+web-app-deploy/backup-db
+web-app-deploy/backup-db-zip
 backup/fb2b86b1ef42eee47e65ce27fc320948/
 backup_13-10-2019
 scripts/*.csv
